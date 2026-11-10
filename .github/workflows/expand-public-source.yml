@@ -57,7 +57,7 @@ jobs:
           if actual != expected:
               raise SystemExit(f'Archive SHA-256 mismatch: expected {expected}, got {actual}')
           archive.with_name(archive.name + '.sha256').write_text(
-              f'{actual}  {archive.name}\\n', encoding='ascii')
+              f'{actual}  {archive.name}\n', encoding='ascii')
           print(f'Archive verified: {len(payload)} bytes; SHA-256 {actual}')
           PY
 
