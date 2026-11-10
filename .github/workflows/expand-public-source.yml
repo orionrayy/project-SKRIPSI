@@ -1,0 +1,142 @@
+name: Expand sanitized public source snapshot
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.source-upload/READY'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: project-skripsi-source-expansion-main
+  cancel-in-progress: false
+
+jobs:
+  expand:
+    if: ${{ contains(github.event.head_commit.message, '[bootstrap]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout bootstrap snapshot
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Reconstruct and verify immutable archive
+        shell: bash
+        run: |
+          python - <<'PY'
+          import base64
+          import hashlib
+          from pathlib import Path
+          transfer = Path('.source-upload')
+          archive = Path('dist/project-SKRIPSI-public-source-v0.8.0-expanded.tar.xz')
+          archive.parent.mkdir(parents=True, exist_ok=True)
+          if not archive.exists():
+              if not (transfer / 'READY').is_file():
+                  raise SystemExit('Missing publication sentinel')
+              parts = sorted(transfer.glob('part-*.b64'))
+              if not parts:
+                  raise SystemExit('No archive fragments found')
+              encoded = ''.join(p.read_text(encoding='ascii').strip() for p in parts)
+              payload = base64.b64decode(encoded, validate=True)
+              expected = (transfer / 'SHA256').read_text(encoding='ascii').split()[0]
+              actual = hashlib.sha256(payload).hexdigest()
+              if actual != expected:
+                  raise SystemExit(f'SHA-256 mismatch: expected {expected}, got {actual}')
+              archive.write_bytes(payload)
+          payload = archive.read_bytes()
+          expected = (transfer / 'SHA256').read_text(encoding='ascii').split()[0]
+          actual = hashlib.sha256(payload).hexdigest()
+          if actual != expected:
+              raise SystemExit(f'Archive SHA-256 mismatch: expected {expected}, got {actual}')
+          archive.with_name(archive.name + '.sha256').write_text(
+              f'{actual}  {archive.name}\\n', encoding='ascii')
+          print(f'Archive verified: {len(payload)} bytes; SHA-256 {actual}')
+          PY
+
+      - name: Expand only regular, safe, manifest-allowlisted archive members
+        run: |
+          python - <<'PY'
+          import tarfile
+          from pathlib import Path, PurePosixPath
+          archive = Path('dist/project-SKRIPSI-public-source-v0.8.0-expanded.tar.xz')
+          with tarfile.open(archive, 'r:xz') as bundle:
+              members = bundle.getmembers()
+              expected_count = 131
+              if len(members) != expected_count:
+                  raise SystemExit(f'Unexpected archive member count: {len(members)} (expected {expected_count})')
+              names = [member.name for member in members]
+              if len(names) != len(set(names)):
+                  raise SystemExit('Duplicate archive paths detected')
+              manifest_member = bundle.getmember('MANIFEST.sha256')
+              manifest_stream = bundle.extractfile(manifest_member)
+              if manifest_stream is None:
+                  raise SystemExit('MANIFEST.sha256 is not a readable regular file')
+              manifested = set()
+              for number, raw_line in enumerate(manifest_stream.read().decode('utf-8').splitlines(), start=1):
+                  if '  ' not in raw_line:
+                      raise SystemExit(f'Malformed manifest row: {number}')
+                  digest, relative = raw_line.split('  ', 1)
+                  path = PurePosixPath(relative)
+                  if len(digest) != 64 or any(c not in '0123456789abcdef' for c in digest):
+                      raise SystemExit(f'Invalid SHA-256 in manifest row: {number}')
+                  if not relative or path.is_absolute() or '..' in path.parts or '\\\\' in relative:
+                      raise SystemExit(f'Unsafe manifest path: {relative!r}')
+                  if relative in manifested or relative == 'MANIFEST.sha256':
+                      raise SystemExit(f'Duplicate or self-referential manifest path: {relative!r}')
+                  manifested.add(relative)
+              expected_names = manifested | {'MANIFEST.sha256'}
+              if set(names) != expected_names:
+                  missing = sorted(expected_names - set(names))
+                  extra = sorted(set(names) - expected_names)
+                  raise SystemExit(f'Archive/manifest mismatch; missing={missing}, extra={extra}')
+              for member in members:
+                  path = PurePosixPath(member.name)
+                  if path.is_absolute() or '..' in path.parts or '\\\\' in member.name:
+                      raise SystemExit(f'Unsafe archive path: {member.name!r}')
+                  if not member.isfile():
+                      raise SystemExit(f'Non-regular archive member rejected: {member.name!r}')
+                  if '__pycache__' in path.parts or path.suffix.lower() in {'.pyc', '.pyo', '.pdf', '.docx', '.sqlite', '.sqlite3', '.db'}:
+                      raise SystemExit(f'Private/generated artifact rejected: {member.name!r}')
+              bundle.extractall(path=Path.cwd(), members=members, filter='data')
+          print(f'Expanded {len(members) - 1} manifest-allowlisted source files plus MANIFEST.sha256')
+          PY
+
+      - name: Install test dependencies and document renderer
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install 'python-docx>=1.1' 'PyMuPDF>=1.24' 'jsonschema>=4.22'
+          sudo apt-get update
+          sudo apt-get install -y libreoffice
+
+      - name: Validate complete source tree
+        env:
+          PYTHONPATH: src
+        run: |
+          python scripts/verify_manifest.py
+          python scripts/validate_phase_ledger.py
+          python -m compileall -q src scripts tests
+          python -m unittest discover -s tests -v
+          python -m pip install --no-deps -e .
+          project-skripsi --help
+
+      - name: Remove transport fragments and commit expanded tree
+        shell: bash
+        run: |
+          rm -rf .source-upload
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if git diff --cached --quiet; then
+            echo 'No tree changes to commit.'
+          else
+            git commit -m 'chore: expand complete sanitized Project-SKRIPSI source tree'
+            git push origin HEAD:main
+          fi
