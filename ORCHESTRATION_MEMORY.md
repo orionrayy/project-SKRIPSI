@@ -32,7 +32,7 @@ Platform development progressed through local engineering checkpoints v0.5.0–v
 - Empirical consistency gates for instrument constructs, paired tests, ICC and causal interpretation.
 - Local-only Turnitin report metadata and report-comparison QA; no thesis body text storage or detector evasion.
 
-Recorded local engineering validation: 197/197 regression tests, 29/29 JSON Schemas (Draft 2020-12), compileall, phase-ledger validator and CLI smoke tests passed. GitHub Actions CI must be verified from an actual workflow run before making a remote CI claim.
+Recorded local engineering validation: 200/200 unit/regression tests, 29/29 JSON Schemas (Draft 2020-12), compileall, phase-ledger validator and CLI smoke tests passed. GitHub Actions CI must be verified from an actual workflow run before making a remote CI claim.
 
 ## 4. Public/private separation
 
@@ -42,16 +42,36 @@ Private-only material: P1/P2 datasets, evidence/source registers, abstract text,
 
 The repo must remain free of raw participant-level or private source material. Public availability does not grant rights to third-party source content; no software license is declared unless a separate approved license is added.
 
-## 5. Repository activation checkpoint
+## 5. Repository activation and publication checkpoint
 
-On 2026-11-10 the project owner instructed that the previously empty public repository be populated. The first repository content commit created the public README on `main`: `c51b223fcd4803006afbba9d68e891216b83ce0a` (verified from GitHub). The complete sanitized source bundle and aggregate public reports are prepared for expanded publication. The repository remains public; visibility and settings were not changed. No force push, branch rewrite, release or deployment was performed. The expanded source tree will be verified against its manifest after the publication workflow completes.
+The first repository content commit created the public README on `main`: `c51b223fcd4803006afbba9d68e891216b83ce0a`. On 2026-11-11, the sanitized source publication completed through the one-shot GitHub Actions expansion workflow:
 
-## 6. Repository publication contents
+- Bootstrap commit: `ce24e8a4051658de4412aded3ca43602d8fbc750`.
+- Expansion workflow run #2: **SUCCESS**, run ID `43002256443`, completed at 2026-11-11 17:17:49 WIB.
+- GitHub Actions expansion commit on `main`: `a667940306d57d83032ad973985c504fb7774a30`.
+- Expanded tree: `a8f3c08429582d2ff62e912a5f73fb191cd65503`; recursive tree read was not truncated.
+- Remote tree inventory: **133 file blobs and 49 directories**. It contains **130 manifest-allowlisted source files**, `MANIFEST.sha256`, the distribution TAR.XZ archive, and its SHA-256 sidecar.
+- Archive: 169,800 bytes; SHA-256 `bcade06f387de89a1c93dd468ff8ff4baf474c4f8976284e2091a1bce6ef805f`. Its Git blob SHA `311cd93a46715a3c61a1e9cbb6c2e6a3164af644` matches the locally verified archive bytes.
+- Repository metadata at verification: public, active, default branch `main`, one branch, reported size 612 KB.
 
-The intended expanded public tree comprises the complete reusable platform source, JSON Schemas, synthetic regression suite, CLI, documentation, project/workspace templates, generic P0–P9 governance snapshot, aggregate-only P0/P1/P2 reports, source manifest, and the deterministic sanitized distribution ZIP. The public content allowlist is recorded in `docs/platform/PUBLIC_REPOSITORY_PUBLICATION.md`. The archive is not a substitute for direct expanded files; both should be present on `main`.
+The expansion job's reconstruction/checksum, safe extraction, dependency/renderer installation, complete source validation, and transport-fragment removal/commit steps all completed successfully. The source-validation step runs the manifest verifier, phase-ledger validator, Python compileall, 200-test unit/regression suite, editable package installation without dependency changes, and CLI help smoke test.
 
-The remote first commit currently verified is `c51b223fcd4803006afbba9d68e891216b83ce0a`. Do not claim the complete source is published until the expanded tree and file count are read back from GitHub and the CI workflow result is inspected.
+The independent cross-platform `Project Skripsi CI` matrix has **not yet been verified on the expanded tree**: the bootstrap-triggered CI run was intentionally skipped, while an earlier run against the pre-expansion repository failed because the source tree was not yet present. Do not describe the six-platform matrix as passed until a post-expansion run is observed. No release, deployment, force-push, or visibility change was performed. The authenticated GitHub account matches the repository owner; the local Git author remains unconfigured, so no local commit is claimed.
 
-## 7. Recovery and update protocol
+## 6. Public repository contents and private-data boundary
 
-On every invocation: read this memory and the current phase ledger; verify GitHub branch/head and repository tree; validate source manifests; preserve private data boundaries; select only the earliest incomplete authorized research phase; never self-authorize; update canonical status only from verifiable evidence. Keep human acceptance and execution authorization as distinct fields.
+The expanded public tree contains the reusable platform source, Python package and CLI, 29 JSON Schemas, synthetic regression suite, generic documentation, project/workspace templates, canonical sanitized P0–P9 governance snapshot, aggregate-only P0/P1/P2 status, `MANIFEST.sha256`, and the deterministic TAR.XZ distribution archive with its checksum sidecar. The manifest contains 130 source-file entries; the archive contains those 130 files plus `MANIFEST.sha256`.
+
+Private material remains excluded: P1/P2 record-level datasets, source/evidence registers, abstract text and exact locators, extraction/coding/adjudication matrices, private QA exports, individual thesis DOCX/PDF, actual Turnitin reports, report/submission identifiers, participant-level data, credentials, databases and caches. The Turnitin-named source module, schema, generic documentation, and tests are platform functionality using synthetic test fixtures; they are not actual Turnitin report exports or case-level QA files.
+
+The repository remains a platform publication, not a publication of the user's thesis or research corpus. Public source availability does not grant redistribution rights to third-party material, and no software license is declared until a separate license is approved and added.
+
+## 7. Recovery, verification, and continuation protocol
+
+On every invocation:
+1. Read this memory and `config/pipeline/PHASE_LEDGER.json`; verify the current `main` head and repository tree rather than relying on a previous checkpoint.
+2. Verify the 130-entry public manifest, archive SHA-256, safe-path rules, and absence of private thesis/report/database/participant artifacts before any further publication.
+3. Distinguish engineering checks from research-phase validation, human acceptance, and phase-specific authorization.
+4. Continue the earliest incomplete authorized work item. Preserve P0 and P1 accepted scopes; P2 remains `VALIDATION_PASSED_APPROVAL_PENDING` with APR-P2-001 blank; P3–P9 remain `NOT_STARTED / NOT_AUTHORIZED`.
+5. The project owner's standing instruction to continue implementation without repeated operational approvals does not allow the system to invent a P2 acceptance decision, waive research ethics or source restrictions, or self-authorize P3–P9. Keep execution authorization, human acceptance, and evidence validation separate.
+6. Update the canonical ledger and this memory only from verified repository and artifact evidence. Do not claim a workflow, package installation, external review, or academic acceptance unless its actual result is observed.
