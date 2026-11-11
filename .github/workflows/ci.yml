@@ -22,6 +22,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+      - name: Preserve byte-exact checkout for manifest integrity
+        shell: bash
+        run: |
+          git config core.autocrlf false
+          git config core.eol lf
+          git checkout-index --force --all
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
