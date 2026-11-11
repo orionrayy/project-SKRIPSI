@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0.0",
+  "workspace_type": "independent_thesis_project",
+  "project_id": "example-thesis-001",
+  "title": "Example title — replace before use",
+  "discipline": "Discipline — replace",
+  "research_design": "RESEARCH_DESIGN — replace",
+  "language": "id-ID",
+  "created_at": "2026-11-05T08:41:32+00:00",
+  "institution": {
+    "name": "Institution — replace",
+    "programme": "",
+    "guideline_profile_id": null,
+    "guideline_version": null,
+    "source_required": true
+  },
+  "privacy": {
+    "classification": "CONFIDENTIAL",
+    "storage_mode": "LOCAL_ONLY",
+    "external_ai_transfer": false,
+    "contains_personal_data": null,
+    "ethics_review_required": null,
+    "retention_policy_id": null
+  },
+  "governance": {
+    "human_author_responsible": true,
+    "ai_use_disclosure_required_by_institution": null,
+    "data_fabrication_prohibited": true,
+    "authorship_misrepresentation_prohibited": true,
+    "detector_evasion_prohibited": true
+  },
+  "tooling": {
+    "statistics_software": null,
+    "reference_manager": null,
+    "document_format": "docx"
+  },
+  "notes": "Fill only from verified project-owner information. Null means not yet assessed."
+}

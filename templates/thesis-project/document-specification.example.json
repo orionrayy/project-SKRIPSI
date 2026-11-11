@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0.0",
+  "project_id": "example-thesis-001",
+  "document_id": "THESIS-DRAFT-001",
+  "title": "Judul skripsi berdasarkan rumusan peneliti",
+  "language": "id-ID",
+  "citation_style": "APA7",
+  "institution_profile": {"path": null, "sha256": null, "approval_reference": null},
+  "output": {
+    "filename": "thesis-draft.docx",
+    "include_cover": true,
+    "include_toc": true,
+    "include_bibliography": true,
+    "page_size": "A4",
+    "formatting": {
+      "font_family": "Times New Roman",
+      "font_size_pt": 12,
+      "line_spacing": 1.5,
+      "first_line_indent_cm": 1.25,
+      "space_after_pt": 0,
+      "margins_cm": {"top": 3.0, "right": 2.5, "bottom": 2.5, "left": 3.0},
+      "heading_sizes_pt": {"1": 14, "2": 12, "3": 12}
+    }
+  },
+  "sections": [
+    {
+      "section_id": "BAB-I",
+      "heading": "BAB I PENDAHULUAN",
+      "level": 1,
+      "blocks": [
+        {"type": "paragraph", "text": "Isi dengan paragraf yang ditulis atau diperiksa peneliti.", "claim_ids": []},
+        {"type": "bullet", "text": "Butir penjelasan yang valid dan relevan."},
+        {"type": "table", "caption": "Tabel 1. Definisi operasional", "headers": ["Konstruk", "Indikator"], "rows": [["Konstruk A", "Indikator sesuai instrumen"]]}
+      ]
+    },
+    {
+      "section_id": "BAB-II",
+      "heading": "BAB II TINJAUAN PUSTAKA",
+      "level": 1,
+      "blocks": [
+        {"type": "paragraph", "text": "Pernyataan yang didukung oleh evidence link terverifikasi.", "claim_ids": ["CLAIM-001"]}
+      ]
+    }
+  ]
+}

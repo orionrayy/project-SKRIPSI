@@ -1,0 +1,450 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://project-skripsi.local/schemas/pipeline/PHASE_LEDGER.schema.json",
+  "title": "Project Skripsi Phase Ledger",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ledger_id",
+    "ledger_version",
+    "project",
+    "pipeline",
+    "created_at",
+    "updated_at",
+    "source_of_truth",
+    "repository",
+    "current_active_phase",
+    "current_active_work_item",
+    "phases",
+    "next_action",
+    "remote_mutation_state"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "ledger_id": {
+      "type": "string"
+    },
+    "ledger_version": {
+      "type": "string"
+    },
+    "project": {
+      "const": "project-skripsi"
+    },
+    "pipeline": {
+      "const": "P0-P9 Research-to-Execution Pipeline"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source_of_truth": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canonical_memory",
+        "memory_created_in_this_bootstrap",
+        "prior_ledger_path",
+        "prior_ledger_last_verified_at",
+        "prior_ledger_reconciled_as_stale",
+        "reconciliation_reason"
+      ],
+      "properties": {
+        "canonical_memory": {
+          "const": "ORCHESTRATION_MEMORY.md"
+        },
+        "memory_created_in_this_bootstrap": {
+          "type": "boolean"
+        },
+        "prior_ledger_path": {
+          "type": "string"
+        },
+        "prior_ledger_last_verified_at": {
+          "type": "string",
+          "description": "The recovered source has date-only precision; preserve precision rather than inventing a time."
+        },
+        "prior_ledger_reconciled_as_stale": {
+          "type": "boolean"
+        },
+        "reconciliation_reason": {
+          "type": "string"
+        }
+      }
+    },
+    "repository": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "remote_url",
+        "owner",
+        "repository_full_name",
+        "visibility",
+        "archived",
+        "default_branch_metadata",
+        "remote_size_kb",
+        "remote_branch_count",
+        "commit_state",
+        "root_contents_state",
+        "release_count",
+        "workflow_run_count",
+        "local_path",
+        "local_branch",
+        "origin_url",
+        "git_worktree_initialized",
+        "git_identity_configured",
+        "local_commit_sha",
+        "remote_mutation_state",
+        "authenticated_github_login",
+        "authenticated_github_user_id",
+        "github_profile_identity_matches_repo_owner",
+        "commit_identity_resolution"
+      ],
+      "properties": {
+        "remote_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "repository_full_name": {
+          "type": "string"
+        },
+        "visibility": {
+          "enum": [
+            "public",
+            "private",
+            "internal",
+            "unknown"
+          ]
+        },
+        "archived": {
+          "type": "boolean"
+        },
+        "default_branch_metadata": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "remote_size_kb": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "remote_branch_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "commit_state": {
+          "type": "string"
+        },
+        "root_contents_state": {
+          "type": "string"
+        },
+        "release_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "workflow_run_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "local_path": {
+          "type": "string"
+        },
+        "local_branch": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "origin_url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "git_worktree_initialized": {
+          "type": "boolean"
+        },
+        "git_identity_configured": {
+          "type": "boolean"
+        },
+        "local_commit_sha": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "remote_mutation_state": {
+          "type": "string",
+          "enum": [
+            "NONE",
+            "PUBLIC_ALLOWLIST_POPULATED"
+          ]
+        },
+        "authenticated_github_login": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "authenticated_github_user_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "github_profile_identity_matches_repo_owner": {
+          "type": "boolean"
+        },
+        "commit_identity_resolution": {
+          "type": "string"
+        }
+      }
+    },
+    "current_active_phase": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "P0",
+        "P1",
+        "P2",
+        "P3",
+        "P4",
+        "P5",
+        "P6",
+        "P7",
+        "P8",
+        "P9",
+        null
+      ]
+    },
+    "current_active_work_item": {
+      "type": "string"
+    },
+    "phases": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": {
+        "$ref": "#/$defs/phase"
+      }
+    },
+    "next_action": {
+      "type": "string"
+    },
+    "remote_mutation_state": {
+      "type": "string",
+      "enum": [
+        "NONE",
+        "PUBLIC_ALLOWLIST_POPULATED"
+      ]
+    },
+    "prompt_execution_log": {
+      "type": "string"
+    },
+    "p1_acceptance_decision_record": {
+      "type": "string"
+    }
+  },
+  "$defs": {
+    "phase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "phase_id",
+        "phase_name",
+        "execution_status",
+        "approval_status",
+        "authorization_status",
+        "authorization_scope",
+        "dependencies",
+        "required_deliverables",
+        "evidence",
+        "validation_results",
+        "blockers",
+        "last_verified_at",
+        "next_action",
+        "validation_status",
+        "human_acceptance_status",
+        "phase_conclusion"
+      ],
+      "properties": {
+        "phase_id": {
+          "enum": [
+            "P0",
+            "P1",
+            "P2",
+            "P3",
+            "P4",
+            "P5",
+            "P6",
+            "P7",
+            "P8",
+            "P9"
+          ]
+        },
+        "phase_name": {
+          "type": "string"
+        },
+        "execution_status": {
+          "enum": [
+            "NOT_STARTED",
+            "IN_PROGRESS",
+            "EXECUTED",
+            "VALIDATION_PASSED_APPROVAL_PENDING",
+            "COMPLETE",
+            "BLOCKED",
+            "VALIDATION_FAILED"
+          ]
+        },
+        "approval_status": {
+          "enum": [
+            "APPROVED",
+            "PENDING",
+            "NOT_AUTHORIZED",
+            "REJECTED",
+            "CONDITIONALLY_APPROVED"
+          ]
+        },
+        "authorization_status": {
+          "enum": [
+            "APPROVED_SCOPED",
+            "AUTHORIZED_SCOPED",
+            "AUTHORIZED_TO_START",
+            "NOT_AUTHORIZED"
+          ]
+        },
+        "authorization_scope": {
+          "type": "string"
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "required_deliverables": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "evidence_id",
+              "artifact",
+              "path",
+              "type",
+              "result",
+              "summary"
+            ],
+            "properties": {
+              "evidence_id": {
+                "type": "string"
+              },
+              "artifact": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              },
+              "result": {
+                "type": "string"
+              },
+              "summary": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "validation_results": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "check_id",
+              "result",
+              "evidence"
+            ],
+            "properties": {
+              "check_id": {
+                "type": "string"
+              },
+              "result": {
+                "enum": [
+                  "PASS",
+                  "FAIL",
+                  "NOT_RUN",
+                  "BLOCKED",
+                  "NEEDS_REVIEW"
+                ]
+              },
+              "evidence": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "blockers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "last_verified_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "next_action": {
+          "type": "string"
+        },
+        "validation_status": {
+          "enum": [
+            "NOT_RUN",
+            "PASS",
+            "PASS_WITH_LIMITATION",
+            "FAIL",
+            "NOT_APPLICABLE"
+          ]
+        },
+        "human_acceptance_status": {
+          "enum": [
+            "PENDING",
+            "ACCEPTED",
+            "ACCEPTED_WITH_CONDITIONS",
+            "REJECTED",
+            "DEFERRED"
+          ]
+        },
+        "phase_conclusion": {
+          "enum": [
+            "NOT_STARTED",
+            "COMPLETE_AND_APPROVED",
+            "VALIDATION_PASSED_APPROVAL_PENDING",
+            "IN_PROGRESS",
+            "BLOCKED",
+            "VALIDATION_FAILED",
+            "REOPENED_FOR_MATERIAL_DEFECT"
+          ]
+        }
+      }
+    }
+  }
+}

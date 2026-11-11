@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/project-skripsi/schemas/methodology/research-alignment.schema.json",
+  "title": "Research Question, Objective, Construct, Hypothesis and Analysis Alignment",
+  "type": "object",
+  "required": ["schema_version", "project_id", "research_design", "research_questions", "objectives", "constructs", "hypotheses", "analysis_plan", "integration_points"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "project_id": {"type": "string", "minLength": 3, "maxLength": 64},
+    "research_design": {"enum": ["QUANTITATIVE_SURVEY", "QUANTITATIVE_EXPERIMENT", "QUALITATIVE", "MIXED_METHODS", "SECONDARY_DATA", "CASE_STUDY", "SYSTEMATIC_REVIEW", "OTHER"]},
+    "research_questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["question_id", "text", "intent"],
+        "properties": {
+          "question_id": {"type": "string", "minLength": 1},
+          "text": {"type": "string", "minLength": 1},
+          "intent": {"enum": ["DESCRIPTIVE", "EXPLORATORY", "RELATIONAL", "COMPARATIVE", "CAUSAL", "EVALUATIVE", "INTERPRETIVE"]},
+          "unit_of_analysis": {"type": ["string", "null"]}
+        },
+        "additionalProperties": false
+      }
+    },
+    "objectives": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["objective_id", "text", "research_question_ids"],
+        "properties": {
+          "objective_id": {"type": "string", "minLength": 1},
+          "text": {"type": "string", "minLength": 1},
+          "research_question_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+        },
+        "additionalProperties": false
+      }
+    },
+    "constructs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["construct_id", "name", "role"],
+        "properties": {
+          "construct_id": {"type": "string", "minLength": 1},
+          "name": {"type": "string", "minLength": 1},
+          "role": {"enum": ["EXPLANATORY", "PREDICTOR", "INDEPENDENT", "OUTCOME", "DEPENDENT", "MEDIATOR", "MODERATOR", "CONTROL", "QUALITATIVE_CONCEPT", "MIXED_METHODS_COMPONENT"]},
+          "conceptual_definition": {"type": ["string", "null"]},
+          "operationalization": {"type": ["string", "null"]},
+          "measurement_level": {"enum": ["NOMINAL", "ORDINAL", "INTERVAL", "RATIO", "CATEGORICAL", "TEXTUAL", "NOT_APPLICABLE"]},
+          "indicators": {"type": "array", "items": {"type": "string"}},
+          "source_or_instrument_refs": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": false
+      }
+    },
+    "hypotheses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["hypothesis_id", "text", "research_question_ids", "predictor_construct_ids", "outcome_construct_ids", "direction"],
+        "properties": {
+          "hypothesis_id": {"type": "string", "minLength": 1},
+          "text": {"type": "string", "minLength": 1},
+          "research_question_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+          "predictor_construct_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+          "outcome_construct_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+          "direction": {"enum": ["POSITIVE", "NEGATIVE", "DIFFERENCE", "NON_DIRECTIONAL", "OTHER"]},
+          "theoretical_basis_source_ids": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": false
+      }
+    },
+    "analysis_plan": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["analysis_id", "research_question_ids", "strategy", "technique", "selection_rationale", "assumption_diagnostics"],
+        "properties": {
+          "analysis_id": {"type": "string", "minLength": 1},
+          "research_question_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+          "hypothesis_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+          "construct_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+          "strategy": {"enum": ["DESCRIPTIVE", "INFERENTIAL", "QUALITATIVE_CODING", "THEMATIC_ANALYSIS", "CONTENT_ANALYSIS", "DOCUMENT_ANALYSIS", "COMPARATIVE", "OTHER"]},
+          "technique": {"type": "string", "minLength": 1},
+          "selection_rationale": {"type": "string", "minLength": 1},
+          "assumption_diagnostics": {"type": "array", "items": {"type": "string"}},
+          "planned_outputs": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": false
+      }
+    },
+    "integration_points": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["integration_id", "stage", "quant_analysis_ids", "qual_analysis_ids", "integration_rationale"],
+        "properties": {
+          "integration_id": {"type": "string", "minLength": 1},
+          "stage": {"enum": ["DESIGN", "DATA_COLLECTION", "ANALYSIS", "INTERPRETATION", "REPORTING"]},
+          "quant_analysis_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+          "qual_analysis_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+          "integration_rationale": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"research_design": {"const": "MIXED_METHODS"}}, "required": ["research_design"]},
+      "then": {"properties": {"integration_points": {"minItems": 1}}}
+    }
+  ],
+  "additionalProperties": false
+}

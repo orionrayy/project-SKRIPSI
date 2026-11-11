@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://project-skripsi.local/schemas/analysis/analysis-transaction.schema.json",
+  "title": "Project-SKRIPSI Analysis Recovery Transaction",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "transaction_id", "transaction_state", "analysis_run_id", "result_sha256", "result_payload", "run_record", "transaction_sha256"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "transaction_id": {"type": "string", "minLength": 3, "maxLength": 64, "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"},
+    "transaction_state": {"const": "PREPARED"},
+    "analysis_run_id": {"type": "string", "minLength": 3, "maxLength": 64, "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"},
+    "result_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "result_payload": {"type": "object"},
+    "run_record": {"type": "object"},
+    "transaction_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}

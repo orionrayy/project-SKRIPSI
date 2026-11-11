@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/project-skripsi/schemas/evidence/source-register.schema.json",
+  "title": "Project-scoped Source and Claim Evidence Register",
+  "type": "object",
+  "required": ["schema_version", "project_id", "sources", "claim_evidence_links"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "project_id": {"type": "string", "minLength": 3},
+    "sources": {"type": "array", "items": {"$ref": "source-record.schema.json"}},
+    "claim_evidence_links": {"type": "array", "items": {"$ref": "claim-evidence-link.schema.json"}}
+  },
+  "additionalProperties": false
+}

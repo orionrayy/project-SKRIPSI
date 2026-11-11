@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://project-skripsi.local/schemas/writing/evidence-safe-pattern.schema.json",
+  "title": "Evidence-Safe Writing Pattern",
+  "type": "object",
+  "required": ["pattern_id", "stage", "purpose", "evidence_level", "max_claim_strength", "template_id_text", "template_en_text", "caution"],
+  "properties": {
+    "pattern_id": {"type": "string", "pattern": "^PS-WR-[0-9]{3}$"},
+    "stage": {"enum": ["introduction", "literature_review", "results", "discussion", "limitations", "conclusion", "recommendation"]},
+    "purpose": {"type": "string", "minLength": 3},
+    "evidence_level": {"enum": ["none", "contextual", "observational", "direct", "convergent"]},
+    "max_claim_strength": {"enum": ["tentative", "bounded", "assertive", "causal"]},
+    "template_id_text": {"type": "string", "minLength": 1},
+    "template_en_text": {"type": "string", "minLength": 1},
+    "caution": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": false
+}

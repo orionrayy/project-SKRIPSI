@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.0.0",
+  "project_id": "example-thesis-001",
+  "research_design": "QUANTITATIVE_SURVEY",
+  "research_questions": [
+    {
+      "question_id": "RQ1",
+      "text": "Is perceived usefulness associated with intention to use the system among the defined study population?",
+      "intent": "RELATIONAL",
+      "unit_of_analysis": "individual respondent"
+    }
+  ],
+  "objectives": [
+    {
+      "objective_id": "OBJ1",
+      "text": "Examine the association between perceived usefulness and intention to use the system.",
+      "research_question_ids": ["RQ1"]
+    }
+  ],
+  "constructs": [
+    {
+      "construct_id": "PU",
+      "name": "Perceived usefulness",
+      "role": "PREDICTOR",
+      "conceptual_definition": "Replace with the definition from the adopted theoretical source.",
+      "operationalization": "Replace with the actual instrument, item aggregation and scoring protocol.",
+      "measurement_level": "ORDINAL",
+      "indicators": ["PU_INDICATOR_1", "PU_INDICATOR_2"],
+      "source_or_instrument_refs": ["SRC-THEORY-001", "SRC-INSTRUMENT-001"]
+    },
+    {
+      "construct_id": "IU",
+      "name": "Intention to use",
+      "role": "OUTCOME",
+      "conceptual_definition": "Replace with the definition from the adopted theoretical source.",
+      "operationalization": "Replace with the actual instrument, item aggregation and scoring protocol.",
+      "measurement_level": "ORDINAL",
+      "indicators": ["IU_INDICATOR_1", "IU_INDICATOR_2"],
+      "source_or_instrument_refs": ["SRC-THEORY-002", "SRC-INSTRUMENT-001"]
+    }
+  ],
+  "hypotheses": [
+    {
+      "hypothesis_id": "H1",
+      "text": "Perceived usefulness is positively associated with intention to use.",
+      "research_question_ids": ["RQ1"],
+      "predictor_construct_ids": ["PU"],
+      "outcome_construct_ids": ["IU"],
+      "direction": "POSITIVE",
+      "theoretical_basis_source_ids": ["SRC-THEORY-001", "SRC-THEORY-002"]
+    }
+  ],
+  "analysis_plan": [
+    {
+      "analysis_id": "A1",
+      "research_question_ids": ["RQ1"],
+      "hypothesis_ids": ["H1"],
+      "construct_ids": ["PU", "IU"],
+      "strategy": "INFERENTIAL",
+      "technique": "ENTER THE TECHNIQUE SELECTED BY THE RESEARCHER AFTER REVIEWING THE DATA AND DESIGN",
+      "selection_rationale": "Explain why the selected technique fits the question, variable definitions, measurement, sampling and data structure.",
+      "assumption_diagnostics": [
+        "List diagnostics that apply to the selected model; do not copy a generic checklist."
+      ],
+      "planned_outputs": ["effect estimate", "uncertainty interval", "diagnostic summary"]
+    }
+  ],
+  "integration_points": []
+}

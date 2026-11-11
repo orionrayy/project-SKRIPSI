@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/project-skripsi/schemas/project-manifest.schema.json",
+  "title": "Independent Thesis Project Manifest",
+  "type": "object",
+  "required": ["schema_version", "workspace_type", "project_id", "title", "discipline", "research_design", "institution", "privacy", "governance"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "workspace_type": {"const": "independent_thesis_project"},
+    "project_id": {"type": "string", "pattern": "^[a-z0-9](?:[a-z0-9-]{1,62}[a-z0-9])$", "maxLength": 64},
+    "title": {"type": "string", "minLength": 1},
+    "discipline": {"type": "string", "minLength": 1},
+    "research_design": {"type": "string", "minLength": 1},
+    "language": {"type": "string"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "institution": {
+      "type": "object",
+      "required": ["name", "programme", "source_required"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "programme": {"type": "string"},
+        "guideline_profile_id": {"type": ["string", "null"]},
+        "guideline_version": {"type": ["string", "null"]},
+        "source_required": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "privacy": {
+      "type": "object",
+      "required": ["classification", "storage_mode", "external_ai_transfer"],
+      "properties": {
+        "classification": {"enum": ["PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED"]},
+        "storage_mode": {"enum": ["LOCAL_ONLY", "APPROVED_PRIVATE_STORAGE", "PUBLIC_RELEASE_APPROVED"]},
+        "external_ai_transfer": {"const": false},
+        "contains_personal_data": {"type": ["boolean", "null"]},
+        "ethics_review_required": {"type": ["boolean", "null"]},
+        "retention_policy_id": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "governance": {"type": "object", "required": ["human_author_responsible", "data_fabrication_prohibited", "authorship_misrepresentation_prohibited", "detector_evasion_prohibited"], "properties": {"human_author_responsible": {"const": true}, "ai_use_disclosure_required_by_institution": {"type": ["boolean", "null"]}, "data_fabrication_prohibited": {"const": true}, "authorship_misrepresentation_prohibited": {"const": true}, "detector_evasion_prohibited": {"const": true}}, "additionalProperties": true},
+    "tooling": {"type": "object"},
+    "notes": {"type": "string"}
+  },
+  "additionalProperties": false
+}

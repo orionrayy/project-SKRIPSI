@@ -1,0 +1,172 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/project-skripsi/schemas/evidence/source-record.schema.json",
+  "title": "Source Provenance Record",
+  "type": "object",
+  "required": [
+    "source_id",
+    "source_type",
+    "title",
+    "url",
+    "retrieval_date",
+    "access_status",
+    "retrieval_method",
+    "rights_status"
+  ],
+  "properties": {
+    "source_id": {
+      "type": "string",
+      "pattern": "^[A-Z0-9][A-Z0-9._-]{2,63}$"
+    },
+    "source_type": {
+      "enum": [
+        "JOURNAL_ARTICLE",
+        "BOOK",
+        "THESIS",
+        "DISSERTATION",
+        "OFFICIAL_GUIDELINE",
+        "LAW_OR_REGULATION",
+        "DATASET",
+        "OFFICIAL_WEBPAGE",
+        "OTHER"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "authors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "year": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1500,
+      "maximum": 2200
+    },
+    "doi": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "retrieval_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "access_status": {
+      "enum": [
+        "METADATA_ONLY",
+        "ABSTRACT_ONLY",
+        "PARTIAL_TEXT_REVIEWED",
+        "FULL_TEXT_REVIEWED",
+        "NOT_ACCESSIBLE",
+        "RESTRICTED_UNAVAILABLE"
+      ]
+    },
+    "retrieval_method": {
+      "type": "string",
+      "minLength": 1
+    },
+    "exact_locator": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "rights_status": {
+      "enum": [
+        "OPEN_LICENSE",
+        "PUBLIC_WEB_ACCESS",
+        "LICENSED_ACCESS",
+        "RESTRICTED",
+        "UNKNOWN"
+      ]
+    },
+    "license": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "file_sha256": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "citation_author": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Optional human-verified family/group name used for APA author-year in-text citation."
+    },
+    "reference_authors": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Optional human-verified APA reference-list author string; use when author-name order cannot be inferred safely."
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "access_status": {
+            "enum": [
+              "ABSTRACT_ONLY",
+              "PARTIAL_TEXT_REVIEWED",
+              "FULL_TEXT_REVIEWED"
+            ]
+          }
+        },
+        "required": [
+          "access_status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "exact_locator": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "access_status": {
+            "const": "RESTRICTED_UNAVAILABLE"
+          }
+        },
+        "required": [
+          "access_status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "rights_status": {
+            "const": "RESTRICTED"
+          }
+        }
+      }
+    }
+  ],
+  "additionalProperties": false
+}

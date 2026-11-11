@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/project-skripsi/schemas/governance/approval-register.schema.json",
+  "title": "Project-scoped Approval Register",
+  "type": "object",
+  "required": ["schema_version", "project_id", "approvals"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "project_id": {"type": "string", "minLength": 3},
+    "approvals": {"type": "array", "items": {"$ref": "phase-approval.schema.json"}}
+  },
+  "additionalProperties": false
+}

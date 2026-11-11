@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/project-skripsi/schemas/research/openalex-search-snapshot.schema.json",
+  "title": "Project-scoped OpenAlex Retrieval Snapshot",
+  "type": "object",
+  "required": [
+    "schema_version", "snapshot_id", "project_id", "created_at", "retrieved_at", "provider",
+    "query", "request_url", "cache_hit", "total_count", "per_page",
+    "result_count", "abstracts_requested", "items", "flags"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "snapshot_id": {"type": "string", "minLength": 1},
+    "project_id": {"type": "string", "minLength": 3},
+    "created_at": {"type": "string", "format": "date-time"},
+    "retrieved_at": {"type": "string", "format": "date-time"},
+    "provider": {"const": "openalex"},
+    "query": {"type": "string", "minLength": 1, "maxLength": 500},
+    "request_url": {"type": "string", "format": "uri"},
+    "cache_hit": {"type": "boolean"},
+    "total_count": {"type": ["integer", "null"], "minimum": 0},
+    "per_page": {"type": "integer", "minimum": 1, "maximum": 25},
+    "result_count": {"type": "integer", "minimum": 0, "maximum": 25},
+    "abstracts_requested": {"type": "boolean"},
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source", "provider_metadata"],
+        "properties": {
+          "source": {"$ref": "../evidence/source-record.schema.json"},
+          "provider_metadata": {"type": "object"},
+          "abstract": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      }
+    },
+    "flags": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+}

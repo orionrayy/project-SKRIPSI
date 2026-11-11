@@ -1,0 +1,269 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/project-skripsi/schemas/analysis/analysis-results.schema.json",
+  "title": "Deterministic descriptive analysis results",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "project_id",
+    "analysis_id",
+    "analysis_method",
+    "dataset_artifact_id",
+    "dataset_sha256",
+    "analysis_specification_sha256",
+    "methodology_alignment_sha256",
+    "deterministic",
+    "variable_results",
+    "assumption_diagnostics",
+    "interpretation_limits",
+    "operator_assumption_review_notes",
+    "human_method_approval_reference"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "project_id": {
+      "type": "string",
+      "minLength": 3
+    },
+    "analysis_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "analysis_method": {
+      "const": "DESCRIPTIVE_SUMMARY"
+    },
+    "dataset_artifact_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "dataset_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "analysis_specification_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "methodology_alignment_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "deterministic": {
+      "const": true
+    },
+    "variable_results": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "variable_id",
+              "construct_id",
+              "column_name",
+              "operation",
+              "n",
+              "missing_n",
+              "mean",
+              "sample_standard_deviation",
+              "minimum",
+              "maximum",
+              "summary_suppressed",
+              "small_cell_suppression_threshold"
+            ],
+            "properties": {
+              "variable_id": {
+                "type": "string"
+              },
+              "construct_id": {
+                "type": "string"
+              },
+              "column_name": {
+                "type": "string"
+              },
+              "operation": {
+                "const": "NUMERIC_SUMMARY"
+              },
+              "n": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "missing_n": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "mean": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "sample_standard_deviation": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "minimum": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "maximum": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "summary_suppressed": {
+                "type": "boolean"
+              },
+              "small_cell_suppression_threshold": {
+                "type": "integer",
+                "minimum": 2,
+                "maximum": 50
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "required": [
+              "variable_id",
+              "construct_id",
+              "column_name",
+              "operation",
+              "valid_n",
+              "missing_n",
+              "categories",
+              "suppressed_category_count",
+              "suppressed_observation_count",
+              "small_cell_suppression_threshold",
+              "category_labels_exposed"
+            ],
+            "properties": {
+              "variable_id": {
+                "type": "string"
+              },
+              "construct_id": {
+                "type": "string"
+              },
+              "column_name": {
+                "type": "string"
+              },
+              "operation": {
+                "const": "FREQUENCY_TABLE"
+              },
+              "valid_n": {
+                "type": ["integer", "null"],
+                "minimum": 0
+              },
+              "missing_n": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "categories": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "category",
+                    "count",
+                    "percent_of_valid"
+                  ],
+                  "properties": {
+                    "category": {
+                      "type": "string"
+                    },
+                    "count": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "percent_of_valid": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "suppressed_category_count": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "suppressed_observation_count": {
+                "type": ["integer", "null"],
+                "minimum": 0
+              },
+              "complementary_suppression_applied": {
+                "type": "boolean"
+              },
+              "small_cell_suppression_threshold": {
+                "type": "integer",
+                "minimum": 2,
+                "maximum": 50
+              },
+              "category_labels_exposed": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "assumption_diagnostics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "code",
+          "severity",
+          "variable_id",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "severity": {
+            "enum": [
+              "INFO",
+              "WARNING",
+              "ERROR"
+            ]
+          },
+          "variable_id": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "interpretation_limits": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "operator_assumption_review_notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "human_method_approval_reference": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "additionalProperties": false
+}

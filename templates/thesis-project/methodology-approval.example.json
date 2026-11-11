@@ -1,0 +1,13 @@
+{
+  "decision_id": "DEC-METHOD-001",
+  "decision_type": "METHOD_SELECTION_APPROVAL",
+  "status": "APPROVED",
+  "reviewer_role": "SUPERVISOR",
+  "decided_at": "2026-11-05T12:00:00+00:00",
+  "rationale": "The selected descriptive method is consistent with the approved research question and measurement plan.",
+  "scope": {
+    "analysis_plan_id": "A1",
+    "dataset_artifact_id": "DATASET-001",
+    "method": "DESCRIPTIVE_SUMMARY"
+  }
+}

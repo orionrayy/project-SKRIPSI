@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/project-skripsi/schemas/manuscript/document-build-record.schema.json",
+  "title": "Thesis document build provenance record",
+  "type": "object",
+  "required": ["schema_version", "document_id", "project_id", "built_at", "status", "citation_style", "toc_page_map", "docx_path", "docx_sha256", "pdf_path", "pdf_sha256", "specification_path", "specification_sha256", "project_manifest_sha256", "source_register_sha256", "citations", "claim_ids", "analysis_run_pins", "warnings", "human_review_status", "generator_version"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "document_id": {"type": "string"}, "project_id": {"type": "string"},
+    "built_at": {"type": "string", "format": "date-time"},
+    "status": {"const": "DRAFT_NOT_REVIEWED"},
+    "citation_style": {"enum": ["APA7", "IEEE"]},
+    "toc_page_map": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 1}},
+    "docx_path": {"type": "string"}, "docx_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "pdf_path": {"type": "string"}, "pdf_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "specification_path": {"type": "string"}, "specification_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "project_manifest_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "source_register_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "institution_profile_sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+    "citations": {"type": "array", "items": {"type": "object", "required": ["source_id"], "properties": {"source_id": {"type": "string"}, "style_order": {"type": ["integer", "null"]}}, "additionalProperties": false}},
+    "claim_ids": {"type": "array", "items": {"type": "string"}},
+    "analysis_run_pins": {"type": "array", "items": {"type": "object", "required": ["run_id", "result_sha256", "run_record_sha256"], "properties": {"run_id": {"type": "string"}, "result_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}, "run_record_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}}, "additionalProperties": false}},
+    "warnings": {"type": "array", "items": {"type": "string"}},
+    "human_review_status": {"const": "NOT_REVIEWED"},
+    "generator_version": {"type": "string"}
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/project-skripsi/schemas/institution/guideline-profile.schema.json",
+  "title": "Versioned Institutional Thesis Guideline Profile",
+  "type": "object",
+  "required": ["profile_id", "institution_name", "programme", "version", "effective_date", "source", "requirements"],
+  "properties": {
+    "profile_id": {"type": "string", "minLength": 3},
+    "institution_name": {"type": "string", "minLength": 1},
+    "programme": {"type": "string", "minLength": 1},
+    "version": {"type": "string", "minLength": 1},
+    "effective_date": {"type": "string", "format": "date"},
+    "supersedes_version": {"type": ["string", "null"]},
+    "source": {"type": "object", "required": ["url", "retrieved_at", "sha256"], "properties": {"url": {"type": "string", "format": "uri"}, "retrieved_at": {"type": "string", "format": "date-time"}, "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}}, "additionalProperties": false},
+    "requirements": {"type": "object", "required": ["structure", "formatting", "citation_style", "submission", "disclosure"], "properties": {"structure": {"type": "object"}, "formatting": {"type": "object"}, "citation_style": {"type": ["string", "null"]}, "submission": {"type": "object"}, "disclosure": {"type": "object"}}, "additionalProperties": true},
+    "review_status": {"enum": ["UNREVIEWED", "HUMAN_REVIEWED", "SUPERSEDED"]},
+    "reviewer_role": {"type": ["string", "null"]},
+    "notes": {"type": "string"}
+  },
+  "additionalProperties": false
+}

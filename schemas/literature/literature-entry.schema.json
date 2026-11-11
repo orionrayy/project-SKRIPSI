@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/project-skripsi/schemas/literature/literature-entry.schema.json",
+  "title": "Literature Synthesis Matrix Entry",
+  "type": "object",
+  "required": ["entry_id", "project_id", "source_id", "research_question_ids", "summary", "method_summary", "findings_summary", "limitations", "relevance", "review_status"],
+  "properties": {
+    "entry_id": {"type": "string", "minLength": 1},
+    "project_id": {"type": "string", "minLength": 3},
+    "source_id": {"type": "string", "minLength": 1},
+    "research_question_ids": {"type": "array", "items": {"type": "string"}},
+    "theoretical_framework": {"type": ["string", "null"]},
+    "summary": {"type": "string", "minLength": 1},
+    "method_summary": {"type": ["string", "null"]},
+    "findings_summary": {"type": ["string", "null"]},
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "relevance": {"type": "string", "minLength": 1},
+    "research_gap_notes": {"type": "string"},
+    "review_status": {"enum": ["UNREVIEWED", "SELF_REVIEWED", "INDEPENDENTLY_REVIEWED", "REJECTED"]},
+    "reviewer_role": {"type": ["string", "null"]},
+    "evidence_locators": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+}

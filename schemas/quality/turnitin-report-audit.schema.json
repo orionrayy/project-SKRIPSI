@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://project-skripsi.local/schemas/quality/turnitin-report-audit.schema.json",
+  "title": "Turnitin Exported Report Audit",
+  "type": "object",
+  "required": ["schema_version", "audit_type", "status", "report", "source_inventory", "body_source_badges", "text_storage", "limitations"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "audit_type": {"const": "TURNITIN_EXPORTED_REPORT"},
+    "status": {"enum": ["PASS", "CONDITIONAL"]},
+    "report": {
+      "type": "object",
+      "required": ["pdf_sha256", "pdf_bytes", "pdf_page_count", "thesis_page_count_reported", "overall_similarity_percent", "visible_exclusions", "source_category_percentages"],
+      "properties": {
+        "submission_id": {"type": ["string", "null"]},
+        "submission_date_text": {"type": ["string", "null"]},
+        "file_name": {"type": ["string", "null"]},
+        "pdf_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "pdf_bytes": {"type": "integer", "minimum": 1},
+        "pdf_page_count": {"type": "integer", "minimum": 1},
+        "thesis_page_count_reported": {"type": "integer", "minimum": 0},
+        "thesis_first_pdf_page": {"type": "integer", "minimum": 1},
+        "word_count_reported": {"type": ["integer", "null"], "minimum": 0},
+        "character_count_reported": {"type": ["integer", "null"], "minimum": 0},
+        "original_docx_file_size_text": {"type": ["string", "null"]},
+        "overall_similarity_percent": {"type": "integer", "minimum": 0, "maximum": 100},
+        "visible_exclusions": {"type": "array", "items": {"type": "string"}},
+        "source_category_percentages": {"type": "object", "properties": {"internet_sources": {"type": ["integer", "null"], "minimum": 0, "maximum": 100}, "publications": {"type": ["integer", "null"], "minimum": 0, "maximum": 100}, "student_papers": {"type": ["integer", "null"], "minimum": 0, "maximum": 100}}, "additionalProperties": false}
+      },
+      "additionalProperties": true
+    },
+    "source_inventory": {
+      "type": "object",
+      "required": ["source_entries_parsed", "sources"],
+      "properties": {
+        "source_entries_parsed": {"type": "integer", "minimum": 0},
+        "source_types": {"type": "object"},
+        "sources": {"type": "array", "items": {"type": "object", "required": ["source_id", "source_type", "source_label"], "properties": {"source_id": {"type": "integer", "minimum": 1}, "source_type": {"enum": ["INTERNET", "PUBLICATION", "STUDENT_PAPERS"]}, "source_label": {"type": "string", "minLength": 1}, "reported_match_share": {"type": ["string", "null"]}}, "additionalProperties": false}}
+      },
+      "additionalProperties": true
+    },
+    "body_source_badges": {"type": "object", "required": ["source_badge_occurrences", "unique_source_ids", "out_of_range_source_ids"], "properties": {"source_badge_occurrences": {"type": "integer", "minimum": 0}, "unique_source_ids": {"type": "integer", "minimum": 0}, "pages_with_source_badges": {"type": "integer", "minimum": 0}, "unreadable_badge_shapes": {"type": "integer", "minimum": 0}, "out_of_range_source_ids": {"type": "array", "items": {"type": "integer", "minimum": 1}}, "occurrences": {"type": "array", "items": {"type": "object", "required": ["pdf_page", "source_id"], "properties": {"pdf_page": {"type": "integer", "minimum": 1}, "source_id": {"type": "integer", "minimum": 1}}, "additionalProperties": false}}}, "additionalProperties": true},
+    "text_storage": {"const": "REPORT_METADATA_ONLY_NO_THESIS_BODY_TEXT_STORED"},
+    "similarity_interpretation": {"type": "string"},
+    "limitations": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": true
+}

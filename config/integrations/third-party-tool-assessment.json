@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.0.0",
+  "assessment_policy": "No provider is enabled by merely appearing in this registry. External text transfer requires a separate project-specific approval and privacy review.",
+  "tools": [
+    {
+      "id": "rhetorilex",
+      "url": "https://github.com/rezaprama/RhetoriLex",
+      "status": "DESIGN_REFERENCE_ONLY",
+      "decision": "ADOPT_CONCEPTS_NOT_SOURCE_CORPUS",
+      "adopted_concepts": ["evidence-before-polish", "claim-strength ceilings", "causal-design guards", "citation and number preservation", "bilingual pattern metadata"],
+      "implementation": "Original Project-SKRIPSI templates and validation rules in src/project_skripsi/writing/ and data/writing/.",
+      "license_note": "Upstream describes software as Apache-2.0 and its original data/documentation as CC BY 4.0. No upstream phrase inventory or code has been copied in this release. Verify current upstream notices before any future reuse."
+    },
+    {
+      "id": "ai-workers-mcp",
+      "url": "https://github.com/basttran/ai-workers-mcp",
+      "status": "NOT_ENABLED",
+      "decision": "DEFER_EXTERNAL_PROVIDER_ROUTING",
+      "reason": "Free-tier model routing can send manuscripts to external providers; quotas, providers, privacy terms and upstream maintenance must be checked at execution time. No claim of unlimited or permanently free use is made.",
+      "safe_fallback": "Use the loopback-only OpenAI-compatible adapter with an explicitly operated local model."
+    },
+    {
+      "id": "grammarly-mcp",
+      "url": "https://github.com/BjornMelin/grammarly-mcp",
+      "status": "REJECTED_AS_DEFAULT",
+      "decision": "DO_NOT_AUTOMATE_DETECTOR_EVASION",
+      "reason": "Inspected README describes Grammarly Pro requirements, browser automation via Browserbase or Browser Use, and LLM rewriting to reduce AI-detection scores. This adds paid/cloud dependencies and an academic-integrity risk."
+    },
+    {
+      "id": "repro-rephraser-4b",
+      "url": "https://huggingface.co/cx-cmu/repro-rephraser-4B",
+      "status": "OPTIONAL_RESEARCH_MODEL_NOT_BUNDLED",
+      "decision": "DO_NOT_BUNDLE",
+      "reason": "Model card lists Apache-2.0 and English-focused training; repository files show approximately 8.06 GB of model weights. Not a practical default for low-memory Android or CPU-only installs."
+    },
+    {
+      "id": "unslop",
+      "url": "https://github.com/MohamedAbdallah-14/unslop",
+      "status": "NOT_IMPORTED",
+      "decision": "NO_CODE_OR_RULES_COPIED",
+      "reason": "Repository has useful deterministic prose-cleanup ideas but also exposes an anti-detector mode. Project-SKRIPSI already has original academic style guidance; any future linting must target clarity and repetition, not detector outcomes."
+    },
+    {
+      "id": "aryadytm-paraphrase-space",
+      "url": "https://huggingface.co/spaces/aryadytm/paraphrase",
+      "status": "UNAVAILABLE_AT_AUDIT",
+      "decision": "DO_NOT_DEPEND",
+      "reason": "Space page returned a runtime error during inspection; model, license, uptime and output behavior were not independently validated."
+    },
+    {
+      "id": "rakeeb-paraphrase-space",
+      "url": "https://huggingface.co/spaces/rizam/rakeeb_paraphrase",
+      "status": "UNVERIFIED",
+      "decision": "DO_NOT_DEPEND",
+      "reason": "Runtime, license, actual Indonesian language coverage and current UI behavior were not independently verified."
+    },
+    {
+      "id": "paraphrasing-tool1",
+      "url": "https://github.com/aigeon-ai/paraphrasing-tool1",
+      "status": "UNVERIFIED",
+      "decision": "DO_NOT_DEPEND",
+      "reason": "Could not verify current source code, license, maintenance, API contract or privacy behavior in this audit."
+    },
+    {
+      "id": "plagiarism-removal-app",
+      "url": "https://github.com/adityaraul004/plagiarism-removal-app",
+      "status": "UNVERIFIED",
+      "decision": "DO_NOT_DEPEND",
+      "reason": "Could not verify current source code, license, maintenance, model configuration or multilingual support in this audit. The plagiarism-removal positioning is not an accepted product goal."
+    },
+    {
+      "id": "promptify",
+      "url": "https://github.com/AlexGovi/Promptify",
+      "status": "NOT_ADOPTED",
+      "decision": "DEFER_EXTERNAL_GEMINI_API",
+      "reason": "Gemini-backed API requires an external credential and transfers text outside the private workspace. Current free-tier quotas and terms require runtime verification; no API key is bundled."
+    }
+  ]
+}

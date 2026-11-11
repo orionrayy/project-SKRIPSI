@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/project-skripsi/schemas/governance/methodology-approval.schema.json",
+  "title": "Human methodology selection approval decision",
+  "type": "object",
+  "required": ["decision_id", "decision_type", "status", "reviewer_role", "decided_at", "rationale", "scope"],
+  "properties": {
+    "decision_id": {"type": "string", "minLength": 1},
+    "decision_type": {"const": "METHOD_SELECTION_APPROVAL"},
+    "status": {"const": "APPROVED"},
+    "reviewer_role": {"enum": ["SUPERVISOR", "PRINCIPAL_INVESTIGATOR", "METHODOLOGY_REVIEWER", "AUTHORIZED_HUMAN_REVIEWER"]},
+    "decided_at": {"type": "string", "format": "date-time"},
+    "rationale": {"type": "string", "minLength": 12},
+    "scope": {
+      "type": "object",
+      "required": ["analysis_plan_id", "dataset_artifact_id", "method"],
+      "properties": {
+        "analysis_plan_id": {"type": "string", "minLength": 1},
+        "dataset_artifact_id": {"type": "string", "minLength": 3},
+        "method": {"const": "DESCRIPTIVE_SUMMARY"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

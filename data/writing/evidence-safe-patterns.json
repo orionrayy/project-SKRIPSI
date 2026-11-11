@@ -1,0 +1,97 @@
+{
+  "schema_version": "1.0.0",
+  "catalog_id": "project-skripsi-evidence-safe-writing",
+  "catalog_provenance": "Original Project-SKRIPSI editorial templates; no third-party phrase inventory copied.",
+  "patterns": [
+    {
+      "pattern_id": "PS-WR-001",
+      "stage": "introduction",
+      "purpose": "define_problem",
+      "evidence_level": "contextual",
+      "max_claim_strength": "bounded",
+      "template_id_text": "Dalam konteks [setting], [problem] tampak pada [evidence], sehingga penelitian ini berfokus pada [scope].",
+      "template_en_text": "In [setting], [problem] is reflected in [evidence]; this study therefore focuses on [scope].",
+      "caution": "Replace placeholders only with verified context and local evidence."
+    },
+    {
+      "pattern_id": "PS-WR-002",
+      "stage": "literature_review",
+      "purpose": "compare_findings",
+      "evidence_level": "convergent",
+      "max_claim_strength": "bounded",
+      "template_id_text": "Sejumlah penelitian melaporkan [shared finding], sementara perbedaan pada [population/method/context] membatasi keterbandingan hasilnya.",
+      "template_en_text": "Several studies report [shared finding], while differences in [population/method/context] limit direct comparison.",
+      "caution": "Do not imply consensus from one source or from inaccessible full texts."
+    },
+    {
+      "pattern_id": "PS-WR-003",
+      "stage": "literature_review",
+      "purpose": "identify_gap",
+      "evidence_level": "convergent",
+      "max_claim_strength": "bounded",
+      "template_id_text": "Pada sumber yang ditelaah, aspek [specific aspect] belum dibahas secara memadai dalam konteks [bounded context].",
+      "template_en_text": "Within the sources reviewed, [specific aspect] has not been adequately addressed in [bounded context].",
+      "caution": "A research gap is bounded to the search strategy and corpus actually reviewed."
+    },
+    {
+      "pattern_id": "PS-WR-004",
+      "stage": "results",
+      "purpose": "report_association",
+      "evidence_level": "observational",
+      "max_claim_strength": "bounded",
+      "template_id_text": "Hasil menunjukkan adanya hubungan antara [variable A] dan [variable B] pada [population/context] dalam data yang dianalisis.",
+      "template_en_text": "The analyzed data show an association between [variable A] and [variable B] in [population/context].",
+      "caution": "Association is not causation; state the design and uncertainty."
+    },
+    {
+      "pattern_id": "PS-WR-005",
+      "stage": "discussion",
+      "purpose": "interpret_limited_result",
+      "evidence_level": "observational",
+      "max_claim_strength": "tentative",
+      "template_id_text": "Temuan ini dapat mengindikasikan [interpretation], tetapi penjelasan tersebut perlu dibaca dengan mempertimbangkan [limitation].",
+      "template_en_text": "This finding may indicate [interpretation], although that explanation should be considered alongside [limitation].",
+      "caution": "Interpretation must not exceed the measured variables or design."
+    },
+    {
+      "pattern_id": "PS-WR-006",
+      "stage": "discussion",
+      "purpose": "contrast_evidence",
+      "evidence_level": "convergent",
+      "max_claim_strength": "bounded",
+      "template_id_text": "Temuan ini berbeda dari [source/case] pada [dimension]; perbedaan tersebut mungkin berkaitan dengan [documented contextual difference].",
+      "template_en_text": "This finding differs from [source/case] in [dimension]; the difference may relate to [documented contextual difference].",
+      "caution": "Only name a contextual explanation when the source supports it."
+    },
+    {
+      "pattern_id": "PS-WR-007",
+      "stage": "limitations",
+      "purpose": "state_limitation",
+      "evidence_level": "contextual",
+      "max_claim_strength": "bounded",
+      "template_id_text": "Hasil penelitian perlu ditafsirkan dengan memperhatikan [specific limitation], yang membatasi [scope of inference].",
+      "template_en_text": "The findings should be interpreted in light of [specific limitation], which constrains [scope of inference].",
+      "caution": "Name the actual limitation and explain which inference it constrains."
+    },
+    {
+      "pattern_id": "PS-WR-008",
+      "stage": "conclusion",
+      "purpose": "bounded_conclusion",
+      "evidence_level": "direct",
+      "max_claim_strength": "bounded",
+      "template_id_text": "Dalam batas [population/time/design], penelitian ini menemukan [direct result] untuk menjawab [research question].",
+      "template_en_text": "Within the limits of [population/time/design], this study found [direct result] in response to [research question].",
+      "caution": "Conclusions must map to reported results, not expected outcomes."
+    },
+    {
+      "pattern_id": "PS-WR-009",
+      "stage": "recommendation",
+      "purpose": "propose_next_step",
+      "evidence_level": "contextual",
+      "max_claim_strength": "tentative",
+      "template_id_text": "Penelitian berikutnya dapat menguji [specific unresolved issue] dengan [method/data] untuk menilai apakah temuan ini berlaku pada [new scope].",
+      "template_en_text": "Future research could examine [specific unresolved issue] using [method/data] to assess whether the finding extends to [new scope].",
+      "caution": "Recommendations are proposals, not claims that an intervention will work."
+    }
+  ]
+}

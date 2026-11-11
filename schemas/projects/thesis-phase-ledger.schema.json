@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/project-skripsi/schemas/thesis-phase-ledger.schema.json",
+  "title": "Per-project Thesis Lifecycle Ledger",
+  "type": "object",
+  "required": ["schema_version", "ledger_id", "project_id", "workflow_id", "phases", "transition_policy"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "ledger_id": {"type": "string", "minLength": 1},
+    "project_id": {"type": "string", "minLength": 3, "maxLength": 64},
+    "workflow_id": {"const": "thesis-lifecycle-v1"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "updated_at": {"type": "string", "format": "date-time"},
+    "current_phase": {"type": "string", "pattern": "^T[0-9]$"},
+    "current_work_item": {"type": "string"},
+    "phases": {
+      "type": "array", "minItems": 10, "maxItems": 10,
+      "items": {"type": "object", "required": ["phase_id", "phase_name", "execution_status", "validation_status", "human_acceptance_status", "approval_status", "authorization_status", "phase_conclusion", "dependencies", "evidence", "blockers"], "properties": {
+        "phase_id": {"type": "string", "pattern": "^T[0-9]$"},
+        "phase_name": {"type": "string"},
+        "execution_status": {"enum": ["NOT_STARTED", "IN_PROGRESS", "BLOCKED", "COMPLETE"]},
+        "validation_status": {"enum": ["NOT_RUN", "PASS", "PASS_WITH_LIMITATION", "FAIL"]},
+        "human_acceptance_status": {"enum": ["PENDING", "ACCEPTED", "ACCEPTED_WITH_CONDITIONS", "REJECTED", "DEFERRED"]},
+        "approval_status": {"enum": ["PENDING", "APPROVED", "REJECTED", "NOT_REQUIRED"]},
+        "authorization_status": {"enum": ["NOT_AUTHORIZED", "AUTHORIZED_SCOPED", "APPROVED_SCOPED", "REVOKED"]},
+        "phase_conclusion": {"type": "string"},
+        "dependencies": {"type": "array", "items": {"type": "string"}},
+        "scope": {"type": ["string", "null"]},
+        "evidence": {"type": "array"},
+        "blockers": {"type": "array", "items": {"type": "string"}},
+        "last_verified_at": {"type": ["string", "null"]},
+        "next_action": {"type": "string"}
+      }, "additionalProperties": true}
+    },
+    "transition_policy": {"type": "object", "required": ["sequential_only", "predecessor_must_be_complete_and_approved", "phase_specific_authorization_required", "human_acceptance_required", "ai_self_approval_forbidden"], "properties": {"sequential_only": {"const": true}, "predecessor_must_be_complete_and_approved": {"const": true}, "phase_specific_authorization_required": {"const": true}, "human_acceptance_required": {"const": true}, "ai_self_approval_forbidden": {"const": true}}, "additionalProperties": false}
+  },
+  "additionalProperties": false
+}

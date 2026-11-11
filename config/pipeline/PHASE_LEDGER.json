@@ -1,0 +1,454 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "ledger_id": "PROJECT-SKRIPSI-PHASE-LEDGER-GENESIS",
+  "ledger_version": "2.3.0",
+  "project": "project-skripsi",
+  "pipeline": "P0-P9 Research-to-Execution Pipeline",
+  "created_at": "2026-11-05T04:55:33+07:00",
+  "updated_at": "2026-11-10T15:40:00+07:00",
+  "source_of_truth": {
+    "canonical_memory": "ORCHESTRATION_MEMORY.md",
+    "memory_created_in_this_bootstrap": true,
+    "prior_ledger_path": "private archival source not published",
+    "prior_ledger_last_verified_at": "2026-11-05",
+    "prior_ledger_reconciled_as_stale": false,
+    "reconciliation_reason": "Reconciled current P1 evidence against stale pre-execution ledger; the verified P0 archive remains the authoritative P0 snapshot. Current P1 bytes were revalidated in this invocation. The older standalone P0 ledger remains preserved and non-canonical."
+  },
+  "repository": {
+    "remote_url": "https://github.com/orionrayy/project-SKRIPSI",
+    "owner": "orionrayy",
+    "repository_full_name": "orionrayy/project-SKRIPSI",
+    "visibility": "public",
+    "archived": false,
+    "default_branch_metadata": "main",
+    "remote_size_kb": 0,
+    "remote_branch_count": 1,
+    "commit_state": "FIRST_COMMIT_PRESENT:c51b223fcd4803006afbba9d68e891216b83ce0a",
+    "root_contents_state": "README.md_PRESENT_ON_MAIN; full source expansion pending verification",
+    "release_count": 0,
+    "workflow_run_count": 0,
+    "local_path": ".",
+    "local_branch": "main",
+    "origin_url": "https://github.com/orionrayy/project-SKRIPSI.git",
+    "git_worktree_initialized": true,
+    "git_identity_configured": false,
+    "local_commit_sha": null,
+    "remote_mutation_state": "PUBLIC_ALLOWLIST_POPULATED",
+    "authenticated_github_login": "orionrayy",
+    "authenticated_github_user_id": "155287930",
+    "github_profile_identity_matches_repo_owner": true,
+    "commit_identity_resolution": "REMOTE_COMMIT_AUTHORED_BY_AUTHENTICATED_GITHUB_ACCOUNT; LOCAL_GIT_AUTHOR_UNCONFIGURED"
+  },
+  "current_active_phase": "P2",
+  "current_active_work_item": "P2_HUMAN_ACCEPTANCE_CLOSURE",
+  "phases": [
+    {
+      "phase_id": "P0",
+      "phase_name": "Research Charter & Integrity",
+      "execution_status": "COMPLETE",
+      "approval_status": "APPROVED",
+      "authorization_status": "APPROVED_SCOPED",
+      "authorization_scope": "P0 project-level governance baseline approved under APR-P0-001; separate P1 start authorization within public bibliographic metadata/local staging only.",
+      "dependencies": [],
+      "required_deliverables": [
+        "docs/phases/P0_ACCEPTANCE_SUMMARY.md",
+        "docs/governance/REMOTE_AND_DATA_BOUNDARIES.md"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "APR-P0-001",
+          "artifact": "P0_ACCEPTANCE_SUMMARY.md",
+          "path": "docs/phases/P0_ACCEPTANCE_SUMMARY.md",
+          "type": "HUMAN_APPROVAL_RECORD_SUMMARY",
+          "result": "APPROVED_SCOPED",
+          "summary": "The project owner approved the P0 governance baseline within its defined scope. This is not a blanket ethics, legal, institutional or privacy certification."
+        },
+        {
+          "evidence_id": "P0-DATA-BOUNDARIES",
+          "artifact": "REMOTE_AND_DATA_BOUNDARIES.md",
+          "path": "docs/governance/REMOTE_AND_DATA_BOUNDARIES.md",
+          "type": "PUBLIC_GOVERNANCE_POLICY",
+          "result": "PUBLISHED",
+          "summary": "Public/private content boundaries, research phase gates and remote-change controls are documented."
+        }
+      ],
+      "validation_results": [
+        {
+          "check_id": "P0-GOVERNANCE",
+          "result": "PASS",
+          "evidence": "The P0 governance baseline and approval scope are recorded in the canonical phase ledger."
+        },
+        {
+          "check_id": "P0-SCHEMA",
+          "result": "PASS",
+          "evidence": "The packaged governance execution and phase-ledger schemas passed their recorded validation."
+        },
+        {
+          "check_id": "P0-PHASE-BOUNDARY",
+          "result": "PASS",
+          "evidence": "P0 authorization does not imply P1 output acceptance, P2 authorization or authorization for later phases."
+        }
+      ],
+      "blockers": [
+        "UD-001..UD-007 remain action-specific/per-project pending; no public remote write/release, restricted data processing, or institutional/legal/ethics certification."
+      ],
+      "last_verified_at": "2026-11-05T10:32:05+07:00",
+      "next_action": "Preserve P0 approved scope. Use reconciled packaged snapshot; do not reopen absent material policy or artifact defect.",
+      "validation_status": "PASS",
+      "human_acceptance_status": "ACCEPTED",
+      "phase_conclusion": "COMPLETE_AND_APPROVED"
+    },
+    {
+      "phase_id": "P1",
+      "phase_name": "Cross-Domain Thesis Corpus",
+      "execution_status": "COMPLETE",
+      "approval_status": "APPROVED",
+      "authorization_status": "AUTHORIZED_SCOPED",
+      "authorization_scope": "P1 public bibliographic metadata and local staging only; P1 human acceptance recorded in APR-P1-001 with the documented access limitations and explicit exclusions.",
+      "dependencies": [
+        "P0 COMPLETE_AND_APPROVED under APR-P0-001"
+      ],
+      "required_deliverables": [
+        "docs/phases/P1_ACCEPTANCE_REVIEW.md",
+        "docs/phases/P1_HUMAN_ACCEPTANCE_RECORD.md",
+        "docs/research/P0_P1_P2_PUBLIC_STATUS.md"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "P1-ACCEPTANCE",
+          "artifact": "P1_HUMAN_ACCEPTANCE_RECORD.md",
+          "path": "docs/phases/P1_HUMAN_ACCEPTANCE_RECORD.md",
+          "type": "HUMAN_ACCEPTANCE_RECORD",
+          "result": "ACCEPTED_SCOPED",
+          "summary": "Project owner accepted the 50-record bibliographic eligibility corpus within its disclosed source-access limitations and explicit exclusions."
+        },
+        {
+          "evidence_id": "P1-PUBLIC-STATUS",
+          "artifact": "P0_P1_P2_PUBLIC_STATUS.md",
+          "path": "docs/research/P0_P1_P2_PUBLIC_STATUS.md",
+          "type": "SANITIZED_AGGREGATE_STATUS",
+          "result": "PUBLISHED_AGGREGATE_ONLY",
+          "summary": "Public summary preserves the accepted scope and aggregate access profile without record identifiers, source URLs, abstracts or locators."
+        },
+        {
+          "evidence_id": "P1-PLATFORM-VALIDATION",
+          "artifact": "Project-SKRIPSI platform release tests",
+          "path": "tests/TEST_RESULTS.md",
+          "type": "PLATFORM_ENGINEERING_VALIDATION",
+          "result": "PASS",
+          "summary": "Platform regression and schema checks are reported separately and do not change P1 research acceptance."
+        }
+      ],
+      "validation_results": [
+        {
+          "check_id": "P1-SCHEMA",
+          "result": "PASS",
+          "evidence": "The canonical bibliographic corpus passed its recorded Draft 2020-12 schema validation."
+        },
+        {
+          "check_id": "P1-DENOMINATOR",
+          "result": "PASS",
+          "evidence": "50 canonical bibliographic records with 50 unique record identities."
+        },
+        {
+          "check_id": "P1-DOMAIN-COVERAGE",
+          "result": "PASS",
+          "evidence": "10 primary domains with five records per domain."
+        },
+        {
+          "check_id": "P1-TABULAR-PARITY",
+          "result": "PASS",
+          "evidence": "The canonical CSV contained 50 rows and no field mismatches against canonical JSON in the recorded validation."
+        },
+        {
+          "check_id": "P1-ACCESS-LIMITATIONS",
+          "result": "NEEDS_REVIEW",
+          "evidence": "Access profile: 25 partial-text-reviewed, 18 abstract-only, 7 metadata-only and 0 full-text-reviewed."
+        },
+        {
+          "check_id": "P1-PACKAGE-INTEGRITY",
+          "result": "PASS",
+          "evidence": "The private P1 package was recorded as passing its manifest and ZIP CRC checks; raw hashes and package bytes are not published."
+        },
+        {
+          "check_id": "P1-HUMAN-ACCEPTANCE",
+          "result": "PASS",
+          "evidence": "APR-P1-001 accepts the bibliographic eligibility corpus only; no full-text review or external academic review is implied."
+        }
+      ],
+      "blockers": [
+        "The accepted corpus is bibliographic eligibility evidence, not a full-text-reviewed or systematically coded thesis corpus.",
+        "Source access remains mixed: partial-text, abstract-only and metadata-only; no item is represented as full-text-reviewed.",
+        "No external human academic reviewer participated; this limitation remains part of the accepted scope."
+      ],
+      "last_verified_at": "2026-11-05T12:38:28+07:00",
+      "next_action": "Reuse the accepted P1 bibliographic corpus only within its approved scope. Any amendment requires versioned evidence and a decision about reopening acceptance.",
+      "validation_status": "PASS_WITH_LIMITATION",
+      "human_acceptance_status": "ACCEPTED",
+      "phase_conclusion": "COMPLETE_AND_APPROVED"
+    },
+    {
+      "phase_id": "P2",
+      "phase_name": "Thesis Extraction & Coding",
+      "execution_status": "VALIDATION_PASSED_APPROVAL_PENDING",
+      "approval_status": "PENDING",
+      "authorization_status": "AUTHORIZED_SCOPED",
+      "authorization_scope": "AUTH-P2-001 authorizes P2 only, within the scope of directly accessible official public institutional HTML abstracts and item-page sections that were actually inspected. No restricted/full-text downloads, access-control bypass, P3 synthesis or early start of a later phase is authorized.",
+      "dependencies": [
+        "P1 COMPLETE_AND_APPROVED"
+      ],
+      "required_deliverables": [
+        "docs/phases/P2_EXECUTION_REPORT.md",
+        "docs/phases/P2_RECHECK_SUMMARY.md",
+        "docs/phases/P2_EXECUTION_AUTHORIZATION_RECORD.md",
+        "docs/phases/P2_HUMAN_ACCEPTANCE_RECORD.md",
+        "docs/research/P0_P1_P2_PUBLIC_STATUS.md"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "P2-AUTHORIZATION",
+          "artifact": "P2_EXECUTION_AUTHORIZATION_RECORD.md",
+          "path": "docs/phases/P2_EXECUTION_AUTHORIZATION_RECORD.md",
+          "type": "USER_AUTHORIZATION",
+          "result": "AUTHORIZED_SCOPED",
+          "summary": "The recorded authorization is restricted to P2 public-source/abstract-level extraction; it does not authorize P3 or later phases."
+        },
+        {
+          "evidence_id": "P2-AGGREGATE-REPORT",
+          "artifact": "P2_EXECUTION_REPORT.md",
+          "path": "docs/phases/P2_EXECUTION_REPORT.md",
+          "type": "SANITIZED_AGGREGATE_EXECUTION_REPORT",
+          "result": "VALIDATION_PASSED_APPROVAL_PENDING",
+          "summary": "50 linked record shells, 214 abstract-level observations, 40 records with abstract observations, 3 inaccessible, 7 metadata-only and 50 coverage rows; no record-level data are published."
+        },
+        {
+          "evidence_id": "P2-VALIDATION",
+          "artifact": "P2_RECHECK_SUMMARY.md",
+          "path": "docs/phases/P2_RECHECK_SUMMARY.md",
+          "type": "SANITIZED_AGGREGATE_VALIDATION",
+          "result": "PASS_WITH_LIMITATION",
+          "summary": "The private package was validated against its schema and integrity checks; independent second coder remains NOT_RUN and semantic review remains SELF_REVIEW_ONLY."
+        },
+        {
+          "evidence_id": "P2-ACCEPTANCE-RECORD",
+          "artifact": "P2_HUMAN_ACCEPTANCE_RECORD.md",
+          "path": "docs/phases/P2_HUMAN_ACCEPTANCE_RECORD.md",
+          "type": "HUMAN_ACCEPTANCE_RECORD",
+          "result": "PENDING_BLANK",
+          "summary": "APR-P2-001 remains blank pending an explicit decision by the project owner."
+        }
+      ],
+      "validation_results": [
+        {
+          "check_id": "P2-LINKAGE",
+          "result": "PASS",
+          "evidence": "The private extraction package records 50 P1-linked record shells and 50 unique record identities; no identities or row-level links are published."
+        },
+        {
+          "check_id": "P2-OBSERVATIONS",
+          "result": "PASS",
+          "evidence": "214 evidence-located abstract-level observations are recorded with per-observation provenance in the private package."
+        },
+        {
+          "check_id": "P2-COVERAGE",
+          "result": "PASS",
+          "evidence": "The aggregate coverage denominator contains 50 records."
+        },
+        {
+          "check_id": "P2-MISSINGNESS",
+          "result": "PASS",
+          "evidence": "40 records have abstract observations; 3 are not accessible for content coding; 7 remain metadata-only; zero unresolved abstract locators are recorded."
+        },
+        {
+          "check_id": "P2-ACCESS-SCOPE",
+          "result": "NEEDS_REVIEW",
+          "evidence": "Coding is based on actually visible public abstract/item-page material only; no full thesis or chapter-level inference is claimed."
+        },
+        {
+          "check_id": "P2-INDEPENDENT-CODER",
+          "result": "NEEDS_REVIEW",
+          "evidence": "Independent second coder was NOT_RUN; semantic review is SELF_REVIEW_ONLY."
+        },
+        {
+          "check_id": "P2-TECHNICAL-VALIDATION",
+          "result": "PASS",
+          "evidence": "Draft 2020-12 schema, coverage/provenance checks, manifest and recorded negative regression checks passed in the private package."
+        },
+        {
+          "check_id": "P2-HUMAN-ACCEPTANCE",
+          "result": "NEEDS_REVIEW",
+          "evidence": "APR-P2-001 remains blank. Technical validation is not human acceptance."
+        }
+      ],
+      "blockers": [
+        "Three records remain without accessible content observations; seven records remain metadata-only and uncoded.",
+        "The extraction scope is abstract-level/public-item-page evidence, not full-text thesis coding.",
+        "No independent second coder or external academic reviewer participated; review remains SELF_REVIEW_ONLY.",
+        "P2 human acceptance is not recorded; APR-P2-001 remains blank."
+      ],
+      "last_verified_at": "2026-11-05T13:09:28+07:00",
+      "next_action": "Present the aggregate P2 acceptance report and obtain an explicit ACCEPT / ACCEPT_WITH_CONDITIONS / REJECT / DEFER decision. Keep P3 locked until P2 is COMPLETE_AND_APPROVED and P3 receives separate authorization.",
+      "validation_status": "PASS_WITH_LIMITATION",
+      "human_acceptance_status": "PENDING",
+      "phase_conclusion": "VALIDATION_PASSED_APPROVAL_PENDING"
+    },
+    {
+      "phase_id": "P3",
+      "phase_name": "Cross-Domain Synthesis",
+      "execution_status": "NOT_STARTED",
+      "approval_status": "PENDING",
+      "authorization_status": "NOT_AUTHORIZED",
+      "authorization_scope": "The user requested progression through P9, but this phase remains gated until the immediate predecessor is COMPLETE_AND_APPROVED and the phase-specific authorization is confirmed at that checkpoint.",
+      "dependencies": [
+        "P2 COMPLETE_AND_APPROVED"
+      ],
+      "required_deliverables": [],
+      "evidence": [],
+      "validation_results": [],
+      "blockers": [
+        "Immediate predecessor is not COMPLETE_AND_APPROVED; this phase has not been separately authorized for execution."
+      ],
+      "last_verified_at": "2026-11-05T10:24:00+07:00",
+      "next_action": "Do not start P3 before its immediate predecessor is COMPLETE_AND_APPROVED and separate phase-specific authorization is recorded.",
+      "validation_status": "NOT_RUN",
+      "human_acceptance_status": "PENDING",
+      "phase_conclusion": "NOT_STARTED"
+    },
+    {
+      "phase_id": "P4",
+      "phase_name": "University Compliance",
+      "execution_status": "NOT_STARTED",
+      "approval_status": "PENDING",
+      "authorization_status": "NOT_AUTHORIZED",
+      "authorization_scope": "The user requested progression through P9, but this phase remains gated until the immediate predecessor is COMPLETE_AND_APPROVED and the phase-specific authorization is confirmed at that checkpoint.",
+      "dependencies": [
+        "P3 COMPLETE_AND_APPROVED"
+      ],
+      "required_deliverables": [],
+      "evidence": [],
+      "validation_results": [],
+      "blockers": [
+        "Immediate predecessor is not COMPLETE_AND_APPROVED; this phase has not been separately authorized for execution."
+      ],
+      "last_verified_at": "2026-11-05T10:24:00+07:00",
+      "next_action": "Do not start P4 before its immediate predecessor is COMPLETE_AND_APPROVED and separate phase-specific authorization is recorded.",
+      "validation_status": "NOT_RUN",
+      "human_acceptance_status": "PENDING",
+      "phase_conclusion": "NOT_STARTED"
+    },
+    {
+      "phase_id": "P5",
+      "phase_name": "Methodology & Data Validity",
+      "execution_status": "NOT_STARTED",
+      "approval_status": "PENDING",
+      "authorization_status": "NOT_AUTHORIZED",
+      "authorization_scope": "The user requested progression through P9, but this phase remains gated until the immediate predecessor is COMPLETE_AND_APPROVED and the phase-specific authorization is confirmed at that checkpoint.",
+      "dependencies": [
+        "P4 COMPLETE_AND_APPROVED"
+      ],
+      "required_deliverables": [],
+      "evidence": [],
+      "validation_results": [],
+      "blockers": [
+        "Immediate predecessor is not COMPLETE_AND_APPROVED; this phase has not been separately authorized for execution."
+      ],
+      "last_verified_at": "2026-11-05T10:24:00+07:00",
+      "next_action": "Do not start P5 before its immediate predecessor is COMPLETE_AND_APPROVED and separate phase-specific authorization is recorded.",
+      "validation_status": "NOT_RUN",
+      "human_acceptance_status": "PENDING",
+      "phase_conclusion": "NOT_STARTED"
+    },
+    {
+      "phase_id": "P6",
+      "phase_name": "Evidence, Citation & Ethics",
+      "execution_status": "NOT_STARTED",
+      "approval_status": "PENDING",
+      "authorization_status": "NOT_AUTHORIZED",
+      "authorization_scope": "The user requested progression through P9, but this phase remains gated until the immediate predecessor is COMPLETE_AND_APPROVED and the phase-specific authorization is confirmed at that checkpoint.",
+      "dependencies": [
+        "P5 COMPLETE_AND_APPROVED"
+      ],
+      "required_deliverables": [],
+      "evidence": [],
+      "validation_results": [],
+      "blockers": [
+        "Immediate predecessor is not COMPLETE_AND_APPROVED; this phase has not been separately authorized for execution."
+      ],
+      "last_verified_at": "2026-11-05T10:24:00+07:00",
+      "next_action": "Do not start P6 before its immediate predecessor is COMPLETE_AND_APPROVED and separate phase-specific authorization is recorded.",
+      "validation_status": "NOT_RUN",
+      "human_acceptance_status": "PENDING",
+      "phase_conclusion": "NOT_STARTED"
+    },
+    {
+      "phase_id": "P7",
+      "phase_name": "Semantic & Humanized Writing",
+      "execution_status": "NOT_STARTED",
+      "approval_status": "PENDING",
+      "authorization_status": "NOT_AUTHORIZED",
+      "authorization_scope": "The user requested progression through P9, but this phase remains gated until the immediate predecessor is COMPLETE_AND_APPROVED and the phase-specific authorization is confirmed at that checkpoint.",
+      "dependencies": [
+        "P6 COMPLETE_AND_APPROVED"
+      ],
+      "required_deliverables": [],
+      "evidence": [],
+      "validation_results": [],
+      "blockers": [
+        "Immediate predecessor is not COMPLETE_AND_APPROVED; this phase has not been separately authorized for execution."
+      ],
+      "last_verified_at": "2026-11-05T10:24:00+07:00",
+      "next_action": "Do not start P7 before its immediate predecessor is COMPLETE_AND_APPROVED and separate phase-specific authorization is recorded.",
+      "validation_status": "NOT_RUN",
+      "human_acceptance_status": "PENDING",
+      "phase_conclusion": "NOT_STARTED"
+    },
+    {
+      "phase_id": "P8",
+      "phase_name": "Repository & Execution Engineering",
+      "execution_status": "NOT_STARTED",
+      "approval_status": "PENDING",
+      "authorization_status": "NOT_AUTHORIZED",
+      "authorization_scope": "The user requested progression through P9, but this phase remains gated until the immediate predecessor is COMPLETE_AND_APPROVED and the phase-specific authorization is confirmed at that checkpoint.",
+      "dependencies": [
+        "P7 COMPLETE_AND_APPROVED"
+      ],
+      "required_deliverables": [],
+      "evidence": [],
+      "validation_results": [],
+      "blockers": [
+        "Immediate predecessor is not COMPLETE_AND_APPROVED; this phase has not been separately authorized for execution."
+      ],
+      "last_verified_at": "2026-11-05T10:24:00+07:00",
+      "next_action": "Do not start P8 before its immediate predecessor is COMPLETE_AND_APPROVED and separate phase-specific authorization is recorded.",
+      "validation_status": "NOT_RUN",
+      "human_acceptance_status": "PENDING",
+      "phase_conclusion": "NOT_STARTED"
+    },
+    {
+      "phase_id": "P9",
+      "phase_name": "Red-Team & Final Prompt Compilation",
+      "execution_status": "NOT_STARTED",
+      "approval_status": "PENDING",
+      "authorization_status": "NOT_AUTHORIZED",
+      "authorization_scope": "The user requested progression through P9, but this phase remains gated until the immediate predecessor is COMPLETE_AND_APPROVED and the phase-specific authorization is confirmed at that checkpoint.",
+      "dependencies": [
+        "P8 COMPLETE_AND_APPROVED"
+      ],
+      "required_deliverables": [],
+      "evidence": [],
+      "validation_results": [],
+      "blockers": [
+        "Immediate predecessor is not COMPLETE_AND_APPROVED; this phase has not been separately authorized for execution."
+      ],
+      "last_verified_at": "2026-11-05T10:24:00+07:00",
+      "next_action": "Do not start P9 before its immediate predecessor is COMPLETE_AND_APPROVED and separate phase-specific authorization is recorded.",
+      "validation_status": "NOT_RUN",
+      "human_acceptance_status": "PENDING",
+      "phase_conclusion": "NOT_STARTED"
+    }
+  ],
+  "next_action": "Obtain the project owner’s explicit P2 acceptance decision. Keep P3 locked until P2 is COMPLETE_AND_APPROVED and a separate P3 authorization is recorded.",
+  "remote_mutation_state": "PUBLIC_ALLOWLIST_POPULATED",
+  "prompt_execution_log": "prompts/PROMPT_EXECUTION_LOG.md",
+  "p1_acceptance_decision_record": "docs/phases/P1_HUMAN_ACCEPTANCE_RECORD.md"
+}

@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/project-skripsi/schemas/manuscript/document-specification.schema.json",
+  "title": "Evidence-linked thesis document specification",
+  "type": "object",
+  "required": ["schema_version", "project_id", "document_id", "title", "citation_style", "institution_profile", "output", "sections"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "project_id": {"type": "string", "minLength": 3},
+    "document_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,63}$"},
+    "title": {"type": "string", "minLength": 1},
+    "language": {"type": "string", "default": "id-ID"},
+    "citation_style": {"enum": ["APA7", "IEEE"]},
+    "institution_profile": {
+      "type": "object", "required": ["path", "sha256", "approval_reference"], "additionalProperties": false,
+      "properties": {
+        "path": {"type": ["string", "null"]},
+        "sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+        "approval_reference": {"type": ["string", "null"]}
+      }
+    },
+    "output": {
+      "type": "object", "required": ["filename", "include_cover", "include_toc", "include_bibliography", "formatting"], "additionalProperties": false,
+      "properties": {
+        "filename": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,100}\\.docx$"},
+        "include_cover": {"type": "boolean"},
+        "include_toc": {"type": "boolean"},
+        "include_bibliography": {"type": "boolean"},
+        "page_size": {"enum": ["A4", "LETTER"], "default": "A4"},
+        "formatting": {
+          "type": "object", "additionalProperties": false,
+          "properties": {
+            "font_family": {"type": "string", "minLength": 1},
+            "font_size_pt": {"type": "number", "minimum": 8, "maximum": 18},
+            "line_spacing": {"type": "number", "minimum": 1, "maximum": 2.5},
+            "first_line_indent_cm": {"type": "number", "minimum": 0, "maximum": 3},
+            "space_after_pt": {"type": "number", "minimum": 0, "maximum": 36},
+            "margins_cm": {
+              "type": "object", "additionalProperties": false,
+              "properties": {"top": {"type": "number", "minimum": 1, "maximum": 6}, "right": {"type": "number", "minimum": 1, "maximum": 6}, "bottom": {"type": "number", "minimum": 1, "maximum": 6}, "left": {"type": "number", "minimum": 1, "maximum": 6}}
+            },
+            "heading_sizes_pt": {"type": "object", "additionalProperties": false, "properties": {"1": {"type": "number", "minimum": 8, "maximum": 24}, "2": {"type": "number", "minimum": 8, "maximum": 24}, "3": {"type": "number", "minimum": 8, "maximum": 24}}
+          }
+        }
+      }
+    },
+    "sections": {
+      "type": "array", "minItems": 1, "maxItems": 120,
+      "items": {
+        "type": "object", "required": ["section_id", "heading", "level", "blocks"], "additionalProperties": false,
+        "properties": {
+          "section_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,63}$"},
+          "heading": {"type": "string", "minLength": 1},
+          "level": {"type": "integer", "minimum": 1, "maximum": 3},
+          "blocks": {
+            "type": "array", "maxItems": 3000,
+            "items": {"oneOf": [
+              {"type": "object", "required": ["type", "text"], "properties": {"type": {"const": "paragraph"}, "text": {"type": "string", "minLength": 1}, "claim_ids": {"type": "array", "items": {"type": "string"}}}, "additionalProperties": false},
+              {"type": "object", "required": ["type", "text"], "properties": {"type": {"enum": ["bullet", "numbered"]}, "text": {"type": "string", "minLength": 1}, "claim_ids": {"type": "array", "items": {"type": "string"}}}, "additionalProperties": false},
+              {"type": "object", "required": ["type", "headers", "rows"], "properties": {"type": {"const": "table"}, "caption": {"type": "string"}, "headers": {"type": "array", "minItems": 1, "items": {"type": "string"}}, "rows": {"type": "array", "items": {"type": "array", "items": {"type": ["string", "number", "integer", "boolean", "null"]}}}, "claim_ids": {"type": "array", "items": {"type": "string"}}}, "additionalProperties": false},
+              {"type": "object", "required": ["type", "run_id", "variable_ids"], "properties": {"type": {"const": "analysis_table"}, "run_id": {"type": "string"}, "variable_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}}, "claim_ids": {"type": "array", "items": {"type": "string"}}}, "additionalProperties": false},
+              {"type": "object", "required": ["type", "path", "caption", "alt_text"], "properties": {"type": {"const": "figure"}, "path": {"type": "string"}, "caption": {"type": "string", "minLength": 1}, "alt_text": {"type": "string", "minLength": 1}, "claim_ids": {"type": "array", "items": {"type": "string"}}}, "additionalProperties": false}
+            ]}
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}
+}

@@ -1,0 +1,60 @@
+{
+  "study_id": "SYNTHETIC-REPLACE-ME",
+  "sample": {
+    "declared_n": 25,
+    "participant_ids_available": false,
+    "participant_ids_unique": false
+  },
+  "design": {
+    "type": "ONE_GROUP_PRETEST_POSTTEST",
+    "has_control_group": false
+  },
+  "demographic_distributions": [
+    {
+      "name": "example_category",
+      "counts": [10, 15],
+      "percentages": [40, 60]
+    }
+  ],
+  "constructs": [
+    {"id": "X_METHOD_IMPLEMENTATION", "measurement_modality": "SELF_REPORT"},
+    {"id": "Y_SELF_PERCEPTION", "measurement_modality": "SELF_REPORT"},
+    {"id": "Y_ORAL_PERFORMANCE", "measurement_modality": "ORAL_PERFORMANCE_TEST"}
+  ],
+  "analyses": [
+    {
+      "id": "paired_pre_post",
+      "procedure": "PAIRED_T_TEST",
+      "pairing_key": null,
+      "dependent_construct_id": "Y_ORAL_PERFORMANCE",
+      "outcome_kind": "ORAL_PERFORMANCE_TEST",
+      "claims_causality": false
+    },
+    {
+      "id": "questionnaire_regression",
+      "procedure": "LINEAR_REGRESSION",
+      "dependent_construct_id": "Y_SELF_PERCEPTION",
+      "claimed_target_construct_id": "Y_SELF_PERCEPTION",
+      "outcome_kind": "SELF_REPORT",
+      "claims_causality": false
+    },
+    {
+      "id": "alpha_x_scale",
+      "procedure": "CRONBACH_ALPHA",
+      "construct_id": "X_METHOD_IMPLEMENTATION"
+    },
+    {
+      "id": "alpha_y_scale",
+      "procedure": "CRONBACH_ALPHA",
+      "construct_id": "Y_SELF_PERCEPTION"
+    },
+    {
+      "id": "icc_oral_raters",
+      "procedure": "ICC",
+      "rater_count": null,
+      "model": null,
+      "measurement_type": null,
+      "definition": null
+    }
+  ]
+}

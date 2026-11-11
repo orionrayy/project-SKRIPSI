@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/project-skripsi/schemas/research/openalex-recovery-transaction.schema.json",
+  "title": "Project-scoped OpenAlex Recovery Transaction",
+  "type": "object",
+  "required": ["schema_version", "project_id", "created_at", "snapshot", "new_sources", "payload_sha256"],
+  "properties": {
+    "schema_version": {"const": "1.1.0"},
+    "project_id": {"type": "string", "minLength": 3},
+    "created_at": {"type": "string", "format": "date-time"},
+    "snapshot": {"$ref": "openalex-search-snapshot.schema.json"},
+    "new_sources": {
+      "type": "array",
+      "items": {"$ref": "../evidence/source-record.schema.json"}
+    },
+    "payload_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,63 @@
+{
+  "study_id": "SYNTHETIC-DEMO-001",
+  "sample": {
+    "declared_n": 20,
+    "participant_ids_available": true,
+    "participant_ids_unique": true
+  },
+  "design": {
+    "type": "ONE_GROUP_PRETEST_POSTTEST",
+    "has_control_group": false
+  },
+  "demographic_distributions": [
+    {"name": "group_a", "counts": [8, 12], "percentages": [40, 60]}
+  ],
+  "constructs": [
+    {"id": "implementation_survey", "measurement_modality": "SELF_REPORT"},
+    {"id": "performance_rubric", "measurement_modality": "ORAL_PERFORMANCE_TEST"}
+  ],
+  "instruments": [
+    {
+      "id": "implementation_questionnaire",
+      "name": "Synthetic questionnaire",
+      "instrument_type": "QUESTIONNAIRE",
+      "item_count": 6,
+      "validity_evidence": {
+        "method": "AIKEN_V",
+        "status": "REPORTED",
+        "validated_item_count": 6,
+        "reviewer_count": 3,
+        "evidence_locator": "Appendix A, page 1"
+      }
+    },
+    {
+      "id": "performance_rubric",
+      "name": "Synthetic performance rubric",
+      "instrument_type": "RUBRIC",
+      "item_count": 4,
+      "validity_evidence": {
+        "method": "EXPERT_REVIEW",
+        "status": "REPORTED",
+        "validated_item_count": 4,
+        "reviewer_count": 3,
+        "evidence_locator": "Appendix B, signed review sheet"
+      }
+    }
+  ],
+  "analyses": [
+    {
+      "id": "paired_performance",
+      "procedure": "PAIRED_T_TEST",
+      "pairing_key": "participant_id",
+      "pairing_method": "UNIQUE_ID",
+      "dependent_construct_id": "performance_rubric",
+      "outcome_kind": "ORAL_PERFORMANCE_TEST",
+      "test_output_table_present": true,
+      "assumption_diagnostics": {
+        "difference_distribution_reviewed": true,
+        "method": "Q_Q_PLOT_AND_SHAPIRO_WILK",
+        "notes": "Synthetic example only; select and justify diagnostics for the actual study."
+      }
+    }
+  ]
+}

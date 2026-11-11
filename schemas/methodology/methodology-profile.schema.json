@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/project-skripsi/schemas/methodology-profile.schema.json",
+  "title": "Research Methodology Profile",
+  "type": "object",
+  "required": ["schema_version", "project_id", "research_design", "research_question_ids", "data_sources", "analysis_plan", "limitations"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "project_id": {"type": "string", "minLength": 3},
+    "research_design": {"enum": ["QUANTITATIVE_SURVEY", "QUANTITATIVE_EXPERIMENT", "QUALITATIVE", "MIXED_METHODS", "SECONDARY_DATA", "CASE_STUDY", "SYSTEMATIC_REVIEW", "OTHER"]},
+    "research_question_ids": {"type": "array", "items": {"type": "string"}},
+    "population_or_case_definition": {"type": ["string", "null"]},
+    "sampling_strategy": {"type": ["string", "null"]},
+    "sample_size_rationale": {"type": ["string", "null"]},
+    "variables_or_constructs": {"type": "array", "items": {"type": "object"}},
+    "instrument_and_validity_plan": {"type": ["string", "null"]},
+    "data_sources": {"type": "array", "items": {"type": "string"}},
+    "data_collection_protocol": {"type": ["string", "null"]},
+    "qualitative_coding_approach": {"type": ["string", "null"]},
+    "integration_strategy": {"type": ["string", "null"]},
+    "analysis_plan": {"type": "object"},
+    "assumptions_and_diagnostics": {"type": "array", "items": {"type": "string"}},
+    "ethics_and_permissions": {"type": ["string", "null"]},
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "software_candidates": {"type": "array", "items": {"type": "string"}}
+  },
+  "allOf": [
+    {"if": {"properties": {"research_design": {"enum": ["QUANTITATIVE_SURVEY", "QUANTITATIVE_EXPERIMENT"]}}, "required": ["research_design"]}, "then": {"required": ["population_or_case_definition", "sampling_strategy", "sample_size_rationale", "variables_or_constructs", "instrument_and_validity_plan", "data_collection_protocol", "assumptions_and_diagnostics"]}},
+    {"if": {"properties": {"research_design": {"const": "QUALITATIVE"}}, "required": ["research_design"]}, "then": {"required": ["population_or_case_definition", "sampling_strategy", "data_collection_protocol", "qualitative_coding_approach"]}},
+    {"if": {"properties": {"research_design": {"const": "MIXED_METHODS"}}, "required": ["research_design"]}, "then": {"required": ["population_or_case_definition", "data_collection_protocol", "integration_strategy"]}}
+  ],
+  "additionalProperties": false
+}

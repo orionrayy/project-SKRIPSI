@@ -1,0 +1,325 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/project-skripsi/schemas/data/data-artifact.schema.json",
+  "title": "Research Data Artifact Provenance Record",
+  "type": "object",
+  "required": [
+    "artifact_id",
+    "project_id",
+    "artifact_type",
+    "origin",
+    "collected_or_retrieved_at",
+    "sha256",
+    "privacy_classification",
+    "permission_status",
+    "transformations",
+    "limitations"
+  ],
+  "properties": {
+    "artifact_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "project_id": {
+      "type": "string",
+      "minLength": 3
+    },
+    "artifact_type": {
+      "enum": [
+        "RAW_DATA",
+        "PROCESSED_DATA",
+        "CODEBOOK",
+        "INSTRUMENT",
+        "TRANSCRIPT",
+        "OBSERVATION",
+        "SECONDARY_DATASET",
+        "ANALYSIS_OUTPUT",
+        "OTHER"
+      ]
+    },
+    "origin": {
+      "type": "string",
+      "minLength": 1
+    },
+    "collected_or_retrieved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "privacy_classification": {
+      "enum": [
+        "PUBLIC",
+        "INTERNAL",
+        "CONFIDENTIAL",
+        "RESTRICTED"
+      ]
+    },
+    "permission_status": {
+      "enum": [
+        "NOT_REQUIRED",
+        "PENDING",
+        "APPROVED",
+        "DENIED",
+        "UNKNOWN"
+      ]
+    },
+    "consent_reference": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "deidentification_status": {
+      "enum": [
+        "NOT_APPLICABLE",
+        "NOT_STARTED",
+        "IN_PROGRESS",
+        "VERIFIED",
+        "NOT_ASSESSED"
+      ]
+    },
+    "transformations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "step",
+          "description"
+        ],
+        "properties": {
+          "step": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "description": {
+            "type": "string"
+          },
+          "script_sha256": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "storage_path": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "file_profile": {
+      "type": "object",
+      "required": [
+        "format",
+        "encoding",
+        "delimiter",
+        "row_count",
+        "column_count",
+        "size_bytes",
+        "missing_value_tokens",
+        "columns",
+        "profile_notice",
+        "numeric_summary_suppression_threshold"
+      ],
+      "properties": {
+        "format": {
+          "const": "CSV"
+        },
+        "encoding": {
+          "type": "string"
+        },
+        "delimiter": {
+          "type": "string"
+        },
+        "row_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "column_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "missing_value_tokens": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "variable_id",
+              "column_name",
+              "inferred_type",
+              "row_count",
+              "non_empty_count",
+              "missing_count",
+              "missing_rate",
+              "distinct_count_lower_bound",
+              "distinct_count_truncated",
+              "is_constant",
+              "numeric_summary",
+              "numeric_summary_suppressed"
+            ],
+            "properties": {
+              "variable_id": {
+                "type": "string"
+              },
+              "column_name": {
+                "type": "string"
+              },
+              "inferred_type": {
+                "enum": [
+                  "INTEGER",
+                  "NUMBER",
+                  "BOOLEAN",
+                  "TEXT",
+                  "EMPTY"
+                ]
+              },
+              "row_count": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "non_empty_count": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "missing_count": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "missing_rate": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "distinct_count_lower_bound": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "distinct_count_truncated": {
+                "type": "boolean"
+              },
+              "is_constant": {
+                "type": "boolean"
+              },
+              "numeric_summary": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "properties": {
+                  "n": {
+                    "type": "integer"
+                  },
+                  "mean": {
+                    "type": "number"
+                  },
+                  "sample_standard_deviation": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "minimum": {
+                    "type": "number"
+                  },
+                  "maximum": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "n",
+                  "mean",
+                  "sample_standard_deviation",
+                  "minimum",
+                  "maximum"
+                ],
+                "additionalProperties": false
+              },
+              "numeric_summary_suppressed": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "profile_notice": {
+          "type": "string"
+        },
+        "numeric_summary_suppression_threshold": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 50
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "privacy_classification": {
+            "const": "RESTRICTED"
+          }
+        },
+        "required": [
+          "privacy_classification"
+        ]
+      },
+      "then": {
+        "properties": {
+          "permission_status": {
+            "enum": [
+              "PENDING",
+              "APPROVED",
+              "DENIED",
+              "UNKNOWN"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "permission_status": {
+            "const": "DENIED"
+          }
+        },
+        "required": [
+          "permission_status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "transformations": {
+            "maxItems": 0
+          }
+        }
+      }
+    }
+  ],
+  "additionalProperties": false
+}

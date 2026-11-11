@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/project-skripsi/schemas/analysis/analysis-specification.schema.json",
+  "title": "Human-approved descriptive analysis specification",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "project_id",
+    "analysis_id",
+    "analysis_plan_id",
+    "research_question_ids",
+    "dataset_artifact_id",
+    "method",
+    "justification",
+    "human_method_approval",
+    "variables",
+    "missing_value_tokens",
+    "small_cell_suppression_threshold",
+    "assumption_review_notes",
+    "human_method_approval_reference"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "project_id": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64
+    },
+    "analysis_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,63}$"
+    },
+    "analysis_plan_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "research_question_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "dataset_artifact_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,63}$"
+    },
+    "method": {
+      "enum": [
+        null,
+        "DESCRIPTIVE_SUMMARY"
+      ]
+    },
+    "justification": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 12
+    },
+    "human_method_approval": {
+      "enum": [
+        "NOT_GRANTED",
+        "APPROVED",
+        "REJECTED"
+      ]
+    },
+    "variables": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "variable_id",
+          "column_name",
+          "construct_id",
+          "operation"
+        ],
+        "properties": {
+          "variable_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "column_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "construct_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "operation": {
+            "enum": [
+              "NUMERIC_SUMMARY",
+              "FREQUENCY_TABLE"
+            ]
+          },
+          "expose_category_labels": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "missing_value_tokens": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "small_cell_suppression_threshold": {
+      "type": "integer",
+      "minimum": 2,
+      "maximum": 50
+    },
+    "assumption_review_notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "human_method_approval_reference": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    }
+  },
+  "additionalProperties": false
+}

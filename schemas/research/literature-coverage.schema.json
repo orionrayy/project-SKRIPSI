@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/project-skripsi/schemas/research/literature-coverage.schema.json",
+  "title": "Project Literature Coverage Summary",
+  "type": "object",
+  "required": [
+    "schema_version", "project_id", "generated_at", "source_count", "matrix_row_count",
+    "abstract_snapshot_count", "doi_count", "access_status_counts", "review_status_counts", "claim"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "project_id": {"type": "string", "minLength": 3},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "source_count": {"type": "integer", "minimum": 0},
+    "matrix_row_count": {"type": "integer", "minimum": 0},
+    "abstract_snapshot_count": {"type": "integer", "minimum": 0},
+    "doi_count": {"type": "integer", "minimum": 0},
+    "access_status_counts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+    "review_status_counts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+    "claim": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": false
+}

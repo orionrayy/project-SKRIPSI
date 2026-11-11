@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://project-skripsi.local/schemas/quality/turnitin-report-comparison.schema.json",
+  "title": "Turnitin Report Comparison",
+  "type": "object",
+  "required": ["schema_version", "audit_type", "status", "baseline", "current", "change", "comparability"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "audit_type": {"const": "TURNITIN_REPORT_COMPARISON"},
+    "status": {"enum": ["COMPARABLE_VISIBLE_SETTINGS", "CONDITIONAL_SETTINGS_DIFFER"]},
+    "baseline": {"type": "object", "required": ["pdf_sha256", "overall_similarity_percent", "visible_exclusions"], "properties": {"pdf_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}, "overall_similarity_percent": {"type": "integer", "minimum": 0, "maximum": 100}, "visible_exclusions": {"type": "array", "items": {"type": "string"}}}, "additionalProperties": true},
+    "current": {"type": "object", "required": ["pdf_sha256", "overall_similarity_percent", "visible_exclusions"], "properties": {"pdf_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}, "overall_similarity_percent": {"type": "integer", "minimum": 0, "maximum": 100}, "visible_exclusions": {"type": "array", "items": {"type": "string"}}}, "additionalProperties": true},
+    "change": {"type": "object", "required": ["overall_similarity_percentage_point_delta", "visible_exclusions_match"], "properties": {"overall_similarity_percentage_point_delta": {"type": "integer"}, "relative_change_percent": {"type": ["number", "null"]}, "visible_exclusions_match": {"type": "boolean"}}, "additionalProperties": true},
+    "comparability": {"type": "object", "required": ["visible_exclusion_settings_match", "database_and_account_side_settings_verified", "assessment"], "properties": {"visible_exclusion_settings_match": {"type": "boolean"}, "database_and_account_side_settings_verified": {"const": false}, "assessment": {"type": "string"}}, "additionalProperties": true},
+    "no_plagiarism_verdict": {"const": true},
+    "no_ai_detector_prediction": {"const": true},
+    "notice": {"type": "string"}
+  },
+  "additionalProperties": true
+}

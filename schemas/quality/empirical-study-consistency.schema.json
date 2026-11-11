@@ -1,0 +1,278 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://project-skripsi.local/schemas/quality/empirical-study-consistency.schema.json",
+  "title": "Empirical Study Consistency Audit Input",
+  "type": "object",
+  "required": [
+    "study_id",
+    "sample",
+    "design"
+  ],
+  "properties": {
+    "study_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sample": {
+      "type": "object",
+      "required": [
+        "declared_n"
+      ],
+      "properties": {
+        "declared_n": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "participant_ids_available": {
+          "type": "boolean"
+        },
+        "participant_ids_unique": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "design": {
+      "type": "object",
+      "required": [
+        "type",
+        "has_control_group"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "has_control_group": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "demographic_distributions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "counts"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "counts": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "percentages": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            }
+          },
+          "declared_n": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "constructs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "measurement_modality"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "measurement_modality": {
+            "type": "string",
+            "enum": [
+              "SELF_REPORT",
+              "ORAL_PERFORMANCE_TEST",
+              "OBSERVATION",
+              "DOCUMENTARY",
+              "ADMINISTRATIVE_RECORD",
+              "OTHER"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "analyses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "procedure"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "procedure": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pairing_key": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "rater_count": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1
+          },
+          "model": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "measurement_type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "definition": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "construct_id": {
+            "type": "string"
+          },
+          "construct_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dependent_construct_id": {
+            "type": "string"
+          },
+          "claimed_target_construct_id": {
+            "type": "string"
+          },
+          "outcome_kind": {
+            "type": "string"
+          },
+          "p_value": {
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "claims_causality": {
+            "type": "boolean"
+          },
+          "test_output_table_present": {
+            "type": "boolean"
+          },
+          "pairing_method": {
+            "type": "string"
+          },
+          "assumption_diagnostics": {
+            "type": "object",
+            "properties": {
+              "difference_distribution_reviewed": {
+                "type": "boolean"
+              },
+              "method": {
+                "type": "string"
+              },
+              "notes": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "instruments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "item_count"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string"
+          },
+          "instrument_type": {
+            "type": "string"
+          },
+          "item_count": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "validity_evidence": {
+            "type": "object",
+            "properties": {
+              "method": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "validated_item_count": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "reviewer_count": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1
+              },
+              "evidence_locator": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

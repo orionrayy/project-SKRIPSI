@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/project-skripsi/schemas/claim-evidence-link.schema.json",
+  "title": "Claim to Evidence Link",
+  "type": "object",
+  "required": ["claim_id", "source_id", "relation", "claim_scope", "exact_locator", "support_level", "review_status"],
+  "properties": {
+    "claim_id": {"type": "string", "minLength": 1},
+    "source_id": {"type": "string", "minLength": 1},
+    "relation": {"enum": ["SUPPORTS", "CONTRADICTS", "CONTEXTUALIZES"]},
+    "claim_scope": {"enum": ["BIBLIOGRAPHIC_METADATA", "ABSTRACT", "FULL_TEXT_SECTION", "DATASET", "OTHER"]},
+    "exact_locator": {"type": "string", "minLength": 1},
+    "support_level": {"enum": ["DIRECT", "PARTIAL", "INDIRECT", "BACKGROUND"]},
+    "review_status": {"enum": ["UNREVIEWED", "VERIFIED", "NEEDS_REVIEW", "REJECTED"]},
+    "reviewer_role": {"type": ["string", "null"]},
+    "limitations": {"type": "string"}
+  },
+  "additionalProperties": false
+}

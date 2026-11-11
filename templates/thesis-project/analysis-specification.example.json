@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0.0",
+  "project_id": "example-thesis-001",
+  "analysis_id": "ANALYSIS-001",
+  "analysis_plan_id": "A1",
+  "research_question_ids": ["RQ1"],
+  "dataset_artifact_id": "DATASET-001",
+  "method": "DESCRIPTIVE_SUMMARY",
+  "justification": "The approved descriptive research plan requires a summary of the observed distribution and central tendency.",
+  "human_method_approval": "APPROVED",
+  "human_method_approval_reference": "DEC-METHOD-001",
+  "variables": [
+    {"variable_id": "V1", "column_name": "age_years", "construct_id": "C1", "operation": "NUMERIC_SUMMARY"},
+    {"variable_id": "V2", "column_name": "study_program", "construct_id": "C2", "operation": "FREQUENCY_TABLE", "expose_category_labels": false}
+  ],
+  "missing_value_tokens": ["", "NA", "N/A"],
+  "small_cell_suppression_threshold": 5,
+  "assumption_review_notes": ["Verify that each column matches the approved codebook before execution."]
+}

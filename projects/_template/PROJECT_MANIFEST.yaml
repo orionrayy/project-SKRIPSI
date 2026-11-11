@@ -1,0 +1,39 @@
+schema_version: "1.0.0"
+project_id: "REQUIRED_UNIQUE_ID"
+project_title: "REQUIRED"
+status: "DRAFT"
+created_at: null
+updated_at: null
+institution:
+  university: null
+  faculty: null
+  program: null
+  degree_level: null
+  guideline_sources: []
+research:
+  discipline: null
+  primary_domain: null
+  research_questions: []
+  research_design: null
+  methodology_status: "UNSPECIFIED"
+  ethics_status: "NOT_ASSESSED"
+  data_sources: []
+  data_classification: "PUBLIC_ONLY_UNTIL_REVIEWED"
+writing:
+  language: null
+  citation_style: null
+  institutional_template: null
+  ai_disclosure_requirement: "UNVERIFIED"
+access:
+  project_owner_role: "UNASSIGNED"
+  data_controller_role: "UNASSIGNED"
+  permitted_collaborators: []
+isolation:
+  workspace_root: "projects/<project_id>/"
+  external_data_allowed: false
+  public_release_allowed: false
+provenance:
+  source_register: "sources/"
+  decision_log: "audit/DECISION_LOG.md"
+  change_log: "audit/CHANGE_LOG.md"
+  retention_policy: "PENDING_PROJECT_DECISION"
