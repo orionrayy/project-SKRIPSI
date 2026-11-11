@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 import tempfile
 import unittest
@@ -101,7 +102,9 @@ class OpenAlexClientTests(unittest.TestCase):
             self.assertEqual(result["result_count"], 1)
             self.assertEqual(result["items"][0]["source"]["access_status"], "METADATA_ONLY")
             cache_file = next(Path(tmp).glob("*.json"))
-            self.assertEqual(cache_file.stat().st_mode & 0o777, 0o600)
+            # POSIX mode bits are not a Windows DACL; Windows ACLs remain OS-managed.
+            if os.name != "nt":
+                self.assertEqual(cache_file.stat().st_mode & 0o777, 0o600)
 
     def test_api_key_is_sent_as_bearer_header_not_url_or_cache_metadata(self):
         payload = {"meta": {"count": 0}, "results": []}
@@ -236,7 +239,9 @@ class ProjectSearchPersistenceTests(unittest.TestCase):
         self.assertEqual(register["sources"][0]["access_status"], "METADATA_ONLY")
         self.assertEqual(validate_source_register(register["sources"]), [])
         self.assertTrue(verify_audit_log(self.first / "audit" / "events.jsonl")[0])
-        self.assertEqual(snapshot.stat().st_mode & 0o777, 0o600)
+        # POSIX mode bits are not a Windows DACL; Windows ACLs remain OS-managed.
+        if os.name != "nt":
+            self.assertEqual(snapshot.stat().st_mode & 0o777, 0o600)
         snapshot_payload = json.loads(snapshot.read_text(encoding="utf-8"))
         self.assertIn("retrieved_at", snapshot_payload)
         try:
@@ -298,7 +303,8 @@ class ProjectSearchPersistenceTests(unittest.TestCase):
         import jsonschema
         coverage_schema = json.loads((ROOT / "schemas/research/literature-coverage.schema.json").read_text(encoding="utf-8"))
         jsonschema.Draft202012Validator(coverage_schema).validate(coverage)
-        self.assertEqual(Path(result["matrix"]).stat().st_mode & 0o777, 0o600)
+        if os.name != "nt":
+            self.assertEqual(Path(result["matrix"]).stat().st_mode & 0o777, 0o600)
 
     def test_literature_matrix_regeneration_preserves_manual_annotations(self):
         search_project_literature(self.first, "test query", client=self.fake_client())

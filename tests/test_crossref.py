@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -46,7 +47,9 @@ class CrossrefTests(unittest.TestCase):
             self.assertEqual(len(list(Path(tmp).glob("*.json"))), 1)
             cache_file = next(Path(tmp).glob("*.json"))
             self.assertNotIn("abstract", cache_file.read_text(encoding="utf-8").casefold())
-            self.assertEqual(cache_file.stat().st_mode & 0o777, 0o600)
+            # POSIX mode bits are not a Windows DACL; Windows ACLs remain OS-managed.
+            if os.name != "nt":
+                self.assertEqual(cache_file.stat().st_mode & 0o777, 0o600)
 
     def test_uses_fresh_cache_without_network(self):
         payload = {
