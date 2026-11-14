@@ -13,18 +13,19 @@ It is not a thesis-substitution service. It must not fabricate sources, data, fi
 
 ## Current research-governance checkpoint
 
-The canonical source is `config/pipeline/PHASE_LEDGER.json` (ledger 2.3.0). Platform test results do not advance research phases.
+The canonical source is `config/pipeline/PHASE_LEDGER.json` (ledger 2.4.0). Platform test results do not advance research phases.
 
 | Phase | Current status | Boundary |
 |---|---|---|
 | P0 — Research Charter & Integrity | `COMPLETE_AND_APPROVED` | APR-P0-001; scoped governance approval |
 | P1 — Cross-Domain Thesis Corpus | `COMPLETE_AND_APPROVED` | APR-P1-001; 50-record bibliographic eligibility corpus only, with access limitations |
-| P2 — Thesis Extraction & Coding | `VALIDATION_PASSED_APPROVAL_PENDING` | AUTH-P2-001; 214 abstract-level observations; human acceptance record APR-P2-001 remains blank |
-| P3–P9 | `NOT_STARTED / NOT_AUTHORIZED` | Each phase requires predecessor acceptance and its own authorization |
+| P2 — Thesis Extraction & Coding | `COMPLETE_AND_APPROVED` | APR-P2-001; owner ACCEPT for public abstract/item-page scope; validation remains PASS_WITH_LIMITATION |
+| P3 — Cross-Domain Synthesis | `VALIDATION_PASSED_APPROVAL_PENDING` | AUTH-P3-P9-001; candidate executed and validated with limitations; human acceptance pending |
+| P4–P9 | `NOT_STARTED / AUTHORIZED_SCOPED` | Standing conditional authorization recorded; each phase remains gated by immediate-predecessor acceptance |
 
-P1 is not 50 full-text-reviewed theses. P2 is abstract-bounded, not thesis full-text coding. P2's second independent coder remains `NOT_RUN`; semantic review remains `SELF_REVIEW_ONLY`. Do not treat absence from an abstract as evidence that the full thesis lacks a method, instrument, result or approval. The next research action remains P2 human acceptance, not P3 execution.
+P1 is not 50 full-text-reviewed theses. P2 is abstract-bounded, not thesis full-text coding. P2's second independent coder remains `NOT_RUN`; semantic review remains `SELF_REVIEW_ONLY`. Do not treat absence from an abstract as evidence that the full thesis lacks a method, instrument, result or approval. The next research action is P3 human acceptance.
 
-A public aggregate-only research status is in `docs/research/P0_P1_P2_PUBLIC_STATUS.md`. The private P1/P2 packages, record-level observations, abstracts, source registers and coverage data are intentionally not included in this public repository.
+Sanitized aggregate status is in `docs/research/P0_P1_P2_PUBLIC_STATUS.md` and `docs/research/P3_PUBLIC_STATUS.md`. The private P1/P2 packages, record-level observations, abstracts, source registers and coverage data are intentionally not included in this public repository.
 
 ## Platform capabilities (v0.8.0)
 
