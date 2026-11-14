@@ -1,7 +1,7 @@
 # P3–P9 Execution Authorization Record
 
 **Record ID:** AUTH-P3-P9-001  
-**Decision timestamp:** 2026-11-14T20:25:51+07:00 (Asia/Jakarta)  
+**Decision date / record timestamp:** User authorization received on 2026-11-14; exact message timestamp is not exposed in this record. This governance record was formalized at 2026-11-14T20:25:51+07:00 (Asia/Jakarta).  
 **Approver role:** Project owner; the explicit instruction was received in the active conversation.  
 **Scope:** P3 through P9 of the P0–P9 Research-to-Execution Pipeline.
 
