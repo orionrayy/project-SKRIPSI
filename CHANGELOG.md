@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased — Rendered document layout QA and sanitized case learning (2026-11-14)
+
+- Added a read-only DOCX/OOXML + rendered PDF layout auditor and source-checkout CLI for section geometry, margins, typography, visible cover/body pagination, displayed page-number sequences, optional TOC page mapping, sparse-page warnings and inline-image alt-text counts.
+- Added policy, audit-result and sanitized case-learning Draft 2020-12 schemas; synthetic regression tests; a de-identified machine-readable case record; and engineering/case-learning documentation.
+- Added privacy constraints: public case record omits identity fields, institutional identifiers, original document binaries, manuscript text, source entries, asset binaries, filenames and artifact hashes. Audit reports omit paths, filenames and input hashes.
+- Local verification: 6/6 new tests PASS, three schema contracts plus the case record validate, and Python compilation PASS. Full repository regression and GitHub Actions CI remain pending; this is not a release.
+
 ## 0.8.0 — Turnitin report comparison and empirical evidence QA (2026-11-10)
 
 - Added optional local Turnitin PDF report parser and comparison engine: submission metadata, similarity percentage, visible exclusions, source-category percentages, top-source inventory and visible source-badge references.
