@@ -1,0 +1,156 @@
+{
+  "schema_version": "1.0.0",
+  "case_id": "CASE-DOC-LAYOUT-2026-11",
+  "case_type": "ACADEMIC_PAPER_DOCUMENT_ENGINEERING",
+  "classification": "PUBLIC_SANITIZED_DERIVED_CASE",
+  "scope": "PLATFORM_QUALITY_LEARNING",
+  "privacy": {
+    "personal_identifiers_included": false,
+    "institution_identifiers_included": false,
+    "original_manuscript_text_included": false,
+    "original_reference_entries_included": false,
+    "original_docx_or_pdf_included": false,
+    "original_asset_binaries_included": false,
+    "personal_filenames_or_hashes_included": false
+  },
+  "task_profile": {
+    "language": "id-ID",
+    "discipline": "social_anthropology",
+    "method": "retrospective_autoethnographic_reflection",
+    "experience_category": "attendance_at_cultural_wedding",
+    "regional_context": "Banten",
+    "perceived_cultural_elements": [
+      "Javanese",
+      "Sundanese"
+    ],
+    "supported_observation": "The author perceived Javanese elements as more prominent than Sundanese elements at one wedding they attended.",
+    "evidence_scope": "One retrospective first-person account; no contemporaneous field notes or supplementary interviews were supplied.",
+    "unsupported_details": [
+      "exact event date",
+      "specific venue or village",
+      "family identities or relationships",
+      "complete ceremony sequence",
+      "family motivations",
+      "regional prevalence claims"
+    ]
+  },
+  "requirements": {
+    "page_size": "A4",
+    "font_family": "Times New Roman",
+    "font_size_pt": 12,
+    "line_spacing": 1.5,
+    "margins_cm": {
+      "top": 3,
+      "right": 3,
+      "bottom": 3,
+      "left": 4
+    },
+    "substantive_body_pages_min": 8,
+    "substantive_body_pages_max": 12,
+    "page_count_excludes": [
+      "cover",
+      "bibliography"
+    ],
+    "required_sections": [
+      "cover",
+      "preface",
+      "table_of_contents",
+      "chapter_1",
+      "chapter_2",
+      "chapter_3",
+      "chapter_4",
+      "bibliography"
+    ],
+    "delivery_formats": [
+      "DOCX",
+      "PDF"
+    ]
+  },
+  "rendered_outcome": {
+    "physical_pdf_page_count": 14,
+    "cover_physical_pages": 1,
+    "front_matter_physical_pages": 2,
+    "substantive_chapter_pages": 10,
+    "bibliography_physical_pages": 1,
+    "cover_has_visible_page_number": false,
+    "first_noncover_displayed_page_number": 1,
+    "last_displayed_page_number": 13,
+    "body_number_sequence_valid": true,
+    "toc_page_map_checked_against_rendered_pdf": true,
+    "toc_displayed_page_map": {
+      "BAB I PENDAHULUAN": 3,
+      "1.1 Latar Belakang": 3,
+      "BAB II TINJAUAN PUSTAKA": 6,
+      "2.1 Konsep Kebudayaan": 6,
+      "BAB III PEMBAHASAN": 8,
+      "BAB IV PENUTUP": 12,
+      "DAFTAR PUSTAKA": 13
+    },
+    "bibliography_entries_present": 9,
+    "bibliographic_metadata_independently_verified": false
+  },
+  "revision_learning": {
+    "initial_render_exceeded_target_page_budget": true,
+    "content_was_condensed_after_render_review": true,
+    "visual_hierarchy_was_refined": true,
+    "cover_numbering_defect_was_reported_by_user": true,
+    "cover_numbering_defect_was_corrected_and_re_rendered": true,
+    "table_of_contents_was_reconciled_after_render": true,
+    "full_pdf_page_review_performed": true,
+    "latest_visual_qa_must_be_invalidated_after_any_later_edit": true
+  },
+  "structural_audit": {
+    "status": "WARN",
+    "error_count": 0,
+    "warning_count": 2,
+    "docx_section_count": 1,
+    "uses_different_first_page_header_footer": true,
+    "page_numbering_start_value": 0,
+    "uses_single_section_zero_based_cover_workaround": true,
+    "inline_images": 1,
+    "images_missing_alt_text": 1,
+    "a4_geometry_valid": true,
+    "declared_margins_valid": true,
+    "normal_style_font_valid": true,
+    "normal_style_spacing_valid": true
+  },
+  "residual_findings": [
+    {
+      "code": "NONSTANDARD_ZERO_BASED_COVER_NUMBERING",
+      "severity": "WARNING",
+      "state": "OPEN_ENGINEERING_IMPROVEMENT",
+      "lesson": "Visual numbering may be correct while the DOCX section model remains fragile; prefer a dedicated cover section and a body section restarted at one."
+    },
+    {
+      "code": "IMAGE_ALT_TEXT_MISSING",
+      "severity": "WARNING",
+      "state": "OPEN_ACCESSIBILITY_IMPROVEMENT",
+      "lesson": "Embedded non-decorative institutional imagery must carry meaningful OOXML alternative text."
+    }
+  ],
+  "reusable_writing_controls": [
+    "Separate direct observation from interpretation, literature context and inference.",
+    "Do not invent missing event dates, locations, participants, motives or ritual details.",
+    "Limit generalization when only one retrospective experience is available.",
+    "Use natural academic Indonesian with varied sentence structure and precise transitions.",
+    "Avoid repetitive templates and formulaic contrastive constructions.",
+    "Do not optimize content for AI-detector evasion or similarity-score manipulation."
+  ],
+  "production_gates": [
+    "Validate a human-confirmed task or institution formatting profile.",
+    "Render the final DOCX to PDF after the last edit.",
+    "Check cover suppression and the complete displayed page-number sequence in PDF.",
+    "Map TOC headings to displayed page numbers, distinct from physical PDF indexes.",
+    "Check page geometry, margins, Normal style and run-level typography.",
+    "Review every rendered page for clipping, overlap, blank pages and awkward page composition.",
+    "Audit image alternative text and bibliography metadata independently.",
+    "Keep original artifacts and case hashes in the private workspace only.",
+    "Do not label a technically checked draft as institutionally accepted or fully reviewed."
+  ],
+  "limitations": [
+    "This is one assignment case, not a representative sample of academic writing or university formatting.",
+    "The layout auditor relies on extractable PDF text and may miss rasterized page numbers.",
+    "Automated TOC heading matching is heuristic and requires human visual review.",
+    "A structural PASS does not certify visual aesthetics, citation truth, academic validity or institutional acceptance."
+  ]
+}
