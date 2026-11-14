@@ -5,7 +5,7 @@
   "project": "project-skripsi",
   "pipeline": "P0-P9 Research-to-Execution Pipeline",
   "created_at": "2026-11-05T04:55:33+07:00",
-  "updated_at": "2026-11-14T20:25:51+07:00",
+  "updated_at": "2026-11-14T20:44:14+07:00",
   "source_of_truth": {
     "canonical_memory": "ORCHESTRATION_MEMORY.md",
     "memory_created_in_this_bootstrap": true,
@@ -24,7 +24,7 @@
     "remote_size_kb": 612,
     "remote_branch_count": 2,
     "commit_state": "CANDIDATE_BRANCH_UPDATED; MAIN_UNCHANGED:2ddab892c9c4c927930e8424280a32f49ea0600e",
-    "root_contents_state": "MAIN_BASELINE_UNCHANGED; FEATURE_BRANCH_CONTAINS_SANITIZED_CASE_LEARNING_AND_P2_P3_GOVERNANCE_UPDATES; SOURCE_MANIFEST_143_ENTRIES_REFRESHED; CI_VERIFICATION_PENDING",
+    "root_contents_state": "MAIN_BASELINE_UNCHANGED; FEATURE_BRANCH_CONTAINS_SANITIZED_CASE_LEARNING_AND_P2_P3_GOVERNANCE_UPDATES; SOURCE_MANIFEST_143_ENTRIES_REFRESHED",
     "release_count": 0,
     "workflow_run_count": 8,
     "local_path": ".",
