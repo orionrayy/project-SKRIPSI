@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/project-skripsi/schemas/quality/document-layout-audit.schema.json",
+  "title": "Privacy-minimizing DOCX/PDF layout audit report",
+  "type": "object",
+  "required": ["schema_version", "status", "audited_at", "docx", "pdf", "pagination", "findings", "summary"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "status": {"enum": ["PASS", "WARN", "FAIL"]},
+    "audited_at": {"type": "string", "format": "date-time"},
+    "docx": {
+      "type": "object",
+      "required": ["section_count", "sections", "normal_style", "observed_font_families", "observed_font_sizes_pt", "heading_count", "table_count", "inline_image_count", "images_missing_alt_count"],
+      "properties": {
+        "section_count": {"type": "integer", "minimum": 1},
+        "sections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["index", "page_width_pt", "page_height_pt", "orientation", "margins_cm", "different_first_page_header_footer", "start_page_number", "default_footer_text_present", "first_page_footer_text_present", "default_footer_page_fields", "first_page_footer_page_fields", "default_header_page_fields", "first_page_header_page_fields"],
+            "properties": {
+              "index": {"type": "integer", "minimum": 0},
+              "page_width_pt": {"type": "number", "exclusiveMinimum": 0},
+              "page_height_pt": {"type": "number", "exclusiveMinimum": 0},
+              "orientation": {"enum": ["PORTRAIT", "LANDSCAPE"]},
+              "margins_cm": {
+                "type": "object",
+                "required": ["top", "right", "bottom", "left"],
+                "properties": {
+                  "top": {"type": "number"}, "right": {"type": "number"},
+                  "bottom": {"type": "number"}, "left": {"type": "number"}
+                },
+                "additionalProperties": false
+              },
+              "different_first_page_header_footer": {"type": "boolean"},
+              "start_page_number": {"type": ["integer", "null"]},
+              "default_footer_text_present": {"type": "boolean"},
+              "first_page_footer_text_present": {"type": "boolean"},
+              "default_footer_page_fields": {"type": "integer", "minimum": 0},
+              "first_page_footer_page_fields": {"type": "integer", "minimum": 0},
+              "default_header_page_fields": {"type": "integer", "minimum": 0},
+              "first_page_header_page_fields": {"type": "integer", "minimum": 0}
+            },
+            "additionalProperties": false
+          }
+        },
+        "normal_style": {
+          "type": "object",
+          "required": ["font_family", "font_size_pt", "line_spacing", "first_line_indent_cm"],
+          "properties": {
+            "font_family": {"type": ["string", "null"]},
+            "font_size_pt": {"type": ["number", "null"]},
+            "line_spacing": {"type": ["number", "null"]},
+            "first_line_indent_cm": {"type": ["number", "null"]}
+          },
+          "additionalProperties": false
+        },
+        "observed_font_families": {"type": "array", "items": {"type": "string"}},
+        "observed_font_sizes_pt": {"type": "array", "items": {"type": "number"}},
+        "heading_count": {"type": "integer", "minimum": 0},
+        "table_count": {"type": "integer", "minimum": 0},
+        "inline_image_count": {"type": "integer", "minimum": 0},
+        "images_missing_alt_count": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "pdf": {
+      "type": "object",
+      "required": ["page_count", "page_text_character_counts", "footer_number_tokens"],
+      "properties": {
+        "page_count": {"type": "integer", "minimum": 1},
+        "page_text_character_counts": {"type": "array", "items": {"type": "integer", "minimum": 0}},
+        "footer_number_tokens": {"type": "array", "items": {"type": "array", "items": {"type": "string", "pattern": "^[0-9]{1,4}$"}}}
+      },
+      "additionalProperties": false
+    },
+    "pagination": {
+      "type": "object",
+      "required": ["cover_pages", "cover_footer_number_tokens", "body_start_number", "detected_body_page_numbers", "body_numbering_sequence_valid"],
+      "properties": {
+        "cover_pages": {"type": "integer", "minimum": 0},
+        "cover_footer_number_tokens": {"type": "array", "items": {"type": "array", "items": {"type": "string", "pattern": "^[0-9]{1,4}$"}}},
+        "body_start_number": {"type": "integer", "minimum": 1},
+        "detected_body_page_numbers": {"type": "array", "items": {"type": ["integer", "null"]}},
+        "body_numbering_sequence_valid": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "severity", "message"],
+        "properties": {
+          "code": {"type": "string", "minLength": 1},
+          "severity": {"enum": ["WARNING", "ERROR"]},
+          "message": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["error_count", "warning_count", "page_count"],
+      "properties": {
+        "error_count": {"type": "integer", "minimum": 0},
+        "warning_count": {"type": "integer", "minimum": 0},
+        "page_count": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

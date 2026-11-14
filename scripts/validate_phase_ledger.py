@@ -76,8 +76,31 @@ def validate_ledger(ledger_path:Path,schema_path:Path)->list[str]:
                 errors.append(f"{cur.get('phase_id')} cannot be complete/approved before {prev.get('phase_id')}")
     for i in range(3,10):
         cur=by.get(f"P{i}",{}); prev=by.get(f"P{i-1}",{})
-        if cur.get("authorization_status") in {"AUTHORIZED_SCOPED","AUTHORIZED_TO_START"} and (prev.get("execution_status")!="COMPLETE" or prev.get("approval_status")!="APPROVED"):
-            errors.append(f"{cur.get('phase_id')} cannot be authorized before {prev.get('phase_id')} is complete/approved")
+        predecessor_accepted = (
+            prev.get("execution_status")=="COMPLETE"
+            and prev.get("approval_status")=="APPROVED"
+            and prev.get("human_acceptance_status")=="ACCEPTED"
+            and prev.get("phase_conclusion")=="COMPLETE_AND_APPROVED"
+        )
+        is_authorized = cur.get("authorization_status") in {"AUTHORIZED_SCOPED","AUTHORIZED_TO_START"}
+        if is_authorized and not predecessor_accepted:
+            # A project owner may issue a standing, conditional authorization for
+            # later phases. It is recorded now, but may not activate execution.
+            if (
+                cur.get("execution_status")!="NOT_STARTED"
+                or cur.get("approval_status")!="PENDING"
+                or cur.get("human_acceptance_status")!="PENDING"
+                or cur.get("validation_status")!="NOT_RUN"
+                or cur.get("phase_conclusion")!="NOT_STARTED"
+            ):
+                errors.append(
+                    f"{cur.get('phase_id')} is pre-authorized only; it cannot execute or be approved "
+                    f"before {prev.get('phase_id')} is COMPLETE/APPROVED/ACCEPTED"
+                )
+        elif not predecessor_accepted and cur.get("execution_status")!="NOT_STARTED":
+            errors.append(
+                f"{cur.get('phase_id')} cannot execute before {prev.get('phase_id')} is COMPLETE/APPROVED/ACCEPTED"
+            )
     active=ledger.get("current_active_phase")
     expected_active=next((f"P{i}" for i in range(10) if by.get(f"P{i}",{}).get("phase_conclusion")!="COMPLETE_AND_APPROVED"),None)
     if active!=expected_active: errors.append(f"current_active_phase must be earliest incomplete phase {expected_active}; got {active}")
@@ -109,6 +132,6 @@ def main()->int:
         f"(approval={p2['approval_status']}, acceptance={p2['human_acceptance_status']}, "
         f"authorization={p2['authorization_status']})"
     )
-    print("PASS: P3-P9 remain gated; remote mutation state is explicitly allowlist-scoped")
+    print("PASS: standing phase authorizations are recorded; execution remains gated by immediate-predecessor acceptance; remote mutation state is allowlist-scoped")
     return 0
 if __name__=="__main__": raise SystemExit(main())

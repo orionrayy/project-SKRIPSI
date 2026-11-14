@@ -682,7 +682,7 @@ class StableHashTests(unittest.TestCase):
             original = statistics.sha256_file
             def mutate_after_hash(path):
                 digest = original(path)
-                path.write_text("x\n2\n", encoding="utf-8")
+                path.write_text("x\nchanged-content\n", encoding="utf-8")
                 return digest
             with patch.object(statistics, "sha256_file", side_effect=mutate_after_hash):
                 with self.assertRaisesRegex(StatisticalEngineError, "changed while its SHA-256"):

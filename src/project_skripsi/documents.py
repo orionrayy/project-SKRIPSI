@@ -806,7 +806,14 @@ def _build_docx_once(root: Path, spec: dict[str, Any], toc_sections: list[dict[s
 
 
 def _render_pdf(docx_path: Path, output_pdf: Path) -> None:
-    soffice = shutil.which("libreoffice") or shutil.which("soffice")
+    configured_soffice = os.environ.get("PROJECT_SKRIPSI_SOFFICE")
+    if configured_soffice:
+        configured_path = Path(configured_soffice).expanduser()
+        if not configured_path.is_file():
+            raise DocumentEngineError("PROJECT_SKRIPSI_SOFFICE must point to an existing LibreOffice executable")
+        soffice = str(configured_path)
+    else:
+        soffice = shutil.which("libreoffice") or shutil.which("soffice")
     if not soffice:
         raise DocumentEngineError("LibreOffice is required to build a page-accurate TOC/PDF")
     if fitz is None:

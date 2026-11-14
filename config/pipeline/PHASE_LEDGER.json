@@ -1,11 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "ledger_id": "PROJECT-SKRIPSI-PHASE-LEDGER-GENESIS",
-  "ledger_version": "2.3.0",
+  "ledger_version": "2.4.0",
   "project": "project-skripsi",
   "pipeline": "P0-P9 Research-to-Execution Pipeline",
   "created_at": "2026-11-05T04:55:33+07:00",
-  "updated_at": "2026-11-11T18:10:00+07:00",
+  "updated_at": "2026-11-14T20:44:14+07:00",
   "source_of_truth": {
     "canonical_memory": "ORCHESTRATION_MEMORY.md",
     "memory_created_in_this_bootstrap": true,
@@ -22,11 +22,11 @@
     "archived": false,
     "default_branch_metadata": "main",
     "remote_size_kb": 612,
-    "remote_branch_count": 1,
-    "commit_state": "EXPANDED_PUBLIC_SOURCE_PUBLISHED:a667940306d57d83032ad973985c504fb7774a30",
-    "root_contents_state": "EXPANDED_TREE_VERIFIED_ON_MAIN; 133_BLOB_FILES; 130_MANIFEST_ALLOWLISTED_SOURCE_FILES; MANIFEST.sha256; DISTRIBUTION_TAR_XZ_AND_SHA256_SIDECAR_PRESENT",
+    "remote_branch_count": 2,
+    "commit_state": "CANDIDATE_BRANCH_UPDATED; MAIN_UNCHANGED:2ddab892c9c4c927930e8424280a32f49ea0600e",
+    "root_contents_state": "MAIN_BASELINE_UNCHANGED; FEATURE_BRANCH_CONTAINS_SANITIZED_CASE_LEARNING_AND_P2_P3_GOVERNANCE_UPDATES; SOURCE_MANIFEST_143_ENTRIES_REFRESHED",
     "release_count": 0,
-    "workflow_run_count": 4,
+    "workflow_run_count": 8,
     "local_path": ".",
     "local_branch": "main",
     "origin_url": "https://github.com/orionrayy/project-SKRIPSI.git",
@@ -39,8 +39,8 @@
     "github_profile_identity_matches_repo_owner": true,
     "commit_identity_resolution": "REMOTE_COMMIT_AUTHORED_BY_AUTHENTICATED_GITHUB_ACCOUNT; LOCAL_GIT_AUTHOR_UNCONFIGURED"
   },
-  "current_active_phase": "P2",
-  "current_active_work_item": "P2_HUMAN_ACCEPTANCE_CLOSURE",
+  "current_active_phase": "P3",
+  "current_active_work_item": "P3_HUMAN_ACCEPTANCE_CLOSURE",
   "phases": [
     {
       "phase_id": "P0",
@@ -190,8 +190,8 @@
     {
       "phase_id": "P2",
       "phase_name": "Thesis Extraction & Coding",
-      "execution_status": "VALIDATION_PASSED_APPROVAL_PENDING",
-      "approval_status": "PENDING",
+      "execution_status": "COMPLETE",
+      "approval_status": "APPROVED",
       "authorization_status": "AUTHORIZED_SCOPED",
       "authorization_scope": "AUTH-P2-001 authorizes P2 only, within the scope of directly accessible official public institutional HTML abstracts and item-page sections that were actually inspected. No restricted/full-text downloads, access-control bypass, P3 synthesis or early start of a later phase is authorized.",
       "dependencies": [
@@ -230,12 +230,12 @@
           "summary": "The private package was validated against its schema and integrity checks; independent second coder remains NOT_RUN and semantic review remains SELF_REVIEW_ONLY."
         },
         {
-          "evidence_id": "P2-ACCEPTANCE-RECORD",
+          "evidence_id": "APR-P2-001",
           "artifact": "P2_HUMAN_ACCEPTANCE_RECORD.md",
           "path": "docs/phases/P2_HUMAN_ACCEPTANCE_RECORD.md",
           "type": "HUMAN_ACCEPTANCE_RECORD",
-          "result": "PENDING_BLANK",
-          "summary": "APR-P2-001 remains blank pending an explicit decision by the project owner."
+          "result": "ACCEPTED_SCOPED",
+          "summary": "Project owner explicitly selected ACCEPT on 2026-11-14 for the disclosed public abstract/item-page extraction scope. This does not imply full-text review or independent second coding."
         }
       ],
       "validation_results": [
@@ -276,62 +276,153 @@
         },
         {
           "check_id": "P2-HUMAN-ACCEPTANCE",
-          "result": "NEEDS_REVIEW",
-          "evidence": "APR-P2-001 remains blank. Technical validation is not human acceptance."
+          "result": "PASS",
+          "evidence": "Explicit project-owner ACCEPT decision is recorded in APR-P2-001 for the actual abstract/item-page scope; validation limitations remain unchanged."
         }
       ],
       "blockers": [
         "Three records remain without accessible content observations; seven records remain metadata-only and uncoded.",
         "The extraction scope is abstract-level/public-item-page evidence, not full-text thesis coding.",
-        "No independent second coder or external academic reviewer participated; review remains SELF_REVIEW_ONLY.",
-        "P2 human acceptance is not recorded; APR-P2-001 remains blank."
+        "No independent second coder or external academic reviewer participated; review remains SELF_REVIEW_ONLY."
       ],
-      "last_verified_at": "2026-11-05T13:09:28+07:00",
-      "next_action": "Present the aggregate P2 acceptance report and obtain an explicit ACCEPT / ACCEPT_WITH_CONDITIONS / REJECT / DEFER decision. Keep P3 locked until P2 is COMPLETE_AND_APPROVED and P3 receives separate authorization.",
+      "last_verified_at": "2026-11-14T20:25:51+07:00",
+      "next_action": "P2 accepted within its abstract/item-page evidence scope. Start P3 synthesis under AUTH-P3-P9-001; preserve all access and coder limitations.",
       "validation_status": "PASS_WITH_LIMITATION",
-      "human_acceptance_status": "PENDING",
-      "phase_conclusion": "VALIDATION_PASSED_APPROVAL_PENDING"
+      "human_acceptance_status": "ACCEPTED",
+      "phase_conclusion": "COMPLETE_AND_APPROVED"
     },
     {
       "phase_id": "P3",
       "phase_name": "Cross-Domain Synthesis",
-      "execution_status": "NOT_STARTED",
+      "execution_status": "EXECUTED",
       "approval_status": "PENDING",
-      "authorization_status": "NOT_AUTHORIZED",
-      "authorization_scope": "The user requested progression through P9, but this phase remains gated until the immediate predecessor is COMPLETE_AND_APPROVED and the phase-specific authorization is confirmed at that checkpoint.",
+      "authorization_status": "AUTHORIZED_TO_START",
+      "authorization_scope": "AUTH-P3-P9-001 records explicit user authorization for P3-P9. P3 is eligible after P2 COMPLETE_AND_APPROVED; P4-P9 carry conditional pre-authorization and must not execute until their immediate predecessor is COMPLETE_AND_APPROVED.",
       "dependencies": [
         "P2 COMPLETE_AND_APPROVED"
       ],
-      "required_deliverables": [],
-      "evidence": [],
-      "validation_results": [],
-      "blockers": [
-        "Immediate predecessor is not COMPLETE_AND_APPROVED; this phase has not been separately authorized for execution."
+      "required_deliverables": [
+        "P3_CROSS_DOMAIN_SYNTHESIS_MATRIX.csv",
+        "P3_FINDING_REGISTER.json",
+        "P3_SCOPE_TAXONOMY.md",
+        "P3_CONTRADICTION_EXCEPTION_REGISTER.csv",
+        "P3_CORPUS_BIAS_AND_COVERAGE_REPORT.md",
+        "P3_CONFIDENCE_ASSESSMENT.md",
+        "P3_DESIGN_IMPLICATIONS.md",
+        "P3_SYNTHESIS_QA_REPORT.md",
+        "P3_ACCEPTANCE_REPORT.md",
+        "P3_MANIFEST.sha256",
+        "docs/research/P3_PUBLIC_STATUS.md"
       ],
-      "last_verified_at": "2026-11-05T10:24:00+07:00",
-      "next_action": "Do not start P3 before its immediate predecessor is COMPLETE_AND_APPROVED and separate phase-specific authorization is recorded.",
-      "validation_status": "NOT_RUN",
+      "evidence": [
+        {
+          "evidence_id": "AUTH-P3-P9-001",
+          "artifact": "P3_P9_EXECUTION_AUTHORIZATION_RECORD.md",
+          "path": "docs/phases/P3_P9_EXECUTION_AUTHORIZATION_RECORD.md",
+          "type": "USER_AUTHORIZATION",
+          "result": "AUTHORIZED_SCOPED",
+          "summary": "Project owner explicitly authorized P3-P9; future phases are pre-authorized conditionally but remain sequentially gated."
+        },
+        {
+          "evidence_id": "P3-EXECUTION",
+          "artifact": "P3_ACCEPTANCE_REPORT.md",
+          "path": "docs/research/P3_PUBLIC_STATUS.md",
+          "type": "SANITIZED_AGGREGATE_EXECUTION_REPORT",
+          "result": "EXECUTED",
+          "summary": "Private synthesis candidate produced 10 findings, 120 domain-by-code matrix rows and 173 private evidence references; no record-level evidence is published."
+        },
+        {
+          "evidence_id": "P3-VALIDATION",
+          "artifact": "P3_VALIDATION_RESULTS.txt",
+          "path": "docs/research/P3_PUBLIC_STATUS.md",
+          "type": "SANITIZED_AGGREGATE_VALIDATION",
+          "result": "PASS_WITH_LIMITATION",
+          "summary": "Private package passed Draft 2020-12 schema, 50-record P1/P2 linkage, 214-observation provenance, 10-finding and manifest integrity checks; independent coder remains NOT_RUN."
+        }
+      ],
+      "validation_results": [
+        {
+          "check_id": "P3-P1-P2-LINKAGE",
+          "result": "PASS",
+          "evidence": "50 P2 record identities map to 50 unique P1 record identities in the private package."
+        },
+        {
+          "check_id": "P3-OBSERVATION-PROVENANCE",
+          "result": "PASS",
+          "evidence": "All 214 abstract-level observations carry source provenance and exact locators in private records."
+        },
+        {
+          "check_id": "P3-DOMAIN-COVERAGE",
+          "result": "PASS",
+          "evidence": "The 120-row domain-by-code matrix retains five-record P1 denominators and actual P2 coded coverage."
+        },
+        {
+          "check_id": "P3-FINDING-REGISTER",
+          "result": "PASS",
+          "evidence": "Ten findings retain taxonomy, denominator, evidence links, limitations and confidence in private register."
+        },
+        {
+          "check_id": "P3-CODEBOOK-EXCEPTION",
+          "result": "NEEDS_REVIEW",
+          "evidence": "One MTH-04 assignment is isolated as a codebook-fit exception and excluded from the conservative explicit-strategy count."
+        },
+        {
+          "check_id": "P3-SECOND-CODER",
+          "result": "NOT_RUN",
+          "evidence": "No independent second coder participated; P2 remains SELF_REVIEW_ONLY."
+        },
+        {
+          "check_id": "P3-SOURCE-FRESHNESS",
+          "result": "NEEDS_REVIEW",
+          "evidence": "P3 uses the archived 2026-11-05 P1/P2 package, not a fresh source retrieval."
+        },
+        {
+          "check_id": "P3-PRIVATE-PACKAGE",
+          "result": "PASS",
+          "evidence": "Draft 2020-12 validation, 50-record linkage, 214-observation provenance, 173 evidence references and 13-file SHA-256 manifest pass."
+        }
+      ],
+      "blockers": [
+        "Human acceptance of P3 synthesis candidate is pending.",
+        "P2 evidence is abstract/item-page bounded; no full-text thesis coding is available.",
+        "No independent second coder; semantic review remains SELF_REVIEW_ONLY.",
+        "Corpus is quota-selected and institution/year coverage is concentrated; no population-level prevalence or temporal trend is inferred.",
+        "One MTH-04 codebook-fit exception remains isolated for independent adjudication.",
+        "P1/P2 source checkpoint is 2026-11-05; no fresh source retrieval is claimed."
+      ],
+      "last_verified_at": "2026-11-14T20:25:51+07:00",
+      "next_action": "Present P3 acceptance report for explicit project-owner decision. Do not start P4 until P3 is COMPLETE_AND_APPROVED; AUTH-P3-P9-001 is already recorded as conditional standing authorization.",
+      "validation_status": "PASS_WITH_LIMITATION",
       "human_acceptance_status": "PENDING",
-      "phase_conclusion": "NOT_STARTED"
+      "phase_conclusion": "VALIDATION_PASSED_APPROVAL_PENDING"
     },
     {
       "phase_id": "P4",
       "phase_name": "University Compliance",
       "execution_status": "NOT_STARTED",
       "approval_status": "PENDING",
-      "authorization_status": "NOT_AUTHORIZED",
-      "authorization_scope": "The user requested progression through P9, but this phase remains gated until the immediate predecessor is COMPLETE_AND_APPROVED and the phase-specific authorization is confirmed at that checkpoint.",
+      "authorization_status": "AUTHORIZED_SCOPED",
+      "authorization_scope": "AUTH-P3-P9-001 records the project owner's explicit standing authorization for this phase. Conditional pre-authorization only: do not start P4 until P3 is COMPLETE_AND_APPROVED; predecessor acceptance is a hard execution gate.",
       "dependencies": [
         "P3 COMPLETE_AND_APPROVED"
       ],
       "required_deliverables": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "evidence_id": "AUTH-P3-P9-001",
+          "artifact": "P3_P9_EXECUTION_AUTHORIZATION_RECORD.md",
+          "path": "docs/phases/P3_P9_EXECUTION_AUTHORIZATION_RECORD.md",
+          "type": "USER_AUTHORIZATION",
+          "result": "AUTHORIZED_CONDITIONALLY",
+          "summary": "Project owner explicitly authorized P4; activation remains gated on P3 COMPLETE_AND_APPROVED."
+        }
+      ],
       "validation_results": [],
       "blockers": [
-        "Immediate predecessor is not COMPLETE_AND_APPROVED; this phase has not been separately authorized for execution."
+        "P3 has not yet reached COMPLETE_AND_APPROVED; P4 is authorized conditionally but must remain NOT_STARTED."
       ],
-      "last_verified_at": "2026-11-05T10:24:00+07:00",
-      "next_action": "Do not start P4 before its immediate predecessor is COMPLETE_AND_APPROVED and separate phase-specific authorization is recorded.",
+      "last_verified_at": "2026-11-14T20:25:51+07:00",
+      "next_action": "Do not execute P4 until P3 is COMPLETE_AND_APPROVED. AUTH-P3-P9-001 already records standing conditional authorization.",
       "validation_status": "NOT_RUN",
       "human_acceptance_status": "PENDING",
       "phase_conclusion": "NOT_STARTED"
@@ -341,19 +432,28 @@
       "phase_name": "Methodology & Data Validity",
       "execution_status": "NOT_STARTED",
       "approval_status": "PENDING",
-      "authorization_status": "NOT_AUTHORIZED",
-      "authorization_scope": "The user requested progression through P9, but this phase remains gated until the immediate predecessor is COMPLETE_AND_APPROVED and the phase-specific authorization is confirmed at that checkpoint.",
+      "authorization_status": "AUTHORIZED_SCOPED",
+      "authorization_scope": "AUTH-P3-P9-001 records the project owner's explicit standing authorization for this phase. Conditional pre-authorization only: do not start P5 until P4 is COMPLETE_AND_APPROVED; predecessor acceptance is a hard execution gate.",
       "dependencies": [
         "P4 COMPLETE_AND_APPROVED"
       ],
       "required_deliverables": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "evidence_id": "AUTH-P3-P9-001",
+          "artifact": "P3_P9_EXECUTION_AUTHORIZATION_RECORD.md",
+          "path": "docs/phases/P3_P9_EXECUTION_AUTHORIZATION_RECORD.md",
+          "type": "USER_AUTHORIZATION",
+          "result": "AUTHORIZED_CONDITIONALLY",
+          "summary": "Project owner explicitly authorized P5; activation remains gated on P4 COMPLETE_AND_APPROVED."
+        }
+      ],
       "validation_results": [],
       "blockers": [
-        "Immediate predecessor is not COMPLETE_AND_APPROVED; this phase has not been separately authorized for execution."
+        "P4 has not yet reached COMPLETE_AND_APPROVED; P5 is authorized conditionally but must remain NOT_STARTED."
       ],
-      "last_verified_at": "2026-11-05T10:24:00+07:00",
-      "next_action": "Do not start P5 before its immediate predecessor is COMPLETE_AND_APPROVED and separate phase-specific authorization is recorded.",
+      "last_verified_at": "2026-11-14T20:25:51+07:00",
+      "next_action": "Do not execute P5 until P4 is COMPLETE_AND_APPROVED. AUTH-P3-P9-001 already records standing conditional authorization.",
       "validation_status": "NOT_RUN",
       "human_acceptance_status": "PENDING",
       "phase_conclusion": "NOT_STARTED"
@@ -363,19 +463,28 @@
       "phase_name": "Evidence, Citation & Ethics",
       "execution_status": "NOT_STARTED",
       "approval_status": "PENDING",
-      "authorization_status": "NOT_AUTHORIZED",
-      "authorization_scope": "The user requested progression through P9, but this phase remains gated until the immediate predecessor is COMPLETE_AND_APPROVED and the phase-specific authorization is confirmed at that checkpoint.",
+      "authorization_status": "AUTHORIZED_SCOPED",
+      "authorization_scope": "AUTH-P3-P9-001 records the project owner's explicit standing authorization for this phase. Conditional pre-authorization only: do not start P6 until P5 is COMPLETE_AND_APPROVED; predecessor acceptance is a hard execution gate.",
       "dependencies": [
         "P5 COMPLETE_AND_APPROVED"
       ],
       "required_deliverables": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "evidence_id": "AUTH-P3-P9-001",
+          "artifact": "P3_P9_EXECUTION_AUTHORIZATION_RECORD.md",
+          "path": "docs/phases/P3_P9_EXECUTION_AUTHORIZATION_RECORD.md",
+          "type": "USER_AUTHORIZATION",
+          "result": "AUTHORIZED_CONDITIONALLY",
+          "summary": "Project owner explicitly authorized P6; activation remains gated on P5 COMPLETE_AND_APPROVED."
+        }
+      ],
       "validation_results": [],
       "blockers": [
-        "Immediate predecessor is not COMPLETE_AND_APPROVED; this phase has not been separately authorized for execution."
+        "P5 has not yet reached COMPLETE_AND_APPROVED; P6 is authorized conditionally but must remain NOT_STARTED."
       ],
-      "last_verified_at": "2026-11-05T10:24:00+07:00",
-      "next_action": "Do not start P6 before its immediate predecessor is COMPLETE_AND_APPROVED and separate phase-specific authorization is recorded.",
+      "last_verified_at": "2026-11-14T20:25:51+07:00",
+      "next_action": "Do not execute P6 until P5 is COMPLETE_AND_APPROVED. AUTH-P3-P9-001 already records standing conditional authorization.",
       "validation_status": "NOT_RUN",
       "human_acceptance_status": "PENDING",
       "phase_conclusion": "NOT_STARTED"
@@ -385,19 +494,28 @@
       "phase_name": "Semantic & Humanized Writing",
       "execution_status": "NOT_STARTED",
       "approval_status": "PENDING",
-      "authorization_status": "NOT_AUTHORIZED",
-      "authorization_scope": "The user requested progression through P9, but this phase remains gated until the immediate predecessor is COMPLETE_AND_APPROVED and the phase-specific authorization is confirmed at that checkpoint.",
+      "authorization_status": "AUTHORIZED_SCOPED",
+      "authorization_scope": "AUTH-P3-P9-001 records the project owner's explicit standing authorization for this phase. Conditional pre-authorization only: do not start P7 until P6 is COMPLETE_AND_APPROVED; predecessor acceptance is a hard execution gate.",
       "dependencies": [
         "P6 COMPLETE_AND_APPROVED"
       ],
       "required_deliverables": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "evidence_id": "AUTH-P3-P9-001",
+          "artifact": "P3_P9_EXECUTION_AUTHORIZATION_RECORD.md",
+          "path": "docs/phases/P3_P9_EXECUTION_AUTHORIZATION_RECORD.md",
+          "type": "USER_AUTHORIZATION",
+          "result": "AUTHORIZED_CONDITIONALLY",
+          "summary": "Project owner explicitly authorized P7; activation remains gated on P6 COMPLETE_AND_APPROVED."
+        }
+      ],
       "validation_results": [],
       "blockers": [
-        "Immediate predecessor is not COMPLETE_AND_APPROVED; this phase has not been separately authorized for execution."
+        "P6 has not yet reached COMPLETE_AND_APPROVED; P7 is authorized conditionally but must remain NOT_STARTED."
       ],
-      "last_verified_at": "2026-11-05T10:24:00+07:00",
-      "next_action": "Do not start P7 before its immediate predecessor is COMPLETE_AND_APPROVED and separate phase-specific authorization is recorded.",
+      "last_verified_at": "2026-11-14T20:25:51+07:00",
+      "next_action": "Do not execute P7 until P6 is COMPLETE_AND_APPROVED. AUTH-P3-P9-001 already records standing conditional authorization.",
       "validation_status": "NOT_RUN",
       "human_acceptance_status": "PENDING",
       "phase_conclusion": "NOT_STARTED"
@@ -407,19 +525,28 @@
       "phase_name": "Repository & Execution Engineering",
       "execution_status": "NOT_STARTED",
       "approval_status": "PENDING",
-      "authorization_status": "NOT_AUTHORIZED",
-      "authorization_scope": "The user requested progression through P9, but this phase remains gated until the immediate predecessor is COMPLETE_AND_APPROVED and the phase-specific authorization is confirmed at that checkpoint.",
+      "authorization_status": "AUTHORIZED_SCOPED",
+      "authorization_scope": "AUTH-P3-P9-001 records the project owner's explicit standing authorization for this phase. Conditional pre-authorization only: do not start P8 until P7 is COMPLETE_AND_APPROVED; predecessor acceptance is a hard execution gate.",
       "dependencies": [
         "P7 COMPLETE_AND_APPROVED"
       ],
       "required_deliverables": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "evidence_id": "AUTH-P3-P9-001",
+          "artifact": "P3_P9_EXECUTION_AUTHORIZATION_RECORD.md",
+          "path": "docs/phases/P3_P9_EXECUTION_AUTHORIZATION_RECORD.md",
+          "type": "USER_AUTHORIZATION",
+          "result": "AUTHORIZED_CONDITIONALLY",
+          "summary": "Project owner explicitly authorized P8; activation remains gated on P7 COMPLETE_AND_APPROVED."
+        }
+      ],
       "validation_results": [],
       "blockers": [
-        "Immediate predecessor is not COMPLETE_AND_APPROVED; this phase has not been separately authorized for execution."
+        "P7 has not yet reached COMPLETE_AND_APPROVED; P8 is authorized conditionally but must remain NOT_STARTED."
       ],
-      "last_verified_at": "2026-11-05T10:24:00+07:00",
-      "next_action": "Do not start P8 before its immediate predecessor is COMPLETE_AND_APPROVED and separate phase-specific authorization is recorded.",
+      "last_verified_at": "2026-11-14T20:25:51+07:00",
+      "next_action": "Do not execute P8 until P7 is COMPLETE_AND_APPROVED. AUTH-P3-P9-001 already records standing conditional authorization.",
       "validation_status": "NOT_RUN",
       "human_acceptance_status": "PENDING",
       "phase_conclusion": "NOT_STARTED"
@@ -429,25 +556,34 @@
       "phase_name": "Red-Team & Final Prompt Compilation",
       "execution_status": "NOT_STARTED",
       "approval_status": "PENDING",
-      "authorization_status": "NOT_AUTHORIZED",
-      "authorization_scope": "The user requested progression through P9, but this phase remains gated until the immediate predecessor is COMPLETE_AND_APPROVED and the phase-specific authorization is confirmed at that checkpoint.",
+      "authorization_status": "AUTHORIZED_SCOPED",
+      "authorization_scope": "AUTH-P3-P9-001 records the project owner's explicit standing authorization for this phase. Conditional pre-authorization only: do not start P9 until P8 is COMPLETE_AND_APPROVED; predecessor acceptance is a hard execution gate.",
       "dependencies": [
         "P8 COMPLETE_AND_APPROVED"
       ],
       "required_deliverables": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "evidence_id": "AUTH-P3-P9-001",
+          "artifact": "P3_P9_EXECUTION_AUTHORIZATION_RECORD.md",
+          "path": "docs/phases/P3_P9_EXECUTION_AUTHORIZATION_RECORD.md",
+          "type": "USER_AUTHORIZATION",
+          "result": "AUTHORIZED_CONDITIONALLY",
+          "summary": "Project owner explicitly authorized P9; activation remains gated on P8 COMPLETE_AND_APPROVED."
+        }
+      ],
       "validation_results": [],
       "blockers": [
-        "Immediate predecessor is not COMPLETE_AND_APPROVED; this phase has not been separately authorized for execution."
+        "P8 has not yet reached COMPLETE_AND_APPROVED; P9 is authorized conditionally but must remain NOT_STARTED."
       ],
-      "last_verified_at": "2026-11-05T10:24:00+07:00",
-      "next_action": "Do not start P9 before its immediate predecessor is COMPLETE_AND_APPROVED and separate phase-specific authorization is recorded.",
+      "last_verified_at": "2026-11-14T20:25:51+07:00",
+      "next_action": "Do not execute P9 until P8 is COMPLETE_AND_APPROVED. AUTH-P3-P9-001 already records standing conditional authorization.",
       "validation_status": "NOT_RUN",
       "human_acceptance_status": "PENDING",
       "phase_conclusion": "NOT_STARTED"
     }
   ],
-  "next_action": "Obtain the project owner’s explicit P2 acceptance decision. Keep P3 locked until P2 is COMPLETE_AND_APPROVED and a separate P3 authorization is recorded.",
+  "next_action": "P3 synthesis candidate has passed private package validation with limitations. Obtain the project owner's explicit P3 acceptance decision; keep P4 unstarted until P3 is COMPLETE_AND_APPROVED. AUTH-P3-P9-001 provides standing conditional authorization for P3-P9.",
   "remote_mutation_state": "PUBLIC_ALLOWLIST_POPULATED",
   "prompt_execution_log": "prompts/PROMPT_EXECUTION_LOG.md",
   "p1_acceptance_decision_record": "docs/phases/P1_HUMAN_ACCEPTANCE_RECORD.md"

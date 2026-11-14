@@ -23,10 +23,26 @@ class PhaseLedgerTests(unittest.TestCase):
         d=self.load(); p=d["phases"][1]; p["human_acceptance_status"]="PENDING"; self.assertTrue(self.check_temp(d))
     def test_p2_requires_own_authorization(self):
         d=self.load(); d["phases"][2]["authorization_status"]="NOT_AUTHORIZED"; self.assertTrue(self.check_temp(d))
-    def test_p3_cannot_be_authorized_before_p2_approved(self):
-        d=self.load(); d["phases"][3]["authorization_status"]="AUTHORIZED_SCOPED"; self.assertTrue(self.check_temp(d))
+    def test_future_phase_may_be_pre_authorized_but_not_executed(self):
+        d=self.load()
+        p={x["phase_id"]:x for x in d["phases"]}
+        p["P4"]["authorization_status"]="AUTHORIZED_SCOPED"
+        p["P4"]["execution_status"]="NOT_STARTED"
+        p["P4"]["approval_status"]="PENDING"
+        p["P4"]["human_acceptance_status"]="PENDING"
+        p["P4"]["validation_status"]="NOT_RUN"
+        p["P4"]["phase_conclusion"]="NOT_STARTED"
+        self.assertEqual(self.check_temp(d),[])
+
+    def test_future_phase_cannot_execute_before_predecessor_acceptance(self):
+        d=self.load()
+        p={x["phase_id"]:x for x in d["phases"]}
+        p["P4"]["authorization_status"]="AUTHORIZED_SCOPED"
+        p["P4"]["execution_status"]="IN_PROGRESS"
+        d["current_active_phase"]="P3"
+        self.assertTrue(self.check_temp(d))
     def test_earliest_incomplete_phase_is_active(self):
-        d=self.load(); d["current_active_phase"]="P3"; self.assertTrue(self.check_temp(d))
+        d=self.load(); d["current_active_phase"]="P4"; self.assertTrue(self.check_temp(d))
     def test_unscoped_remote_mutation_rejected(self):
         d=self.load(); d["remote_mutation_state"]="PUSHED"; d["repository"]["remote_mutation_state"]="PUSHED"; self.assertTrue(self.check_temp(d))
     def test_allowlist_scoped_publication_is_valid(self):

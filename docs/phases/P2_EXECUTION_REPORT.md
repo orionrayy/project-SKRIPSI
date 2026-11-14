@@ -1,8 +1,9 @@
 # P2 Execution Report — Public Aggregate Summary
 
-**Evidence checkpoint:** 2026-11-05 (Asia/Jakarta)  
-**Phase state:** `VALIDATION_PASSED_APPROVAL_PENDING`  
-**Human acceptance:** `PENDING`  
+**Evidence checkpoint:** 2026-11-05 (Asia/Jakarta); human decision recorded 2026-11-14.  
+**Phase state:** `COMPLETE_AND_APPROVED`  
+**Technical validation:** `PASS_WITH_LIMITATION`  
+**Human acceptance:** `ACCEPTED` under APR-P2-001.  
 **Authorization:** `AUTHORIZED_SCOPED` under AUTH-P2-001.
 
 ## Scope
@@ -29,12 +30,12 @@ P2 performed bounded extraction and coding of content visible in public institut
 - Recorded negative regression tests: 9/9 PASS.
 - Independent second coder: `NOT_RUN`.
 - Semantic review: `SELF_REVIEW_ONLY`; not independent double coding.
-- Evidence scope: abstract-level only; not full-text thesis coding.
+- Evidence scope: abstract/item-page level only; not full-text thesis coding.
 - Missingness is retained and disclosed; no inference is made about unseen full-text content.
 
-## Acceptance gate
+## Human acceptance
 
-P2 has passed its recorded technical validation with limitations but has **not** been accepted by the project owner. `APR-P2-001` remains blank. P3 remains locked until P2 is accepted and separate P3 authorization is recorded.
+The project owner explicitly selected **ACCEPT** for the bounded P2 deliverable on 2026-11-14, recorded in `APR-P2-001`. The accepted scope is exactly the aggregate and evidence depth described above. This decision does not waive or erase any limitation listed in this report.
 
 ## Privacy boundary
 

@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/project-skripsi/schemas/quality/quality-learning-case.schema.json",
+  "title": "De-identified document-engineering learning case",
+  "type": "object",
+  "required": ["schema_version", "case_id", "case_type", "classification", "scope", "privacy", "task_profile", "requirements", "rendered_outcome", "revision_learning", "structural_audit", "residual_findings", "reusable_writing_controls", "production_gates", "limitations"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "case_id": {"type": "string", "pattern": "^CASE-[A-Z0-9-]+$"},
+    "case_type": {"type": "string"},
+    "classification": {"const": "PUBLIC_SANITIZED_DERIVED_CASE"},
+    "scope": {"type": "string"},
+    "privacy": {"type": "object", "required": ["personal_identifiers_included", "institution_identifiers_included", "original_manuscript_text_included", "original_reference_entries_included", "original_docx_or_pdf_included", "original_asset_binaries_included", "personal_filenames_or_hashes_included"], "properties": {
+      "personal_identifiers_included": {"const": false}, "institution_identifiers_included": {"const": false},
+      "original_manuscript_text_included": {"const": false}, "original_reference_entries_included": {"const": false},
+      "original_docx_or_pdf_included": {"const": false}, "original_asset_binaries_included": {"const": false},
+      "personal_filenames_or_hashes_included": {"const": false}
+    }, "additionalProperties": false},
+    "task_profile": {"type": "object", "required": ["language", "discipline", "method", "experience_category", "regional_context", "perceived_cultural_elements", "supported_observation", "evidence_scope", "unsupported_details"], "properties": {
+      "language": {"type": "string"}, "discipline": {"type": "string"}, "method": {"type": "string"},
+      "experience_category": {"type": "string"}, "regional_context": {"type": "string"},
+      "perceived_cultural_elements": {"type": "array", "items": {"type": "string"}},
+      "supported_observation": {"type": "string"}, "evidence_scope": {"type": "string"},
+      "unsupported_details": {"type": "array", "items": {"type": "string"}}
+    }, "additionalProperties": false},
+    "requirements": {"type": "object", "required": ["page_size", "font_family", "font_size_pt", "line_spacing", "margins_cm", "substantive_body_pages_min", "substantive_body_pages_max", "page_count_excludes", "required_sections", "delivery_formats"], "properties": {
+      "page_size": {"enum": ["A4", "LETTER"]}, "font_family": {"type": "string"},
+      "font_size_pt": {"type": "number"}, "line_spacing": {"type": "number"},
+      "margins_cm": {"type": "object", "required": ["top", "right", "bottom", "left"], "properties": {
+        "top": {"type": "number"}, "right": {"type": "number"}, "bottom": {"type": "number"}, "left": {"type": "number"}
+      }, "additionalProperties": false},
+      "substantive_body_pages_min": {"type": "integer", "minimum": 1},
+      "substantive_body_pages_max": {"type": "integer", "minimum": 1},
+      "page_count_excludes": {"type": "array", "items": {"type": "string"}},
+      "required_sections": {"type": "array", "items": {"type": "string"}},
+      "delivery_formats": {"type": "array", "items": {"type": "string"}}
+    }, "additionalProperties": false},
+    "rendered_outcome": {"type": "object", "required": ["physical_pdf_page_count", "cover_physical_pages", "front_matter_physical_pages", "substantive_chapter_pages", "bibliography_physical_pages", "cover_has_visible_page_number", "first_noncover_displayed_page_number", "last_displayed_page_number", "body_number_sequence_valid", "toc_page_map_checked_against_rendered_pdf", "toc_displayed_page_map", "bibliography_entries_present", "bibliographic_metadata_independently_verified"], "properties": {
+      "physical_pdf_page_count": {"type": "integer", "minimum": 1}, "cover_physical_pages": {"type": "integer", "minimum": 0},
+      "front_matter_physical_pages": {"type": "integer", "minimum": 0}, "substantive_chapter_pages": {"type": "integer", "minimum": 0},
+      "bibliography_physical_pages": {"type": "integer", "minimum": 0}, "cover_has_visible_page_number": {"type": "boolean"},
+      "first_noncover_displayed_page_number": {"type": "integer", "minimum": 1}, "last_displayed_page_number": {"type": "integer", "minimum": 1},
+      "body_number_sequence_valid": {"type": "boolean"}, "toc_page_map_checked_against_rendered_pdf": {"type": "boolean"},
+      "toc_displayed_page_map": {"type": "object", "propertyNames": {"minLength": 1}, "additionalProperties": {"type": "integer", "minimum": 1}},
+      "bibliography_entries_present": {"type": "integer", "minimum": 0},
+      "bibliographic_metadata_independently_verified": {"type": "boolean"}
+    }, "additionalProperties": false},
+    "revision_learning": {"type": "object", "additionalProperties": {"type": "boolean"}},
+    "structural_audit": {"type": "object", "required": ["status", "error_count", "warning_count", "docx_section_count", "uses_different_first_page_header_footer", "page_numbering_start_value", "uses_single_section_zero_based_cover_workaround", "inline_images", "images_missing_alt_text", "a4_geometry_valid", "declared_margins_valid", "normal_style_font_valid", "normal_style_spacing_valid"], "properties": {
+      "status": {"enum": ["PASS", "WARN", "FAIL"]}, "error_count": {"type": "integer", "minimum": 0},
+      "warning_count": {"type": "integer", "minimum": 0}, "docx_section_count": {"type": "integer", "minimum": 1},
+      "uses_different_first_page_header_footer": {"type": "boolean"}, "page_numbering_start_value": {"type": "integer"},
+      "uses_single_section_zero_based_cover_workaround": {"type": "boolean"},
+      "inline_images": {"type": "integer", "minimum": 0}, "images_missing_alt_text": {"type": "integer", "minimum": 0},
+      "a4_geometry_valid": {"type": "boolean"}, "declared_margins_valid": {"type": "boolean"},
+      "normal_style_font_valid": {"type": "boolean"}, "normal_style_spacing_valid": {"type": "boolean"}
+    }, "additionalProperties": false},
+    "residual_findings": {"type": "array", "items": {"type": "object", "required": ["code", "severity", "state", "lesson"], "properties": {
+      "code": {"type": "string"}, "severity": {"enum": ["WARNING", "ERROR"]}, "state": {"type": "string"}, "lesson": {"type": "string"}
+    }, "additionalProperties": false}},
+    "reusable_writing_controls": {"type": "array", "items": {"type": "string"}},
+    "production_gates": {"type": "array", "items": {"type": "string"}},
+    "limitations": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+}

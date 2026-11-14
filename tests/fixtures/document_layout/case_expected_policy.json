@@ -1,0 +1,21 @@
+{
+  "page_size": "A4",
+  "margins_cm": {"top": 3, "right": 3, "bottom": 3, "left": 4},
+  "font_family": "Times New Roman",
+  "font_size_pt": 12,
+  "line_spacing": 1.5,
+  "cover_pages": 1,
+  "body_start_number": 1,
+  "page_number_position": "BOTTOM_CENTER",
+  "expected_page_count": 14,
+  "require_dedicated_cover_section": false,
+  "expected_page_map": {
+    "BAB I PENDAHULUAN": 3,
+    "1.1 Latar Belakang": 3,
+    "BAB II TINJAUAN PUSTAKA": 6,
+    "2.1 Konsep Kebudayaan": 6,
+    "BAB III PEMBAHASAN": 8,
+    "BAB IV PENUTUP": 12,
+    "DAFTAR PUSTAKA": 13
+  }
+}

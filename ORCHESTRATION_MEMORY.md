@@ -1,8 +1,8 @@
 # ORCHESTRATION_MEMORY — Public Canonical Project Memory
 
-**Memory version:** 1.4.0  
+**Memory version:** 1.6.0  
 **Project:** `orionrayy/project-SKRIPSI`  
-**Updated:** 2026-11-10 (Asia/Jakarta)  
+**Updated:** 2026-11-14 (Asia/Jakarta)  
 **Platform baseline:** 0.8.0  
 **Repository visibility:** public (pre-existing setting; no setting change made).
 
@@ -70,8 +70,52 @@ The repository remains a platform publication, not a publication of the user's t
 
 On every invocation:
 1. Read this memory and `config/pipeline/PHASE_LEDGER.json`; verify the current `main` head and repository tree rather than relying on a previous checkpoint.
-2. Verify the 130-entry public manifest, archive SHA-256, safe-path rules, and absence of private thesis/report/database/participant artifacts before any further publication.
+2. Verify the source manifest for the exact branch/ref, archive SHA-256, safe-path rules, and absence of private thesis/report/database/participant artifacts before any further publication.
 3. Distinguish engineering checks from research-phase validation, human acceptance, and phase-specific authorization.
-4. Continue the earliest incomplete authorized work item. Preserve P0 and P1 accepted scopes; P2 remains `VALIDATION_PASSED_APPROVAL_PENDING` with APR-P2-001 blank; P3–P9 remain `NOT_STARTED / NOT_AUTHORIZED`.
-5. The project owner's standing instruction to continue implementation without repeated operational approvals does not allow the system to invent a P2 acceptance decision, waive research ethics or source restrictions, or self-authorize P3–P9. Keep execution authorization, human acceptance, and evidence validation separate.
+4. Continue the earliest incomplete authorized work item. Preserve P0 and P1 accepted scopes; P2 is accepted within its abstract/item-page scope; P3 is the active synthesis candidate; P4–P9 are conditionally pre-authorized but remain execution-gated.
+5. The project owner's standing instruction to continue implementation without repeated operational approvals does not allow the system to invent human acceptance, waive research ethics or source restrictions, or expand a phase's evidence scope. A user may pre-authorize later phases, but sequential predecessor acceptance remains mandatory. Keep execution authorization, human acceptance, and evidence validation separate.
 6. Update the canonical ledger and this memory only from verified repository and artifact evidence. Do not claim a workflow, package installation, external review, or academic acceptance unless its actual result is observed.
+
+
+## 8. Document-layout case learning and QA candidate (2026-11-14)
+
+- **Review scope:** task brief, iterative revision instructions, final DOCX/PDF pair, supplied emblem asset, and rendered-page QA outputs. The private source pair, emblem bytes, original manuscript text, personal identifiers, institution-specific identifiers, personal filenames and per-artifact hashes were not added to the public repository.
+- **Sanitized case record:** `data/quality_learning/document-layout-case-2026-11.json` and `docs/quality/DOCUMENT_LAYOUT_CASE_LEARNING_2026_11.md`. The case is a derived requirements/defect/regression record, not a raw text training corpus and not a representative sample of all theses or institutional styles.
+- **Rendered evidence:** 14 physical PDF pages; one unnumbered cover; two front-matter pages; ten substantive BAB I–IV pages; one bibliography page. Displayed numbering is 1–13 from the first post-cover page to the last page. Seven selected TOC entries were reconciled to displayed page numbers.
+- **Evidence-bounded writing lesson:** one retrospective personal experience supports only the author's bounded observation and interpretation. No exact date, venue, relatives, event sequence, family motives or regional prevalence may be invented. Separate first-person observation, literature context, inference and unknown details. Natural academic language requirements are clarity/style constraints, not AI-detector evasion.
+- **New layout QA candidate:** `src/project_skripsi/document_layout_qa.py`, `scripts/audit_document_layout.py`, policy/output/case schemas, synthetic tests and engineering documentation. The auditor inspects DOCX section geometry, margins, page fields, Normal style, font inventory and inline-image alt text, then checks rendered PDF page count, cover numbering, displayed-number sequence, optional sparse pages and TOC heading/page mapping. Its report excludes filenames, paths, manuscript text, personal identifiers and input hashes.
+- **Case audit result:** `WARN`, zero errors and two warnings. The visible PDF pagination is correct (cover unnumbered; body labels 1–13); selected TOC positions match. Remaining structural warnings are the one-section `different_first_page_header_footer` + `w:pgNumType start=0` workaround and missing alternative text on one inline image. Production recommendation: dedicated cover section plus a body section restarted at 1, and meaningful alt text for non-decorative images.
+- **Local verification:** the new isolated regression suite is 6/6 PASS; three new Draft 2020-12 schemas and the sanitized case record validate; Python compile check PASS. Full repository regression and GitHub Actions CI remain pending on draft PR #1. Do not claim the complete suite or cross-platform CI has passed until observed.
+- **Remote checkpoint:** draft PR #1, branch `feature/document-layout-case-learning`, base `main`. No merge, release, deployment or phase-ledger mutation has occurred. P0/P1 accepted states are unchanged; P2 is accepted under APR-P2-001; P3 is executed and validation-passed-with-limitations with acceptance pending; P4–P9 are conditionally pre-authorized but not started.
+- **Release boundary:** platform baseline remains v0.8.0. This is an unreleased feature candidate; the v0.8.0 distribution archive remains an immutable release snapshot and is not represented as containing the candidate files.
+- **Limits:** page-number detection relies on extractable PDF text and may miss rasterized numbers; heading matching is heuristic. This module does not detect all clipping, overlap, widow/orphan cases, table splits or visual-aesthetic defects. Full page-by-page visual QA and human academic review remain required.
+
+
+## 9. Windows CI failure analysis and correction (2026-11-14)
+
+- The first full matrix run for draft PR #1 exposed an existing workflow portability defect in the Windows job. Its LibreOffice setup step wrote the LibreOffice `program` directory to `GITHUB_PATH`, placing LibreOffice's bundled Python ahead of the interpreter selected by `actions/setup-python`.
+- Observed evidence from Windows runner logs: `sys.executable`/traceback paths pointed into `C:\\Program Files\\LibreOffice\\program\\python-core-3.12.16`; the suite then could not import `python-docx`, `PyMuPDF` and `jsonschema` even though the preceding install step succeeded. Process tests also attempted to spawn the wrong Python executable and returned `WinError 5`. The manifest, package compile, phase-ledger validator and dependency installation had passed before the unit-test step.
+- Correction on the candidate branch: Windows CI now exports the absolute `soffice.exe` path through `PROJECT_SKRIPSI_SOFFICE` in `GITHUB_ENV`, without prepending the LibreOffice folder to `PATH`. `documents._render_pdf` resolves this explicit override first and falls back to `shutil.which()` elsewhere. Documentation now describes this override.
+- The earlier Windows failures also included a stable-hash race assertion while executing under the wrong LibreOffice-bundled Python. Do not change stable-hash production code based on that run until the test is repeated with the correct setup-python interpreter.
+- The first CI run had all three Ubuntu matrix jobs SUCCESS; Windows 3.10/3.12 failed on unit tests under the contaminated PATH; Windows 3.11 was still running at checkpoint. A new run is required against the corrective commit. The first run is not an accepted validation result.
+- Candidate CI remains a release gate. Verify the next run end-to-end across six Python/OS matrix combinations before considering PR #1 for ready-for-review. Main, release tags and distribution archive remain unchanged.
+
+
+## 10. P2 acceptance, P3 synthesis and P3–P9 authorization (2026-11-14)
+
+- **P2 human decision:** the project owner explicitly selected `ACCEPT` for the P2 v1.1.0 deliverable on 2026-11-14. APR-P2-001 records the decision, timestamp and accepted scope. The acceptance is limited to public abstract/item-page observations: 50 linked record shells, 214 observations, 40 content-coded records, 3 inaccessible and 7 metadata-only. It does not imply full-text review, independent second coding, external academic review, or a change to the `PASS_WITH_LIMITATION` technical state.
+- **P3–P9 authorization:** AUTH-P3-P9-001 records the owner's explicit standing authorization for all phases P3 through P9. P3 is eligible now because P2 is accepted. P4–P9 are conditionally pre-authorized but cannot execute before each immediate predecessor is `COMPLETE_AND_APPROVED`.
+- **P3 private candidate:** ten findings (eight content findings and two corpus coverage/composition findings), 120 domain-by-code matrix rows, 173 private evidence references, Draft 2020-12 validation and private SHA-256 manifest PASS. P3 remains pending human acceptance. No record-level P1/P2 data, abstracts, source locators or institution names were placed in the public repository.
+- **P3 methodological boundaries:** 214 observations are nested within 40 abstract-coded records; three inaccessible and seven metadata-only records are not negative evidence. No finding is HIGH confidence. The archived P1/P2 source checkpoint is 2026-11-05; the P3 synthesis is not a fresh source retrieval.
+- **Sequential-gate engineering update:** the phase-ledger validator now permits a standing conditional authorization to be recorded before predecessor acceptance, while still rejecting execution, approval or completion until the immediate predecessor is COMPLETE/APPROVED/ACCEPTED. Regression tests cover both valid pre-authorization and rejected early execution.
+- **Platform candidate remains unreleased:** draft PR #1 is still unmerged. A Windows test-fixture correction changes the simulated file mutation from a same-size rewrite to a different-size rewrite; stable-hash production code is unchanged. Full CI must be observed against the resulting branch head before the candidate is marked ready.
+
+
+## 11. Full cross-platform CI validation (2026-11-14)
+
+- **Workflow run:** [43600905834](https://github.com/orionrayy/project-SKRIPSI/actions/runs/43600905834), candidate SHA `e84986d0d9d69a0be28aa161bb2e59fb6b27d0ab`, completed `SUCCESS`.
+- **Matrix:** 6/6 PASS — Ubuntu Python 3.10, 3.11 and 3.12; Windows Python 3.10, 3.11 and 3.12.
+- **Observed checks:** public source manifest SHA-256 PASS; phase-ledger schema and sequential invariants PASS; package compile PASS; unit-test step PASS; editable install PASS; CLI smoke test PASS. Logs observed 207 unit tests in each of the inspected representative Ubuntu/Windows jobs.
+- **Windows mutation regression:** the different-size fixture now reliably exercises the stat-based change check. The production stable-hash implementation was not weakened.
+- **PR state:** PR #1 remains OPEN/DRAFT/UNMERGED. The six-job result validates the candidate head above; it is not a merge, release or deployment approval. The main branch and v0.8.0 distribution snapshot remain unchanged.
+- **Next research gate:** P3 output awaits the project owner's human acceptance. P4–P9 remain authorized conditionally under AUTH-P3-P9-001 and must stay unstarted until each immediate predecessor is COMPLETE_AND_APPROVED.
