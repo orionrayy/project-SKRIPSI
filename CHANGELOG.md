@@ -5,7 +5,10 @@
 - Added a read-only DOCX/OOXML + rendered PDF layout auditor and source-checkout CLI for section geometry, margins, typography, visible cover/body pagination, displayed page-number sequences, optional TOC page mapping, sparse-page warnings and inline-image alt-text counts.
 - Added policy, audit-result and sanitized case-learning Draft 2020-12 schemas; synthetic regression tests; a de-identified machine-readable case record; and engineering/case-learning documentation.
 - Added privacy constraints: public case record omits identity fields, institutional identifiers, original document binaries, manuscript text, source entries, asset binaries, filenames and artifact hashes. Audit reports omit paths, filenames and input hashes.
-- Local verification: 6/6 new tests PASS, three schema contracts plus the case record validate, and Python compilation PASS. Full repository regression and GitHub Actions CI remain pending; this is not a release.
+- Local verification: 6/6 layout-QA tests PASS; three schema contracts plus the sanitized case record validate. Full repository regression and GitHub Actions CI remain pending; this is not a release.
+- Recorded P2 owner acceptance (abstract/item-page scope only) and standing conditional P3–P9 authorization; executed a private P3 synthesis candidate with 10 findings, a 120-row matrix and 173 private evidence references. P3 acceptance remains pending.
+- Updated phase-ledger policy and regression tests to allow conditional pre-authorization while preserving hard predecessor gates against early execution or approval.
+- Corrected the Windows stable-hash regression fixture to make the simulated mutation change file size; no production hashing logic was weakened.
 
 ## 0.8.0 — Turnitin report comparison and empirical evidence QA (2026-11-10)
 
