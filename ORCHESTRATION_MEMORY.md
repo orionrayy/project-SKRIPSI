@@ -1,8 +1,8 @@
 # ORCHESTRATION_MEMORY — Public Canonical Project Memory
 
-**Memory version:** 1.4.0  
+**Memory version:** 1.5.0  
 **Project:** `orionrayy/project-SKRIPSI`  
-**Updated:** 2026-11-10 (Asia/Jakarta)  
+**Updated:** 2026-11-14 (Asia/Jakarta)  
 **Platform baseline:** 0.8.0  
 **Repository visibility:** public (pre-existing setting; no setting change made).
 
@@ -75,3 +75,17 @@ On every invocation:
 4. Continue the earliest incomplete authorized work item. Preserve P0 and P1 accepted scopes; P2 remains `VALIDATION_PASSED_APPROVAL_PENDING` with APR-P2-001 blank; P3–P9 remain `NOT_STARTED / NOT_AUTHORIZED`.
 5. The project owner's standing instruction to continue implementation without repeated operational approvals does not allow the system to invent a P2 acceptance decision, waive research ethics or source restrictions, or self-authorize P3–P9. Keep execution authorization, human acceptance, and evidence validation separate.
 6. Update the canonical ledger and this memory only from verified repository and artifact evidence. Do not claim a workflow, package installation, external review, or academic acceptance unless its actual result is observed.
+
+
+## 8. Document-layout case learning and QA candidate (2026-11-14)
+
+- **Review scope:** task brief, iterative revision instructions, final DOCX/PDF pair, supplied emblem asset, and rendered-page QA outputs. The private source pair, emblem bytes, original manuscript text, personal identifiers, institution-specific identifiers, personal filenames and per-artifact hashes were not added to the public repository.
+- **Sanitized case record:** `data/quality_learning/document-layout-case-2026-11.json` and `docs/quality/DOCUMENT_LAYOUT_CASE_LEARNING_2026_11.md`. The case is a derived requirements/defect/regression record, not a raw text training corpus and not a representative sample of all theses or institutional styles.
+- **Rendered evidence:** 14 physical PDF pages; one unnumbered cover; two front-matter pages; ten substantive BAB I–IV pages; one bibliography page. Displayed numbering is 1–13 from the first post-cover page to the last page. Seven selected TOC entries were reconciled to displayed page numbers.
+- **Evidence-bounded writing lesson:** one retrospective personal experience supports only the author's bounded observation and interpretation. No exact date, venue, relatives, event sequence, family motives or regional prevalence may be invented. Separate first-person observation, literature context, inference and unknown details. Natural academic language requirements are clarity/style constraints, not AI-detector evasion.
+- **New layout QA candidate:** `src/project_skripsi/document_layout_qa.py`, `scripts/audit_document_layout.py`, policy/output/case schemas, synthetic tests and engineering documentation. The auditor inspects DOCX section geometry, margins, page fields, Normal style, font inventory and inline-image alt text, then checks rendered PDF page count, cover numbering, displayed-number sequence, optional sparse pages and TOC heading/page mapping. Its report excludes filenames, paths, manuscript text, personal identifiers and input hashes.
+- **Case audit result:** `WARN`, zero errors and two warnings. The visible PDF pagination is correct (cover unnumbered; body labels 1–13); selected TOC positions match. Remaining structural warnings are the one-section `different_first_page_header_footer` + `w:pgNumType start=0` workaround and missing alternative text on one inline image. Production recommendation: dedicated cover section plus a body section restarted at 1, and meaningful alt text for non-decorative images.
+- **Local verification:** the new isolated regression suite is 6/6 PASS; three new Draft 2020-12 schemas and the sanitized case record validate; Python compile check PASS. Full repository regression and GitHub Actions CI remain pending on draft PR #1. Do not claim the complete suite or cross-platform CI has passed until observed.
+- **Remote checkpoint:** draft PR #1, branch `feature/document-layout-case-learning`, base `main`. No merge, release, deployment or phase-ledger mutation has occurred. P0/P1 accepted states are unchanged; P2 remains `VALIDATION_PASSED_APPROVAL_PENDING`; P3–P9 remain `NOT_STARTED / NOT_AUTHORIZED`.
+- **Release boundary:** platform baseline remains v0.8.0. This is an unreleased feature candidate; the v0.8.0 distribution archive remains an immutable release snapshot and is not represented as containing the candidate files.
+- **Limits:** page-number detection relies on extractable PDF text and may miss rasterized numbers; heading matching is heuristic. This module does not detect all clipping, overlap, widow/orphan cases, table splits or visual-aesthetic defects. Full page-by-page visual QA and human academic review remain required.
