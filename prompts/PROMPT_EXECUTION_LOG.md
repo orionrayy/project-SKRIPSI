@@ -17,3 +17,12 @@ P2 human acceptance closure remains the earliest incomplete research gate. The P
 ## Execution constraints
 
 A prompt being read, compiled or referenced does not mean its substantive work was executed. Automated tests do not constitute human acceptance. No source data, thesis prose, private research rows or per-record locators are reproduced here.
+
+
+## 2026-11-14 continuation — P2 acceptance and P3–P9 authorization
+
+- P2 v1.1.0 was explicitly accepted by the project owner under APR-P2-001, scoped to the documented 214 abstract-level observations and disclosed access limitations.
+- P1–P3 adaptive specification v1.0.0 and master continuation v2.4.0 were reconciled. P3 was executed as the next eligible phase; the private synthesis package passed schema, linkage, evidence-reference and manifest checks with disclosed limitations.
+- AUTH-P3-P9-001 records the owner's standing authorization for P3–P9. P4–P9 are conditionally pre-authorized but cannot execute until the immediate predecessor is COMPLETE_AND_APPROVED.
+- P3 remains pending human acceptance. Private record-level sources, abstracts, exact locators, P1/P2 archives and P3 evidence registers are not published.
+- Platform feature PR #1 remains draft/unmerged. A same-size file-mutation test fixture was changed to a size-changing mutation for deterministic Windows validation; production hashing code is unchanged. Cross-platform CI recheck is required.
