@@ -38,7 +38,7 @@ Sanitized status is published at `docs/research/P3_PUBLIC_STATUS.md`. Do not cop
 
 ## Platform engineering
 
-The layout-QA feature and sanitized case-learning candidate are part of draft PR #1. The first full CI run had 3/3 Ubuntu jobs and Windows Python 3.11 pass; Windows Python 3.10/3.12 failed only the stable-hash mutation regression because the fixture rewrote a file with the same size. The fixture now writes a different-size payload; production hash code is unchanged. Recheck the full six-job matrix against the new head before ready-for-review. Do not mark CI green until all jobs pass.
+The layout-QA feature and sanitized case-learning candidate are part of draft PR #1. The first full CI run had 3/3 Ubuntu jobs and Windows Python 3.11 pass; Windows Python 3.10/3.12 failed only the stable-hash mutation regression because the fixture rewrote a file with the same size. The fixture now writes a different-size payload; production hash code is unchanged. GitHub Actions run 43600905834 completed SUCCESS across all six matrix jobs. The manifest, phase-ledger, compile, unit tests, editable install and CLI smoke test passed. PR #1 remains draft/unmerged; no merge or release was performed.
 
 ## Next action
 
