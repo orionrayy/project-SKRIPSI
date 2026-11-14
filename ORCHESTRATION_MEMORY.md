@@ -1,6 +1,6 @@
 # ORCHESTRATION_MEMORY — Public Canonical Project Memory
 
-**Memory version:** 1.5.0  
+**Memory version:** 1.5.1  
 **Project:** `orionrayy/project-SKRIPSI`  
 **Updated:** 2026-11-14 (Asia/Jakarta)  
 **Platform baseline:** 0.8.0  
@@ -89,3 +89,13 @@ On every invocation:
 - **Remote checkpoint:** draft PR #1, branch `feature/document-layout-case-learning`, base `main`. No merge, release, deployment or phase-ledger mutation has occurred. P0/P1 accepted states are unchanged; P2 remains `VALIDATION_PASSED_APPROVAL_PENDING`; P3–P9 remain `NOT_STARTED / NOT_AUTHORIZED`.
 - **Release boundary:** platform baseline remains v0.8.0. This is an unreleased feature candidate; the v0.8.0 distribution archive remains an immutable release snapshot and is not represented as containing the candidate files.
 - **Limits:** page-number detection relies on extractable PDF text and may miss rasterized numbers; heading matching is heuristic. This module does not detect all clipping, overlap, widow/orphan cases, table splits or visual-aesthetic defects. Full page-by-page visual QA and human academic review remain required.
+
+
+## 9. Windows CI failure analysis and correction (2026-11-14)
+
+- The first full matrix run for draft PR #1 exposed an existing workflow portability defect in the Windows job. Its LibreOffice setup step wrote the LibreOffice `program` directory to `GITHUB_PATH`, placing LibreOffice's bundled Python ahead of the interpreter selected by `actions/setup-python`.
+- Observed evidence from Windows runner logs: `sys.executable`/traceback paths pointed into `C:\\Program Files\\LibreOffice\\program\\python-core-3.12.16`; the suite then could not import `python-docx`, `PyMuPDF` and `jsonschema` even though the preceding install step succeeded. Process tests also attempted to spawn the wrong Python executable and returned `WinError 5`. The manifest, package compile, phase-ledger validator and dependency installation had passed before the unit-test step.
+- Correction on the candidate branch: Windows CI now exports the absolute `soffice.exe` path through `PROJECT_SKRIPSI_SOFFICE` in `GITHUB_ENV`, without prepending the LibreOffice folder to `PATH`. `documents._render_pdf` resolves this explicit override first and falls back to `shutil.which()` elsewhere. Documentation now describes this override.
+- The earlier Windows failures also included a stable-hash race assertion while executing under the wrong LibreOffice-bundled Python. Do not change stable-hash production code based on that run until the test is repeated with the correct setup-python interpreter.
+- The first CI run had all three Ubuntu matrix jobs SUCCESS; Windows 3.10/3.12 failed on unit tests under the contaminated PATH; Windows 3.11 was still running at checkpoint. A new run is required against the corrective commit. The first run is not an accepted validation result.
+- Candidate CI remains a release gate. Verify the next run end-to-end across six Python/OS matrix combinations before considering PR #1 for ready-for-review. Main, release tags and distribution archive remain unchanged.
