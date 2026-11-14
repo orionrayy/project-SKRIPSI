@@ -132,6 +132,6 @@ def main()->int:
         f"(approval={p2['approval_status']}, acceptance={p2['human_acceptance_status']}, "
         f"authorization={p2['authorization_status']})"
     )
-    print("PASS: P3-P9 remain gated; remote mutation state is explicitly allowlist-scoped")
+    print("PASS: standing phase authorizations are recorded; execution remains gated by immediate-predecessor acceptance; remote mutation state is allowlist-scoped")
     return 0
 if __name__=="__main__": raise SystemExit(main())
