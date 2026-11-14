@@ -109,3 +109,13 @@ On every invocation:
 - **P3 methodological boundaries:** 214 observations are nested within 40 abstract-coded records; three inaccessible and seven metadata-only records are not negative evidence. No finding is HIGH confidence. The archived P1/P2 source checkpoint is 2026-11-05; the P3 synthesis is not a fresh source retrieval.
 - **Sequential-gate engineering update:** the phase-ledger validator now permits a standing conditional authorization to be recorded before predecessor acceptance, while still rejecting execution, approval or completion until the immediate predecessor is COMPLETE/APPROVED/ACCEPTED. Regression tests cover both valid pre-authorization and rejected early execution.
 - **Platform candidate remains unreleased:** draft PR #1 is still unmerged. A Windows test-fixture correction changes the simulated file mutation from a same-size rewrite to a different-size rewrite; stable-hash production code is unchanged. Full CI must be observed against the resulting branch head before the candidate is marked ready.
+
+
+## 11. Full cross-platform CI validation (2026-11-14)
+
+- **Workflow run:** [43600905834](https://github.com/orionrayy/project-SKRIPSI/actions/runs/43600905834), candidate SHA `e84986d0d9d69a0be28aa161bb2e59fb6b27d0ab`, completed `SUCCESS`.
+- **Matrix:** 6/6 PASS — Ubuntu Python 3.10, 3.11 and 3.12; Windows Python 3.10, 3.11 and 3.12.
+- **Observed checks:** public source manifest SHA-256 PASS; phase-ledger schema and sequential invariants PASS; package compile PASS; unit-test step PASS; editable install PASS; CLI smoke test PASS. Logs observed 207 unit tests in each of the inspected representative Ubuntu/Windows jobs.
+- **Windows mutation regression:** the different-size fixture now reliably exercises the stat-based change check. The production stable-hash implementation was not weakened.
+- **PR state:** PR #1 remains OPEN/DRAFT/UNMERGED. The six-job result validates the candidate head above; it is not a merge, release or deployment approval. The main branch and v0.8.0 distribution snapshot remain unchanged.
+- **Next research gate:** P3 output awaits the project owner's human acceptance. P4–P9 remain authorized conditionally under AUTH-P3-P9-001 and must stay unstarted until each immediate predecessor is COMPLETE_AND_APPROVED.
