@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/project-skripsi/schemas/quality/document-layout-policy.schema.json",
+  "title": "Rendered academic document layout audit policy",
+  "type": "object",
+  "properties": {
+    "page_size": {"enum": ["A4", "LETTER"]},
+    "margins_cm": {
+      "type": "object",
+      "properties": {
+        "top": {"type": "number", "minimum": 1, "maximum": 6},
+        "right": {"type": "number", "minimum": 1, "maximum": 6},
+        "bottom": {"type": "number", "minimum": 1, "maximum": 6},
+        "left": {"type": "number", "minimum": 1, "maximum": 6}
+      },
+      "additionalProperties": false
+    },
+    "font_family": {"type": "string", "minLength": 1},
+    "font_size_pt": {"type": "number", "minimum": 8, "maximum": 18},
+    "line_spacing": {"type": "number", "minimum": 1, "maximum": 2.5},
+    "cover_pages": {"type": "integer", "minimum": 0, "maximum": 20},
+    "body_start_number": {"type": "integer", "minimum": 1, "maximum": 999},
+    "page_number_position": {"enum": ["BOTTOM_CENTER", "BOTTOM_LEFT", "BOTTOM_RIGHT"]},
+    "footer_band_start": {"type": "number", "minimum": 0.7, "maximum": 0.99},
+    "expected_page_count": {"type": "integer", "minimum": 1},
+    "require_dedicated_cover_section": {"type": "boolean"},
+    "min_page_text_chars": {"type": "integer", "minimum": 0},
+    "expected_page_map": {
+      "type": "object",
+      "propertyNames": {"minLength": 1},
+      "additionalProperties": {"type": "integer", "minimum": 1}
+    }
+  },
+  "additionalProperties": false
+}
