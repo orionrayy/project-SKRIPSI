@@ -42,7 +42,7 @@ class PhaseLedgerTests(unittest.TestCase):
         d["current_active_phase"]="P3"
         self.assertTrue(self.check_temp(d))
     def test_earliest_incomplete_phase_is_active(self):
-        d=self.load(); d["current_active_phase"]="P3"; self.assertTrue(self.check_temp(d))
+        d=self.load(); d["current_active_phase"]="P4"; self.assertTrue(self.check_temp(d))
     def test_unscoped_remote_mutation_rejected(self):
         d=self.load(); d["remote_mutation_state"]="PUSHED"; d["repository"]["remote_mutation_state"]="PUSHED"; self.assertTrue(self.check_temp(d))
     def test_allowlist_scoped_publication_is_valid(self):
