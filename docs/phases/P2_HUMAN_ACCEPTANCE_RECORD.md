@@ -8,7 +8,7 @@
 |---|---|
 | Decision | **ACCEPT** |
 | Approver identity / role | Project owner; explicit decision recorded in the active conversation. This record does not assert independent legal-identity verification. |
-| Decision timestamp (Asia/Jakarta) | 2026-11-14T20:25:51+07:00 |
+| Decision date / record timestamp | User decision received on 2026-11-14; exact message timestamp is not exposed in this record. This governance record was formalized at 2026-11-14T20:25:51+07:00 (Asia/Jakarta). |
 | Decision evidence | Explicit user instruction in the active conversation: “P2 dikonfirmasi acceptancenya oleh saya” (2026-11-14). |
 | Conditions / remediation | No additional condition was attached to the acceptance decision. The documented access, missingness and coder limitations remain binding scope limitations and must not be represented as full-text or independently double-coded work. |
 | Scope accepted | P2 v1.1.0 bounded extraction/coding from actually inspected public institutional HTML abstracts/item-page content: 50 P1-linked record shells; 214 abstract-level observations; 40 records with content observations; 3 with no content observations due to access/retrieval limitations; 7 metadata-only and uncoded; zero unresolved abstract locators. No thesis full-text, chapter, appendix or PDF coding. Independent second coder remains `NOT_RUN`; semantic review remains `SELF_REVIEW_ONLY`. |
