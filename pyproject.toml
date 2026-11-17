@@ -19,6 +19,7 @@ jsonschema = ["jsonschema>=4.22"]
 
 [project.scripts]
 project-skripsi = "project_skripsi.cli:main"
+project-skripsi-mendeley = "project_skripsi.integrations.mendeley:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

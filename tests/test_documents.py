@@ -165,6 +165,7 @@ class DocumentEngineTests(unittest.TestCase):
         with self.assertRaises(FileExistsError):
             build_document(self.workspace)
 
+    @unittest.skipUnless(PDF_RENDER_AVAILABLE, "python-docx, PyMuPDF and LibreOffice are required for render integration tests")
     def test_ieee_numbers_follow_first_appearance(self):
         path = self.workspace / "sources" / "registry" / "source_register.json"
         register = json.loads(path.read_text(encoding="utf-8"))

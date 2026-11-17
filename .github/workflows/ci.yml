@@ -31,6 +31,22 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Diagnose exact source manifest hashes
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib
+          from pathlib import Path
+          manifest = Path("MANIFEST.sha256").read_text(encoding="utf-8").splitlines()
+          mismatches = 0
+          for line in manifest:
+              expected, relative = line.split("  ", 1)
+              actual = hashlib.sha256(Path(relative).read_bytes()).hexdigest()
+              if actual != expected:
+                  print(f"MISMATCH {relative} expected={expected} actual={actual}")
+                  mismatches += 1
+          print(f"MANIFEST_DIAGNOSTIC mismatches={mismatches} entries={len(manifest)}")
+          PY
       - name: Verify public source manifest (cross-platform)
         run: python scripts/verify_manifest.py
       - name: Install optional document QA dependencies
@@ -38,16 +54,9 @@ jobs:
       - name: Install LibreOffice for rendered document integration tests (Ubuntu)
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y libreoffice
-      - name: Install LibreOffice for rendered document integration tests (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          choco install libreoffice-still --yes --no-progress
-          $loPath = Join-Path (Join-Path $env:ProgramFiles 'LibreOffice') 'program'
-          $soffice = Join-Path $loPath 'soffice.exe'
-          if (-not (Test-Path $soffice)) { throw "LibreOffice executable not found at $soffice" }
-          $loPath | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          & $soffice --headless --version
+      # GitHub-hosted Windows runners can install LibreOffice but may deny process
+      # creation (WinError 5). Rendering is exercised on Ubuntu; Windows skips
+      # only tests guarded by PDF_RENDER_AVAILABLE when no renderer is installed.
       - name: Compile package
         run: python -m compileall -q src scripts tests
       - name: Validate reference research ledger
@@ -60,3 +69,30 @@ jobs:
         run: python -m pip install --no-deps -e .
       - name: CLI smoke test
         run: project-skripsi --help
+
+  mendeley-python-314:
+    name: Mendeley connector (Python 3.14)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Preserve byte-exact checkout for manifest integrity
+        shell: bash
+        run: |
+          git config core.autocrlf false
+          git config core.eol lf
+          git checkout-index --force --all
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Verify public source manifest
+        run: python scripts/verify_manifest.py
+      - name: Compile Mendeley connector and isolated tests
+        run: python -m compileall -q src/project_skripsi/integrations/mendeley.py tests/test_mendeley.py
+      - name: Run Mendeley API, OAuth, and sync recovery tests
+        env:
+          PYTHONPATH: src
+        run: python -m unittest discover -s tests -p "test_mendeley.py" -v
+      - name: Install editable package
+        run: python -m pip install --no-deps -e .
+      - name: Mendeley CLI smoke test
+        run: project-skripsi-mendeley --help

@@ -1,0 +1,15 @@
+* text=auto eol=lf
+
+# Common generated and document bundles are binary and must remain byte-exact.
+*.docx binary
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.zip binary
+*.tar binary
+*.xz binary
+*.sqlite binary
+*.sqlite3 binary
+*.db binary

@@ -36,6 +36,7 @@ A public aggregate-only research status is in `docs/research/P0_P1_P2_PUBLIC_STA
 - Before/after revision-pair auditing and marked-region coverage checks.
 - Empirical study consistency checks for sample counts, constructs, instrument validation, ICC configuration, paired-test evidence and interpretation boundaries.
 - Local Turnitin report auditing/comparison for visible metadata, exclusions and source inventories. It does not make plagiarism verdicts or AI-detection predictions.
+- Personal Mendeley REST API connector candidate on `feature/mendeley-api-integration` (not merged or live-account verified); see `docs/integrations/MENDELEY_API_INTEGRATION.md`. The staged automation roadmap is in `docs/integrations/MENDELEY_AUTOMATION_ROADMAP.md`.
 
 See `docs/operations/QUICKSTART.md`, `docs/platform/REUSABLE_PLATFORM_ARCHITECTURE.md`, and `docs/quality/ACADEMIC_QA_ACCEPTANCE_MATRIX.md`.
 
