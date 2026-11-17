@@ -68,7 +68,7 @@ project-skripsi-mendeley login
 python -m pip install -e .
 read -r -p "Mendeley Client ID: " MENDELEY_CLIENT_ID
 read -r -s -p "Mendeley Client Secret: " MENDELEY_CLIENT_SECRET
-printf '\\n'
+printf '\n'
 export MENDELEY_CLIENT_ID MENDELEY_CLIENT_SECRET
 export MENDELEY_REDIRECT_URI='http://localhost:8765/mendeley/callback'
 project-skripsi-mendeley login
@@ -87,7 +87,7 @@ python -m pip install -e .
 
 read -r -p "Mendeley Client ID: " MENDELEY_CLIENT_ID
 read -r -s -p "Mendeley Client Secret: " MENDELEY_CLIENT_SECRET
-printf '\\n'
+printf '\n'
 export MENDELEY_CLIENT_ID MENDELEY_CLIENT_SECRET
 export MENDELEY_REDIRECT_URI='http://localhost:8765/mendeley/callback'
 
