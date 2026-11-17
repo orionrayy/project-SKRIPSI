@@ -356,9 +356,6 @@ class MendeleyExpandedResourceTests(unittest.TestCase):
         with self.assertRaises(MendeleyError): self.client.request("GET", "/profiles/me", headers={"Authorization": "Bearer attacker"})
 
 
-if __name__ == "__main__": unittest.main()
-
-
 class MendeleyOAuthCallbackTests(unittest.TestCase):
     def test_local_browser_callback_completes_authorization_code_exchange(self):
         import socket
@@ -424,3 +421,4 @@ class MendeleyOAuthCallbackTests(unittest.TestCase):
                 run_local_oauth_login(client)
 
 
+if __name__ == "__main__": unittest.main()
