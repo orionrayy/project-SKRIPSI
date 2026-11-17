@@ -224,8 +224,6 @@ class MendeleyApiTests(unittest.TestCase):
 
 
 
-if __name__ == "__main__": unittest.main()
-
 class MendeleyExpandedResourceTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
@@ -356,3 +354,6 @@ class MendeleyExpandedResourceTests(unittest.TestCase):
 
     def test_request_rejects_auth_header_override(self):
         with self.assertRaises(MendeleyError): self.client.request("GET", "/profiles/me", headers={"Authorization": "Bearer attacker"})
+
+
+if __name__ == "__main__": unittest.main()
