@@ -11,6 +11,8 @@ import urllib.request
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+from project_skripsi.audit import append_audit_event as real_append_audit_event, read_audit_events
+
 from project_skripsi.integrations.mendeley import (
     MendeleyClient, MendeleyConfig, MendeleyError, TokenStore,
     _next_link, _mendeley_source_record, sync_library_to_workspace, build_parser, main,
@@ -335,6 +337,34 @@ class MendeleySyncRecoveryTests(unittest.TestCase):
         self.assertEqual(len(json.loads(self.register_path.read_text(encoding="utf-8"))["sources"]), 1)
         self.assertEqual(len(self.audit_calls), 1)
         self.assertTrue(Path(recovered["recovery_backup"]).is_file())
+
+    def test_audit_committed_before_interruption_is_idempotent_on_recovery(self):
+        calls = {"count": 0}
+
+        def append_then_interrupt_once(*args, **kwargs):
+            event = real_append_audit_event(*args, **kwargs)
+            calls["count"] += 1
+            if calls["count"] == 1:
+                raise OSError("fault injection after durable audit append")
+            return event
+
+        self.audit_module.append_audit_event = append_then_interrupt_once
+        with self.assertRaisesRegex(MendeleyError, "journal and backup were retained"):
+            sync_library_to_workspace(self.client, self.workspace, apply=True)
+
+        audit_path = self.workspace / "audit" / "events.jsonl"
+        ok, reason, before = read_audit_events(audit_path)
+        self.assertTrue(ok, reason)
+        self.assertEqual(len(before), 1)
+        self.assertTrue(self.journal_path.is_file())
+
+        recovered = sync_library_to_workspace(self.client, self.workspace, apply=True)
+        ok, reason, after = read_audit_events(audit_path)
+        self.assertTrue(ok, reason)
+        self.assertEqual(len(after), 1)
+        self.assertEqual(recovered["status"], "RECOVERED")
+        self.assertFalse(self.journal_path.exists())
+        self.assertEqual(calls["count"], 2)
 
     def test_recovery_fails_closed_when_register_changed_after_interruption(self):
         def fail_audit(*_args, **_kwargs):
