@@ -9,12 +9,13 @@ The connector is a local Python-standard-library adapter over the documented Men
 With an explicitly authorized Mendeley account, it exposes:
 
 - OAuth 2.0 Authorization Code login, one-time `state`, refresh-token rotation, and private token storage.
-- User profile read/update; document list/search/get/create/update/trash/restore/permanent delete; document types.
+- User profile read/update/by-ID; profile search and follower/followee relationships (follow, accept, remove).
+- Document list/search/get/create/update/trash/restore/permanent delete; document types and deleted-document ID retrieval.
 - Folder list/get/create/update/delete and document membership operations.
 - Annotation list/get/create/update/delete.
 - File listing, upload, download, and deletion using the API file resources and document-scoped file routes.
 - Public catalog search and profile search.
-- Groups v2: list/get/create/update/delete, group membership and role operations, join/follow/leave, invitations, and limits. Legacy `/groups` endpoints are not used.
+- Groups v2: list/popular/get/create/update/delete, group membership and role operations, join/follow/leave, invitation creation/accept/decline/revoke/resend, join-request decisions, and limits. Legacy `/groups` endpoints are not used.
 - Optional workspace sync. Preview is the default; applying it only appends new Mendeley metadata records as `METADATA_ONLY` with `rights_status=UNKNOWN`. It creates no claim-evidence links and does not promote metadata to reviewed evidence.
 
 Not every Mendeley GUI function has a documented API equivalent. API endpoint coverage is bounded by Mendeley's published OpenAPI/REST reference and the permissions of the authorizing account. Availability of a feature in the desktop/web UI does not prove an API operation exists.
