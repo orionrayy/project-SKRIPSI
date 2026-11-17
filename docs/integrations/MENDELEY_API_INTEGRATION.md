@@ -101,7 +101,11 @@ The hidden `read -s` prompt avoids putting the client secret directly in shell h
 
 The redirect URI must match the application registration exactly. During `login`, a temporary HTTP listener is bound only to the loopback interface and the configured port/path. The browser opens the Mendeley consent page. Approve the requested access in Mendeley; the CLI then exchanges the authorization code and stores the resulting tokens locally.
 
+**Permission scope:** Mendeley's documented Authorization Code flow requires `scope=all`. This is broad access to all API resources, not a read-only permission. The CLI displays this warning before opening the consent page. Do not authorize an account unless that scope is acceptable.
+
 The default credential file is `~/.project-skripsi/mendeley/tokens.json` (on Windows, under the user home directory). POSIX directory/file permissions are restricted to the current user where supported. Windows ACLs remain managed by Windows. Set `MENDELEY_TOKEN_FILE` or the global `--token-file` option only when a different private local path is necessary. Never place token files under the public repository.
+
+The token JSON is **not encrypted by this connector**. POSIX file and directory permissions reduce access by other local users; Windows relies on the account's filesystem ACLs. Protect the device account, enable device storage encryption where available, and do not sync or back up the token file to an untrusted location. A local file permission is not a substitute for full-device security.
 
 If localhost callback hosting is unavailable, `auth-url` and `auth-exchange` provide a manual fallback. Treat the one-time state and callback code as sensitive, short-lived values.
 
