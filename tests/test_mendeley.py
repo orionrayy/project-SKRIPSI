@@ -421,4 +421,56 @@ class MendeleyOAuthCallbackTests(unittest.TestCase):
                 run_local_oauth_login(client)
 
 
+
+class MendeleyAdditionalResourceTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.client = make_client(self.tmp.name)
+        self.client.store.save({"access_token": "access", "refresh_token": "refresh", "expires_at": time.time() + 3600})
+
+    def test_group_invitation_uses_distinct_documented_content_and_accept_types(self):
+        calls = []
+        self.client.request = lambda *a, **kw: calls.append((a, kw)) or ([{"invitation_uuid": "i-1"}], {}, 201)
+        self.client.invite_group_members("g-1", {"recipients": [{"email": "a@example.test"}]})
+        args, kwargs = calls[0]
+        self.assertEqual(args[:2], ("POST", "/groups/v2/g-1/invitations"))
+        self.assertEqual(kwargs["content_type"], "application/vnd.mendeley-group-invitation+json")
+        self.assertEqual(kwargs["accept"], "application/vnd.mendeley-group-invitation-response-list+json")
+
+    def test_profile_follow_operations_use_documented_resource_and_media_types(self):
+        calls = []
+        self.client.request = lambda *a, **kw: calls.append((a, kw)) or ({"id": "follow-1"}, {}, 201)
+        self.client.follow_profile("profile-1")
+        self.client.accept_profile_follow_request("follow-1")
+        self.client.unfollow_profile("follow-1")
+        self.client.list_profile_followers("profile-2", status="following")
+        self.assertEqual(calls[0][0][:2], ("POST", "/followers"))
+        self.assertEqual(calls[0][1]["body"], {"followed": "profile-1"})
+        self.assertEqual(calls[0][1]["content_type"], "application/vnd.mendeley-follow-request.1+json")
+        self.assertEqual(calls[1][0][:2], ("PATCH", "/followers/follow-1"))
+        self.assertEqual(calls[1][1]["content_type"], "application/vnd.mendeley-follow-acceptance.1+json")
+        self.assertEqual(calls[2][0][:2], ("DELETE", "/followers/follow-1"))
+        self.assertEqual(calls[3][0][:2], ("GET", "/followers"))
+        self.assertEqual(calls[3][1]["params"], {"status": "following", "followed": "profile-2"})
+
+    def test_group_join_request_acceptance_and_popular_groups(self):
+        calls = []
+        self.client.request = lambda *a, **kw: calls.append((a, kw)) or ({"ok": True}, {}, 200)
+        self.client.respond_to_group_join_request("g-1", "profile-1", True, "Welcome")
+        self.client.respond_to_group_join_request("g-1", "profile-2", False, "Not eligible")
+        self.client.pages = lambda path, **kwargs: calls.append((("PAGES", path), kwargs)) or []
+        self.client.list_popular_groups(limit=20)
+        self.assertEqual(calls[0][0][:2], ("POST", "/groups/v2/g-1/members/profile-1/actions/accept"))
+        self.assertEqual(calls[1][0][:2], ("POST", "/groups/v2/g-1/members/profile-2/actions/decline"))
+        self.assertEqual(calls[0][1]["body"], {"message": "Welcome"})
+        self.assertEqual(calls[2][0], ("PAGES", "/groups/v2/popular"))
+
+    def test_profile_get_by_id_uses_profiles_resource(self):
+        calls = []
+        self.client.request = lambda *a, **kw: calls.append((a, kw)) or ({"id": "profile-123"}, {}, 200)
+        self.client.get_profile_by_id("profile-123")
+        self.assertEqual(calls[0][0][:2], ("GET", "/profiles/profile-123"))
+
+
 if __name__ == "__main__": unittest.main()
