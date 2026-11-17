@@ -858,6 +858,19 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("status", help="show connection/token expiry without displaying tokens")
     sub.add_parser("logout", help="remove local Mendeley tokens; this does not revoke the provider-side grant")
     sub.add_parser("profile", help="read logged-in Mendeley profile")
+    profile_get = sub.add_parser("profile-get", help="read a public profile by ID")
+    profile_get.add_argument("id")
+    followers = sub.add_parser("profile-followers", help="list followers of a profile")
+    followers.add_argument("id")
+    followees = sub.add_parser("profile-followees", help="list profiles followed by a profile")
+    followees.add_argument("id")
+    profile_follow = sub.add_parser("profile-follow", help="follow a public profile")
+    profile_follow.add_argument("id")
+    follow_accept = sub.add_parser("profile-follow-accept", help="accept an incoming follow request by relationship ID")
+    follow_accept.add_argument("relationship_id")
+    profile_unfollow = sub.add_parser("profile-unfollow", help="cancel, reject or remove a follow relationship")
+    profile_unfollow.add_argument("relationship_id")
+    profile_unfollow.add_argument("--confirm", required=True)
     updprof = sub.add_parser("profile-update", help="patch the authenticated user profile")
     updprof.add_argument("payload", type=Path)
     docs = sub.add_parser("documents", help="list all user-library documents (view=all)")
@@ -907,6 +920,8 @@ def build_parser() -> argparse.ArgumentParser:
     profile_search.add_argument("query"); profile_search.add_argument("--limit", type=int, default=100)
     groups = sub.add_parser("groups", help="list your groups using the current Groups v2 API")
     groups.add_argument("--limit", type=int, default=100)
+    popular_groups = sub.add_parser("groups-popular", help="list popular public groups")
+    popular_groups.add_argument("--limit", type=int, default=100)
     group_get = sub.add_parser("group-get"); group_get.add_argument("id")
     group_create = sub.add_parser("group-create"); group_create.add_argument("payload", type=Path)
     group_update = sub.add_parser("group-update"); group_update.add_argument("id"); group_update.add_argument("payload", type=Path)
@@ -924,6 +939,7 @@ def build_parser() -> argparse.ArgumentParser:
     invite_action = sub.add_parser("group-invitation-action"); invite_action.add_argument("id"); invite_action.add_argument("invitation_id"); invite_action.add_argument("action", choices=["revoke", "resend"])
     invite_response = sub.add_parser("group-invitation-response"); invite_response.add_argument("id"); invite_response.add_argument("invitation_id"); invite_response.add_argument("decision", choices=["accept", "decline"])
     group_request = sub.add_parser("group-join-request"); group_request.add_argument("id"); group_request.add_argument("message")
+    group_request_action = sub.add_parser("group-join-request-action"); group_request_action.add_argument("id"); group_request_action.add_argument("profile_id"); group_request_action.add_argument("decision", choices=["accept", "decline"]); group_request_action.add_argument("message")
     return parser
 
 
@@ -946,6 +962,14 @@ def main(argv: list[str] | None = None) -> int:
             result = {"status": "CONNECTED" if token and float(token.get("expires_at", 0)) > time.time() else ("TOKEN_REFRESH_REQUIRED" if token else "DISCONNECTED"), "expires_at": token.get("expires_at") if token else None, "token_path": str(client.store.path)}
         elif args.command == "logout": result = {"local_tokens_removed": client.store.clear(), "provider_grant_revoked": False}
         elif args.command == "profile": result = client.get_profile()
+        elif args.command == "profile-get": result = client.get_profile_by_id(args.id)
+        elif args.command == "profile-followers": result = client.list_profile_followers(args.id)
+        elif args.command == "profile-followees": result = client.list_profile_followees(args.id)
+        elif args.command == "profile-follow": result = client.follow_profile(args.id)
+        elif args.command == "profile-follow-accept": result = client.accept_profile_follow_request(args.relationship_id)
+        elif args.command == "profile-unfollow":
+            if args.confirm != args.relationship_id: raise MendeleyError("Confirmation relationship ID does not match; unfollow refused")
+            result = client.unfollow_profile(args.relationship_id)
         elif args.command == "profile-update": result = client.update_profile(_load_json_file(args.payload))
         elif args.command == "documents": result = client.list_documents(limit=max(1, min(args.limit, 500)), modified_since=args.modified_since)
         elif args.command == "library-search": result = client.search_library_documents(args.query, limit=max(1, min(args.limit, 500)))
@@ -994,6 +1018,7 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "catalog-query": result = client.search_catalog_query(args.query, limit=max(1, min(args.limit, 500)))
         elif args.command == "profile-search": result = client.search_profiles(args.query, limit=max(1, min(args.limit, 500)))
         elif args.command == "groups": result = client.list_groups(limit=max(1, min(args.limit, 500)))
+        elif args.command == "groups-popular": result = client.list_popular_groups(limit=max(1, min(args.limit, 500)))
         elif args.command == "group-get": result = client.get_group(args.id)
         elif args.command == "group-create": result = client.create_group(_load_json_file(args.payload))
         elif args.command == "group-update": result = client.update_group(args.id, _load_json_file(args.payload))
@@ -1019,6 +1044,7 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "group-invitation-action": result = client.group_invitation_action(args.id, args.invitation_id, args.action)
         elif args.command == "group-invitation-response": result = client.respond_to_group_invitation(args.id, args.invitation_id, args.decision == "accept")
         elif args.command == "group-join-request": result = client.request_group_join(args.id, args.message)
+        elif args.command == "group-join-request-action": result = client.respond_to_group_join_request(args.id, args.profile_id, args.decision == "accept", args.message)
         else: raise MendeleyError("Unsupported command")
         _dump(result); return 0
     except (MendeleyError, ValueError, OSError) as exc:
