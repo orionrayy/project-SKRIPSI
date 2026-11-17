@@ -225,6 +225,31 @@ class MendeleyApiTests(unittest.TestCase):
 
 
 class MendeleyExpandedResourceTests(unittest.TestCase):
+    def test_profile_search_uses_supported_search_resource(self):
+        calls = []
+        self.client.pages = lambda path, **kwargs: calls.append((path, kwargs)) or []
+        self.client.search_profiles("Politecnico di Milano", limit=20)
+        self.assertEqual(calls[0][0], "/search/profiles")
+        self.assertEqual(calls[0][1]["params"], {"query": "Politecnico di Milano", "limit": 20})
+        self.assertEqual(calls[0][1]["accept"], "application/vnd.mendeley-profile.1+json")
+        with self.assertRaises(MendeleyError): self.client.search_profiles("")
+        with self.assertRaises(MendeleyError): self.client.search_profiles("research", limit=101)
+
+    def test_popular_groups_uses_groups_v2_popular_resource(self):
+        calls = []
+        self.client.pages = lambda path, **kwargs: calls.append((path, kwargs)) or []
+        self.client.list_popular_groups(limit=10)
+        self.assertEqual(calls[0][0], "/groups/v2/popular")
+        self.assertEqual(calls[0][1]["params"], {"limit": 10})
+        self.assertEqual(calls[0][1]["accept"], "application/vnd.mendeley-group-list+json")
+
+    def test_cli_parser_registers_profile_and_popular_group_search_commands(self):
+        parser = build_parser()
+        profile_args = parser.parse_args(["profile-search", "Politecnico di Milano", "--limit", "20"])
+        popular_args = parser.parse_args(["popular-groups", "--limit", "10"])
+        self.assertEqual((profile_args.command, profile_args.query, profile_args.limit), ("profile-search", "Politecnico di Milano", 20))
+        self.assertEqual((popular_args.command, popular_args.limit), ("popular-groups", 10))
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
