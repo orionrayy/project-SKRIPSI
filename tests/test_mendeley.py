@@ -392,6 +392,27 @@ class MendeleyExpandedResourceTests(unittest.TestCase):
         self.client = make_client(self.tmp.name)
         self.client.store.save({"access_token": "access", "refresh_token": "refresh", "expires_at": time.time() + 3600})
 
+    def test_oauth_cli_discloses_scope_all_permission_before_authorization(self):
+        from io import StringIO
+        with patch("project_skripsi.integrations.mendeley._client") as factory:
+            fake = MagicMock()
+            fake.authorization_url.return_value = ("https://api.mendeley.com/oauth/authorize?scope=all", "one-time-state")
+            factory.return_value = fake
+            output = StringIO()
+            with patch("sys.stdout", output):
+                self.assertEqual(main(["auth-url"]), 0)
+            self.assertIn("scope=all", output.getvalue())
+            self.assertIn("broad account access", output.getvalue())
+
+        with patch("project_skripsi.integrations.mendeley._client") as factory:
+            factory.return_value = MagicMock()
+            output = StringIO()
+            with patch("project_skripsi.integrations.mendeley.run_local_oauth_login", return_value={"status": "AUTHORIZED"}):
+                with patch("sys.stdout", output):
+                    self.assertEqual(main(["login"]), 0)
+            self.assertIn("scope=all", output.getvalue())
+            self.assertIn("broad account access", output.getvalue())
+
     def test_cli_does_not_expose_retired_profile_or_public_group_search(self):
         parser = build_parser()
         for command in ("profile-search", "popular-groups"):
