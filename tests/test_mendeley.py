@@ -127,7 +127,7 @@ class MendeleyApiTests(unittest.TestCase):
             return Response(b'{"id":"ok"}')
         self.client._open = opener
         with patch.object(self.client, "_token_request", return_value={"access_token": "new-access", "refresh_token": "new-refresh", "expires_at": time.time() + 3600}):
-            result, _, _ = self.client.request("GET", "/profiles/me")
+            result, _, _ = self.client.request("GET", "/profiles/v2/me")
         self.assertEqual(result["id"], "ok")
         self.assertEqual(calls, ["Bearer access", "Bearer new-access"])
 
@@ -259,6 +259,20 @@ class MendeleyExpandedResourceTests(unittest.TestCase):
         with self.assertRaises(MendeleyError): self.client.invite_group_members("g-1", {"recipients": []})
         with self.assertRaises(MendeleyError): self.client.group_invitation_action("g-1", "i-1", "delete")
 
+    def test_group_invitation_acceptance_uses_current_action_route(self):
+        calls = []
+        self.client.request = lambda *a, **kw: calls.append((a, kw)) or ({"ok": True}, {}, 204)
+        self.client.respond_to_group_invitation("group-1", True)
+        self.client.respond_to_group_invitation("group-1", False)
+        self.assertEqual(calls[0][0][:2], ("POST", "/groups/v2/group-1/actions/accept_invitation"))
+        self.assertEqual(calls[1][0][:2], ("POST", "/groups/v2/group-1/actions/decline_invitation"))
+
+    def test_public_group_operations_are_rejected_locally(self):
+        with self.assertRaises(MendeleyError):
+            self.client.create_group({"name": "Public group", "access_level": "public"})
+        with self.assertRaises(MendeleyError):
+            self.client.update_group("g-1", {"access_level": "open"})
+
     def test_document_file_routes_use_document_scoped_api(self):
         calls = []
         def fake(method, path, **kwargs):
@@ -287,7 +301,7 @@ class MendeleyExpandedResourceTests(unittest.TestCase):
             with self.assertRaises(MendeleyError): store.load()
 
     def test_profile_and_catalog_queries_validate_non_empty_query(self):
-        with self.assertRaises(MendeleyError): self.client.search_profiles("  ")
+        with self.assertRaises(MendeleyError): self.client.list_profiles()
         with self.assertRaises(MendeleyError): self.client.search_catalog_query("")
 
     def test_cli_group_destructive_actions_require_exact_confirmation(self):
@@ -438,39 +452,31 @@ class MendeleyAdditionalResourceTests(unittest.TestCase):
         self.assertEqual(kwargs["content_type"], "application/vnd.mendeley-group-invitation+json")
         self.assertEqual(kwargs["accept"], "application/vnd.mendeley-group-invitation-response-list+json")
 
-    def test_profile_follow_operations_use_documented_resource_and_media_types(self):
+    def test_profile_v2_read_and_update_routes(self):
         calls = []
-        self.client.request = lambda *a, **kw: calls.append((a, kw)) or ({"id": "follow-1"}, {}, 201)
-        self.client.follow_profile("profile-1")
-        self.client.accept_profile_follow_request("follow-1")
-        self.client.unfollow_profile("follow-1")
-        self.client.list_profile_followers("profile-2", status="following")
-        self.assertEqual(calls[0][0][:2], ("POST", "/followers"))
-        self.assertEqual(calls[0][1]["body"], {"followed": "profile-1"})
-        self.assertEqual(calls[0][1]["content_type"], "application/vnd.mendeley-follow-request.1+json")
-        self.assertEqual(calls[1][0][:2], ("PATCH", "/followers/follow-1"))
-        self.assertEqual(calls[1][1]["content_type"], "application/vnd.mendeley-follow-acceptance.1+json")
-        self.assertEqual(calls[2][0][:2], ("DELETE", "/followers/follow-1"))
-        self.assertEqual(calls[3][0][:2], ("GET", "/followers"))
-        self.assertEqual(calls[3][1]["params"], {"status": "following", "followed": "profile-2"})
+        self.client.request = lambda *a, **kw: calls.append((a, kw)) or ({"id": "p-1"}, {}, 200)
+        self.client.get_profile()
+        self.client.get_profile_by_id("p-1")
+        self.client.update_profile({"display_name": "Example"})
+        self.assertEqual(calls[0][0][:2], ("GET", "/profiles/v2/me"))
+        self.assertEqual(calls[0][1]["accept"], "application/vnd.mendeley-profile.2+json")
+        self.assertEqual(calls[1][0][:2], ("GET", "/profiles/v2/p-1"))
+        self.assertEqual(calls[2][0][:2], ("PATCH", "/profiles/v2/me"))
+        self.assertEqual(calls[2][1]["accept"], "application/vnd.mendeley-profile-amendment.2+json")
 
-    def test_group_join_request_acceptance_and_popular_groups(self):
+    def test_group_join_request_decisions_use_documented_routes(self):
         calls = []
         self.client.request = lambda *a, **kw: calls.append((a, kw)) or ({"ok": True}, {}, 200)
         self.client.respond_to_group_join_request("g-1", "profile-1", True, "Welcome")
         self.client.respond_to_group_join_request("g-1", "profile-2", False, "Not eligible")
-        self.client.pages = lambda path, **kwargs: calls.append((("PAGES", path), kwargs)) or []
-        self.client.list_popular_groups(limit=20)
         self.assertEqual(calls[0][0][:2], ("POST", "/groups/v2/g-1/members/profile-1/actions/accept"))
         self.assertEqual(calls[1][0][:2], ("POST", "/groups/v2/g-1/members/profile-2/actions/decline"))
         self.assertEqual(calls[0][1]["body"], {"message": "Welcome"})
-        self.assertEqual(calls[2][0], ("PAGES", "/groups/v2/popular"))
-
     def test_profile_get_by_id_uses_profiles_resource(self):
         calls = []
         self.client.request = lambda *a, **kw: calls.append((a, kw)) or ({"id": "profile-123"}, {}, 200)
         self.client.get_profile_by_id("profile-123")
-        self.assertEqual(calls[0][0][:2], ("GET", "/profiles/profile-123"))
+        self.assertEqual(calls[0][0][:2], ("GET", "/profiles/v2/profile-123"))
 
 
 if __name__ == "__main__": unittest.main()
