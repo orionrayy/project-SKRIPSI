@@ -308,3 +308,243 @@ class MendeleyClient:
                     continue
                 raise
         raise MendeleyError("Mendeley request retry budget exhausted")
+        url, first = path, True
+        out: list[Any] = []
+        while url:
+            data, headers, _status = self.request("GET", url, params=params if first else None, accept=accept)
+            first = False
+            if data is None: break
+            if isinstance(data, dict): out.append(data)
+            elif isinstance(data, list): out.extend(data)
+            else: raise MendeleyError("Expected a JSON collection from Mendeley")
+            link = headers.get("Link", "") if headers else ""
+            url = _next_link(link, self.config.api_base_url)
+        return out
+
+    # Profile
+    def get_profile(self) -> dict[str, Any]:
+        data, _, _ = self.request("GET", "/profiles/me", accept=MEDIA["profiles"])
+        if not isinstance(data, dict): raise MendeleyError("Profile response is not an object")
+        return data
+    def update_profile(self, changes: dict[str, Any]) -> Any:
+        if not changes: raise MendeleyError("Profile changes must not be empty")
+        return self.request("PATCH", "/profiles/me", body=changes, accept=MEDIA["profile_patch"])[0]
+
+    # Documents
+    def list_documents(self, **params: Any) -> list[dict[str, Any]]:
+        params.setdefault("view", "all")
+        return self.pages("/documents", params=params, accept=MEDIA["documents"])
+    def get_document(self, document_id: str) -> Any:
+        return self.request("GET", "/documents/" + _id(document_id), accept=MEDIA["documents"])[0]
+    def create_document(self, metadata: dict[str, Any]) -> Any:
+        if not isinstance(metadata, dict) or not metadata.get("title") or not metadata.get("type"):
+            raise MendeleyError("Document metadata requires non-empty title and type")
+        return self.request("POST", "/documents", body=metadata, accept=MEDIA["documents"])[0]
+    def update_document(self, document_id: str, changes: dict[str, Any], *, if_unmodified_since: str | None = None) -> Any:
+        if not changes: raise MendeleyError("Document changes must not be empty")
+        headers = {}
+        if if_unmodified_since:
+            value = if_unmodified_since.strip()
+            if not value or "\r" in value or "\n" in value:
+                raise MendeleyError("If-Unmodified-Since must be a single valid HTTP date value")
+            headers["If-Unmodified-Since"] = value
+        return self.request("PATCH", "/documents/" + _id(document_id), body=changes, headers=headers, accept=MEDIA["documents"])[0]
+    def trash_document(self, document_id: str) -> Any:
+        return self.request("POST", "/documents/" + _id(document_id) + "/trash")[0]
+    def delete_document_permanently(self, document_id: str) -> Any:
+        return self.request("DELETE", "/documents/" + _id(document_id))[0]
+    def deleted_document_ids(self, **params: Any) -> list[Any]:
+        return self.pages("/deleted_documents", params=params, accept="application/vnd.mendeley-deleted-document.1+json")
+    def restore_document(self, document_id: str) -> Any:
+        return self.request("POST", "/trash/" + _id(document_id) + "/restore")[0]
+    def search_library_documents(self, query: str, **params: Any) -> list[dict[str, Any]]:
+        if not isinstance(query, str) or not query.strip():
+            raise MendeleyError("Library search query must not be empty")
+        params["query"] = query.strip()
+        return self.pages("/search/documents", params=params, accept=MEDIA["documents"])
+    def list_document_types(self) -> list[dict[str, Any]]:
+        return self.pages("/document_types", accept="application/vnd.mendeley-document-type.1+json")
+    def create_document_from_file(self, file_path: Path) -> Any:
+        supplied = Path(file_path).expanduser()
+        if supplied.is_symlink(): raise MendeleyError("Document import path must not be a symlink")
+        path = supplied.resolve(strict=True)
+        if not path.is_file(): raise MendeleyError("Document import path must be a regular file")
+        payload = path.read_bytes()
+        if len(payload) > MAX_UPLOAD_BYTES: raise MendeleyError("File exceeds 100 MiB upload limit")
+        content_type = mimetypes.guess_type(path.name)[0] or "application/octet-stream"
+        safe_name = path.name.replace('"', "_").replace("\\", "_").replace("\r", "_").replace("\n", "_")
+        headers = {"Content-Type": content_type, "Content-Disposition": f'attachment; filename="{safe_name}"'}
+        return self.request("POST", "/documents", raw_body=payload, headers=headers, accept=MEDIA["documents"])[0]
+
+    # Folders
+    def list_folders(self, **params: Any) -> list[dict[str, Any]]:
+        return self.pages("/folders", params=params, accept=MEDIA["folders"])
+    def get_folder(self, folder_id: str) -> Any:
+        return self.request("GET", "/folders/" + _id(folder_id), accept=MEDIA["folders"])[0]
+    def create_folder(self, name: str, *, parent_id: str | None = None) -> Any:
+        if not name.strip(): raise MendeleyError("Folder name must not be empty")
+        body = {"name": name}
+        if parent_id: body["parent_id"] = _id(parent_id)
+        return self.request("POST", "/folders", body=body, accept=MEDIA["folders"])[0]
+    def update_folder(self, folder_id: str, changes: dict[str, Any]) -> Any:
+        if not changes: raise MendeleyError("Folder changes must not be empty")
+        return self.request("PATCH", "/folders/" + _id(folder_id), body=changes, accept=MEDIA["folders"])[0]
+    def delete_folder(self, folder_id: str) -> Any:
+        return self.request("DELETE", "/folders/" + _id(folder_id))[0]
+    def list_folder_documents(self, folder_id: str, **params: Any) -> list[Any]:
+        return self.pages("/folders/" + _id(folder_id) + "/documents", params=params, accept=MEDIA["documents"])
+    def add_document_to_folder(self, folder_id: str, document_id: str) -> Any:
+        return self.request("POST", "/folders/" + _id(folder_id) + "/documents", body={"id": _id(document_id)}, accept=MEDIA["documents"])[0]
+    def remove_document_from_folder(self, folder_id: str, document_id: str) -> Any:
+        return self.request("DELETE", "/folders/" + _id(folder_id) + "/documents/" + _id(document_id))[0]
+
+    # Annotations
+    def list_annotations(self, **params: Any) -> list[dict[str, Any]]:
+        return self.pages("/annotations", params=params, accept=MEDIA["annotations"])
+    def get_annotation(self, annotation_id: str) -> Any:
+        return self.request("GET", "/annotations/" + _id(annotation_id), accept=MEDIA["annotations"])[0]
+    def create_annotation(self, annotation: dict[str, Any]) -> Any:
+        if not isinstance(annotation, dict) or not annotation.get("document_id"):
+            raise MendeleyError("Annotation requires document_id")
+        return self.request("POST", "/annotations", body=annotation, accept=MEDIA["annotations"])[0]
+    def update_annotation(self, annotation_id: str, changes: dict[str, Any]) -> Any:
+        if not changes: raise MendeleyError("Annotation changes must not be empty")
+        return self.request("PATCH", "/annotations/" + _id(annotation_id), body=changes, accept=MEDIA["annotations"])[0]
+    def delete_annotation(self, annotation_id: str) -> Any:
+        return self.request("DELETE", "/annotations/" + _id(annotation_id))[0]
+
+    # Files
+    def list_files(self, **params: Any) -> list[dict[str, Any]]:
+        return self.pages("/files", params=params, accept=MEDIA["files"])
+    def list_document_files(self, document_id: str, **params: Any) -> list[dict[str, Any]]:
+        return self.pages("/documents/v1/" + _id(document_id) + "/files", params=params, accept=MEDIA["files"])
+    def delete_file(self, file_id: str) -> Any:
+        return self.request("DELETE", "/files/" + _id(file_id))[0]
+    def delete_document_file(self, document_id: str, file_id: str) -> Any:
+        return self.request("DELETE", "/documents/v1/" + _id(document_id) + "/files/" + _id(file_id))[0]
+    def upload_document_file(self, document_id: str, file_path: Path) -> Any:
+        supplied = Path(file_path).expanduser()
+        if supplied.is_symlink(): raise MendeleyError("Upload path must not be a symlink")
+        path = supplied.resolve(strict=True)
+        if not path.is_file(): raise MendeleyError("Upload path must be a regular file")
+        payload = path.read_bytes()
+        if len(payload) > MAX_UPLOAD_BYTES: raise MendeleyError("File exceeds 100 MiB upload limit")
+        mime = mimetypes.guess_type(path.name)[0] or "application/octet-stream"
+        name = path.name.replace('"', "_").replace("\\", "_").replace("\r", "_").replace("\n", "_")
+        headers = {"Content-Type": mime, "Content-Disposition": f'attachment; filename="{name}"'}
+        return self.request("POST", "/documents/v1/" + _id(document_id) + "/files", raw_body=payload, headers=headers, accept=MEDIA["files"])[0]
+    def upload_file(self, document_id: str, file_path: Path) -> Any:
+        supplied = Path(file_path).expanduser()
+        if supplied.is_symlink(): raise MendeleyError("Upload path must not be a symlink")
+        path = supplied.resolve(strict=True)
+        if not path.is_file(): raise MendeleyError("Upload path must be a regular file")
+        payload = path.read_bytes()
+        if len(payload) > MAX_UPLOAD_BYTES: raise MendeleyError("File exceeds 100 MiB upload limit")
+        mime = mimetypes.guess_type(path.name)[0] or "application/octet-stream"
+        name = path.name.replace('"', "_").replace("\\", "_").replace("\r", "_").replace("\n", "_")
+        headers = {"Content-Type": mime, "Content-Disposition": f'attachment; filename="{name}"', "Link": f'<{self.config.api_base_url.rstrip("/")}/documents/{_id(document_id)}>; rel="document"'}
+        return self.request("POST", "/files", raw_body=payload, headers=headers, accept=MEDIA["files"])[0]
+    def download_file(self, file_id: str, destination: Path) -> dict[str, Any]:
+        """Follow the API's 303 signed URL without forwarding the Bearer token."""
+        path = "/files/" + _id(file_id)
+        req = urllib.request.Request(self.config.api_base_url.rstrip("/") + path, headers={"Authorization": "Bearer " + self._valid_token(), "User-Agent": USER_AGENT}, method="GET")
+        try:
+            response = self._open(req, timeout=self.config.timeout)
+            with response:
+                if getattr(response, "status", 200) != 200: raise MendeleyError("Expected a 303 signed download redirect", status=getattr(response, "status", None))
+                data = response.read(MAX_DOWNLOAD_BYTES + 1)
+        except urllib.error.HTTPError as exc:
+            if exc.code != 303: raise MendeleyError(f"Mendeley file endpoint returned HTTP {exc.code}", status=exc.code) from exc
+            location = exc.headers.get("Location")
+            if not location: raise MendeleyError("Mendeley file response omitted signed download URL")
+            parsed = urllib.parse.urlsplit(location)
+            if parsed.scheme != "https" or not parsed.hostname: raise MendeleyError("Refusing a non-HTTPS signed file URL")
+            # Never attach the Mendeley bearer token to the pre-signed storage URL.
+            try:
+                with urllib.request.urlopen(urllib.request.Request(location, headers={"User-Agent": USER_AGENT}), timeout=self.config.timeout) as file_response:
+                    data = file_response.read(MAX_DOWNLOAD_BYTES + 1)
+            except (urllib.error.URLError, TimeoutError, OSError) as error:
+                raise MendeleyError("Signed file download failed") from error
+        if len(data) > MAX_DOWNLOAD_BYTES: raise MendeleyError("Downloaded file exceeded 100 MiB safety limit")
+        target = Path(destination).expanduser()
+        if target.exists() or target.is_symlink(): raise MendeleyError("Refusing to overwrite an existing download target")
+        for parent in (target.parent, *target.parent.parents):
+            if parent.is_symlink(): raise MendeleyError("Refusing a symlinked download destination directory")
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        fd, tmp_name = tempfile.mkstemp(prefix=target.name + ".", suffix=".part", dir=target.parent)
+        try:
+            with os.fdopen(fd, "wb") as stream: stream.write(data); stream.flush(); os.fsync(stream.fileno())
+            os.replace(tmp_name, target)
+            if os.name != "nt": target.chmod(0o600)
+        finally:
+            try: Path(tmp_name).unlink(missing_ok=True)
+            except OSError: pass
+        import hashlib
+        return {"path": str(target), "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
+
+    # Catalog and search (catalog lookup is distinct from the user's private library)
+    def search_catalog(self, **params: Any) -> list[dict[str, Any]]:
+        return self.pages("/catalog", params=params, accept=MEDIA["catalog"])
+    def search_catalog_query(self, query: str, **params: Any) -> list[dict[str, Any]]:
+        if not isinstance(query, str) or not query.strip():
+            raise MendeleyError("Catalog search query must not be empty")
+        params["query"] = query.strip()
+        return self.pages("/search/catalog", params=params, accept=MEDIA["catalog"])
+    def search_profiles(self, query: str, **params: Any) -> list[dict[str, Any]]:
+        if not isinstance(query, str) or not query.strip():
+            raise MendeleyError("Profile search query must not be empty")
+        params["query"] = query.strip()
+        return self.pages("/search/profiles", params=params, accept="application/vnd.mendeley-profile.1+json")
+
+    # Groups v2 (legacy /groups endpoints are deliberately not used)
+    def list_groups(self, **params: Any) -> list[dict[str, Any]]:
+        return self.pages("/groups/v2", params=params, accept="application/vnd.mendeley-group-list+json")
+    def get_group(self, group_id: str) -> Any:
+        return self.request("GET", "/groups/v2/" + _id(group_id), accept="application/vnd.mendeley-group+json")[0]
+    def create_group(self, payload: dict[str, Any]) -> Any:
+        if not isinstance(payload, dict) or not str(payload.get("name", "")).strip():
+            raise MendeleyError("Group creation requires a non-empty name")
+        return self.request("POST", "/groups/v2", body=payload, accept="application/vnd.mendeley-group+json")[0]
+    def update_group(self, group_id: str, changes: dict[str, Any]) -> Any:
+        if not changes: raise MendeleyError("Group changes must not be empty")
+        return self.request("PATCH", "/groups/v2/" + _id(group_id), body=changes, accept="application/vnd.mendeley-group+json")[0]
+    def delete_group(self, group_id: str) -> Any:
+        return self.request("DELETE", "/groups/v2/" + _id(group_id))[0]
+    def list_group_members(self, group_id: str, **params: Any) -> list[dict[str, Any]]:
+        return self.pages("/groups/v2/" + _id(group_id) + "/members", params=params, accept="application/vnd.mendeley-group-member-list+json")
+    def update_group_member(self, group_id: str, profile_id: str, role: str) -> Any:
+        if role not in {"admin", "normal"}: raise MendeleyError("Group member role must be admin or normal")
+        return self.request("PATCH", "/groups/v2/" + _id(group_id) + "/members/" + _id(profile_id), body={"membership": role}, accept="application/vnd.mendeley-group-membership+json")[0]
+    def remove_group_member(self, group_id: str, profile_id: str) -> Any:
+        return self.request("DELETE", "/groups/v2/" + _id(group_id) + "/members/" + _id(profile_id))[0]
+    def join_group(self, group_id: str) -> Any:
+        return self.request("POST", "/groups/v2/" + _id(group_id) + "/members")[0]
+    def leave_group(self, group_id: str) -> Any:
+        return self.request("DELETE", "/groups/v2/" + _id(group_id) + "/members")[0]
+    def follow_group(self, group_id: str) -> Any:
+        return self.request("POST", "/groups/v2/" + _id(group_id) + "/followers")[0]
+    def unfollow_group(self, group_id: str) -> Any:
+        return self.request("DELETE", "/groups/v2/" + _id(group_id) + "/followers")[0]
+    def group_limits(self, group_id: str | None = None) -> Any:
+        path = "/groups/v2/limits" if group_id is None else "/groups/v2/" + _id(group_id) + "/limits"
+        return self.request("GET", path)[0]
+    def list_group_invitations(self, group_id: str | None = None, **params: Any) -> list[dict[str, Any]]:
+        path = "/groups/v2/invitations" if group_id is None else "/groups/v2/" + _id(group_id) + "/invitations"
+        return self.pages(path, params=params, accept="application/vnd.mendeley-group-invitation-list+json")
+    def invite_group_members(self, group_id: str, payload: dict[str, Any]) -> Any:
+        recipients = payload.get("recipients") if isinstance(payload, dict) else None
+        if not isinstance(recipients, list) or not recipients:
+            raise MendeleyError("Group invitation requires a non-empty recipients array")
+        return self.request("POST", "/groups/v2/" + _id(group_id) + "/invitations", body=payload, accept="application/vnd.mendeley-group-invitation-response-list+json")[0]
+    def group_invitation_action(self, group_id: str, invitation_id: str, action: str) -> Any:
+        if action not in {"resend", "revoke"}: raise MendeleyError("Unsupported group invitation action")
+        path = "/groups/v2/" + _id(group_id) + "/invitations/" + _id(invitation_id) + "/actions/" + action
+        return self.request("POST", path)[0]
+    def respond_to_group_invitation(self, group_id: str, invitation_id: str, accept: bool) -> Any:
+        action = "accept" if accept else "decline"
+        path = "/groups/v2/" + _id(group_id) + "/invitations/" + _id(invitation_id) + "/actions/" + action
+        return self.request("POST", path)[0]
+    def request_group_join(self, group_id: str, message: str) -> Any:
+        if not message.strip(): raise MendeleyError("Group join request message must not be empty")
+        path = "/groups/v2/" + _id(group_id) + "/actions/join_request"
+        return self.request("POST", path, body={"message": message}, accept="application/vnd.mendeley-group-message+json")[0]
