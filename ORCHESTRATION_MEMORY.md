@@ -75,3 +75,15 @@ On every invocation:
 4. Continue the earliest incomplete authorized work item. Preserve P0 and P1 accepted scopes; P2 remains `VALIDATION_PASSED_APPROVAL_PENDING` with APR-P2-001 blank; P3–P9 remain `NOT_STARTED / NOT_AUTHORIZED`.
 5. The project owner's standing instruction to continue implementation without repeated operational approvals does not allow the system to invent a P2 acceptance decision, waive research ethics or source restrictions, or self-authorize P3–P9. Keep execution authorization, human acceptance, and evidence validation separate.
 6. Update the canonical ledger and this memory only from verified repository and artifact evidence. Do not claim a workflow, package installation, external review, or academic acceptance unless its actual result is observed.
+
+
+## Mendeley API integration candidate — 2026-11-17
+
+- Work is isolated on `feature/mendeley-api-integration`, based on the verified `main` baseline. No change to `main`, no merge, and no P0–P9 research-ledger transition has been performed.
+- Candidate implementation: `src/project_skripsi/integrations/mendeley.py`; standalone CLI entrypoint `project-skripsi-mendeley`; isolated tests `tests/test_mendeley.py`; operator guide `docs/integrations/MENDELEY_API_INTEGRATION.md`.
+- Scope includes OAuth Authorization Code with one-use state, refresh rotation, local token store, profile, private library document search/list/get/create/update/trash/restore/delete, folders, annotations, file upload/download/delete, public catalog/profile search, Groups v2 operations, and opt-in metadata-only workspace sync. This describes exposed REST adapters, not proof every account has every endpoint permission or that every Desktop/Web feature is represented by the API.
+- Latest isolated harness validation: 29/29 tests PASS, compileall PASS, editable install and `project-skripsi-mendeley --help` smoke PASS. These results were run against a small isolated harness, not yet the complete repository regression suite or CI.
+- No live Mendeley API request or OAuth login has succeeded in this environment. Client ID/secret must be created by the account owner in the Mendeley Developer Portal and configured only in the local environment; never paste them into chat or commit them.
+- Mendeley Developer Terms must be checked before commercial or multi-client deployment. Keep this personal/local until the one-use-case and competing-product clauses are resolved for the intended use.
+- Workspace sync is preview-only unless `--apply` is explicitly passed; it imports only `METADATA_ONLY` records with unknown rights and creates no claim-evidence relations. Crash-recovery journaling for this sync remains an identified hardening item before broad use.
+- Next gates: verify remote source/test/docs checksums and full-repo manifest; open Draft PR for CI; validate real OAuth and a read-only profile/library call on the account owner's machine; then test each write resource with explicit user intent and a disposable test item before calling any operation production-ready.
