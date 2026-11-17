@@ -50,7 +50,7 @@ Do not register multiple production applications for the same use case without c
 
 ## Configure locally
 
-Python 3.10 or newer is required. The connector uses the standard library; no `mendeley` SDK or paid package is installed.
+Python 3.10 or newer is required. The connector uses the standard library; no `mendeley` SDK or paid package is installed. The CI pipeline also runs the isolated Mendeley connector suite and CLI smoke test on CPython 3.14. This checks the Python version used by recent Termux environments, but it is not a native Android/Termux device test.
 
 ### Windows PowerShell
 
