@@ -231,7 +231,7 @@ class MendeleyClient:
 
     def _valid_token(self) -> str:
         token = self.store.load()
-        if token is None: raise MendeleyError("Not connected. Run \`project-skripsi-mendeley auth-url\` and complete OAuth first")
+        if token is None: raise MendeleyError("Not connected. Run project-skripsi-mendeley auth-url and complete OAuth first")
         if float(token.get("expires_at", 0)) > time.time() + 90: return token["access_token"]
         # Serialize refresh and reload after obtaining lock so a concurrent process can rotate tokens.
         with FileLock(self.store.lock_path):
@@ -308,6 +308,8 @@ class MendeleyClient:
                     continue
                 raise
         raise MendeleyError("Mendeley request retry budget exhausted")
+
+    def pages(self, path: str, *, params: dict[str, Any] | None = None, accept: str) -> list[Any]:
         url, first = path, True
         out: list[Any] = []
         while url:
