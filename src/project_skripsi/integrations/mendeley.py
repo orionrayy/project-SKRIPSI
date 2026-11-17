@@ -859,6 +859,9 @@ def build_parser() -> argparse.ArgumentParser:
     trashdoc = sub.add_parser("document-trash"); trashdoc.add_argument("id")
     deldoc = sub.add_parser("document-delete"); deldoc.add_argument("id"); deldoc.add_argument("--confirm", required=True, help="must exactly match ID; permanently deletes")
     restore = sub.add_parser("document-restore"); restore.add_argument("id")
+    trashlist = sub.add_parser("trash-documents"); trashlist.add_argument("--limit", type=int, default=100)
+    trashget = sub.add_parser("trash-get"); trashget.add_argument("id")
+    trashdelete = sub.add_parser("trash-delete"); trashdelete.add_argument("id"); trashdelete.add_argument("--confirm", required=True)
     fromfile = sub.add_parser("document-from-file"); fromfile.add_argument("file", type=Path)
     folders = sub.add_parser("folders"); folders.add_argument("--limit", type=int, default=100)
     getfolder = sub.add_parser("folder-get"); getfolder.add_argument("id")
@@ -888,8 +891,6 @@ def build_parser() -> argparse.ArgumentParser:
     sync.add_argument("--apply", action="store_true", help="perform local source-register update; default is preview-only")
     catalog = sub.add_parser("catalog-search", help="search public catalog with metadata filters")
     catalog.add_argument("--doi"); catalog.add_argument("--title"); catalog.add_argument("--authors"); catalog.add_argument("--year", type=int)
-    catalog_query = sub.add_parser("catalog-query", help="search public Mendeley catalog by terms")
-    catalog_query.add_argument("query"); catalog_query.add_argument("--limit", type=int, default=100)
     profile_search.add_argument("query"); profile_search.add_argument("--limit", type=int, default=100)
     groups = sub.add_parser("groups", help="list your groups using the current Groups v2 API")
     groups.add_argument("--limit", type=int, default=100)
@@ -941,6 +942,11 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "document-create": result = client.create_document(_load_json_file(args.payload))
         elif args.command == "document-update": result = client.update_document(args.id, _load_json_file(args.payload), if_unmodified_since=args.if_unmodified_since)
         elif args.command == "document-trash": result = client.trash_document(args.id)
+        elif args.command == "trash-documents": result = client.list_trash_documents(limit=max(1, min(args.limit, 500)))
+        elif args.command == "trash-get": result = client.get_trash_document(args.id)
+        elif args.command == "trash-delete":
+            if args.confirm != args.id: raise MendeleyError("Confirmation ID does not match; permanent trash deletion refused")
+            result = client.delete_trash_document(args.id)
         elif args.command == "document-delete":
             if args.confirm != args.id: raise MendeleyError("Confirmation ID does not match; permanent deletion refused")
             result = client.delete_document_permanently(args.id)
@@ -978,7 +984,6 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "catalog-search":
             params = {"doi": args.doi, "title": args.title, "authors": args.authors, "year": args.year}
             result = client.search_catalog(**{k: v for k, v in params.items() if v is not None})
-        elif args.command == "catalog-query": result = client.search_catalog_query(args.query, limit=max(1, min(args.limit, 500)))
         elif args.command == "groups": result = client.list_groups(limit=max(1, min(args.limit, 500)))
         elif args.command == "group-get": result = client.get_group(args.id)
         elif args.command == "group-create": result = client.create_group(_load_json_file(args.payload))
