@@ -43,35 +43,73 @@ def _parts(names: Iterable[str]) -> list[tuple[int, str]]:
 
 
 def _ordered_slides(archive: zipfile.ZipFile, names: set[str]) -> list[tuple[int, str]]:
-    """Resolve displayed slide order through presentation relationships."""
+    """Resolve displayed slide order and fail closed on malformed metadata."""
     pres_part, rels_part = "ppt/presentation.xml", "ppt/_rels/presentation.xml.rels"
-    if pres_part not in names or rels_part not in names:
+    # Only the complete absence of both order parts permits a numeric fallback.
+    if pres_part not in names and rels_part not in names:
         return _parts(names)
+    if pres_part not in names or rels_part not in names:
+        missing = pres_part if pres_part not in names else rels_part
+        raise ValueError(f"Missing presentation slide-order part: {missing}")
+
+    rel_ns = "http://schemas.openxmlformats.org/package/2006/relationships"
+    office_rel = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
     try:
         presentation = ET.fromstring(archive.read(pres_part))
+    except ET.ParseError as exc:
+        raise ValueError(f"Malformed XML in {pres_part}: {exc}") from exc
+    try:
         rels = ET.fromstring(archive.read(rels_part))
-        rel_ns = "http://schemas.openxmlformats.org/package/2006/relationships"
-        office_rel = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
-        targets = {
-            item.get("Id"): item.get("Target")
-            for item in rels.findall(f"{{{rel_ns}}}Relationship")
-            if item.get("Type", "").endswith("/slide") and item.get("TargetMode") != "External"
-        }
-        ordered = []
-        for slide_id in presentation.findall(".//p:sldIdLst/p:sldId", NS):
-            target = targets.get(slide_id.get(f"{{{office_rel}}}id"))
-            if not target:
-                continue
-            part = target.lstrip("/") if target.startswith("/") else posixpath.normpath(posixpath.join("ppt", target))
-            match = SLIDE_RE.match(part)
-            if match and part in names:
-                ordered.append((int(match.group(1)), part))
-        if ordered:
-            return ordered
-    except ET.ParseError:
-        pass
-    return _parts(names)
+    except ET.ParseError as exc:
+        raise ValueError(f"Malformed XML in {rels_part}: {exc}") from exc
 
+    slide_list = presentation.find(".//p:sldIdLst", NS)
+    if slide_list is None:
+        return _parts(names)
+    slide_ids = slide_list.findall("p:sldId", NS)
+    if not slide_ids:
+        return _parts(names)
+
+    relationships: dict[str, ET.Element] = {}
+    for item in rels.findall(f"{{{rel_ns}}}Relationship"):
+        relationship_id = item.get("Id")
+        if not relationship_id:
+            raise ValueError("Presentation relationship is missing its Id")
+        if relationship_id in relationships:
+            raise ValueError(f"Duplicate presentation relationship Id: {relationship_id}")
+        relationships[relationship_id] = item
+
+    ordered: list[tuple[int, str]] = []
+    used_parts: set[str] = set()
+    for slide_id in slide_ids:
+        relationship_id = slide_id.get(f"{{{office_rel}}}id")
+        if not relationship_id:
+            raise ValueError("Presentation slide entry is missing its relationship Id")
+        relationship = relationships.get(relationship_id)
+        if relationship is None:
+            raise ValueError(f"Unresolved slide relationship: {relationship_id}")
+        if relationship.get("TargetMode") == "External":
+            raise ValueError(f"Slide relationship is external: {relationship_id}")
+        if not relationship.get("Type", "").endswith("/slide"):
+            raise ValueError(f"Relationship is not a slide relationship: {relationship_id}")
+        target = relationship.get("Target")
+        if not target:
+            raise ValueError(f"Slide relationship has no Target: {relationship_id}")
+
+        part = target.lstrip("/") if target.startswith("/") else posixpath.normpath(posixpath.join("ppt", target))
+        match = SLIDE_RE.match(part)
+        if not match or part not in names:
+            raise ValueError(
+                f"Slide relationship {relationship_id} targets a missing or invalid slide part: {target!r}"
+            )
+        if part in used_parts:
+            raise ValueError(f"Duplicate slide part in presentation order: {part}")
+        used_parts.add(part)
+        ordered.append((int(match.group(1)), part))
+
+    if len(ordered) != len(slide_ids):
+        raise ValueError("Presentation slide order could not be fully resolved")
+    return ordered
 
 def _parse_slide(data: bytes, part: str) -> ET.Element:
     try:
