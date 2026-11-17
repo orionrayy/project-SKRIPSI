@@ -263,14 +263,14 @@ class MendeleyClient:
             if query: url += ("&" if "?" in url else "?") + query
         return url
 
-    def request(self, method: str, path: str, *, params: dict[str, Any] | None = None, body: Any = None, raw_body: bytes | None = None, headers: dict[str, str] | None = None, accept: str | None = None, retry_get: bool = True) -> tuple[Any, Any, int]:
+    def request(self, method: str, path: str, *, params: dict[str, Any] | None = None, body: Any = None, raw_body: bytes | None = None, headers: dict[str, str] | None = None, accept: str | None = None, content_type: str | None = None, retry_get: bool = True) -> tuple[Any, Any, int]:
         method = method.upper()
         if method not in {"GET", "POST", "PATCH", "DELETE", "PUT"}: raise MendeleyError("Unsupported HTTP method")
         url = self._safe_api_url(self.config.api_base_url, path, params)
         data = raw_body if raw_body is not None else (json.dumps(body, ensure_ascii=False).encode("utf-8") if body is not None else None)
         request_headers = {"Authorization": "Bearer " + self._valid_token(), "User-Agent": USER_AGENT}
         if accept: request_headers["Accept"] = accept
-        if body is not None: request_headers["Content-Type"] = accept or "application/json"
+        if body is not None: request_headers["Content-Type"] = content_type or accept or "application/json"
         if headers:
             protected = {"authorization", "host", "cookie", "proxy-authorization"}
             if any(str(key).casefold() in protected for key in headers):
@@ -331,6 +331,22 @@ class MendeleyClient:
     def update_profile(self, changes: dict[str, Any]) -> Any:
         if not changes: raise MendeleyError("Profile changes must not be empty")
         return self.request("PATCH", "/profiles/me", body=changes, accept=MEDIA["profile_patch"])[0]
+    def get_profile_by_id(self, profile_id: str) -> dict[str, Any]:
+        data, _, _ = self.request("GET", "/profiles/" + _id(profile_id), accept=MEDIA["profiles"])
+        if not isinstance(data, dict): raise MendeleyError("Profile response is not an object")
+        return data
+    def list_profile_followers(self, profile_id: str, **params: Any) -> list[dict[str, Any]]:
+        params["followed"] = _id(profile_id)
+        return self.pages("/followers", params=params, accept="application/vnd.mendeley-follow.1+json")
+    def list_profile_followees(self, profile_id: str, **params: Any) -> list[dict[str, Any]]:
+        params["follower"] = _id(profile_id)
+        return self.pages("/followers", params=params, accept="application/vnd.mendeley-follow.1+json")
+    def follow_profile(self, profile_id: str) -> Any:
+        return self.request("POST", "/followers", body={"followed": _id(profile_id)}, content_type="application/vnd.mendeley-follow-request.1+json")[0]
+    def accept_profile_follow_request(self, relationship_id: str) -> Any:
+        return self.request("PATCH", "/followers/" + _id(relationship_id), body={"status": "following"}, content_type="application/vnd.mendeley-follow-acceptance.1+json")[0]
+    def unfollow_profile(self, relationship_id: str) -> Any:
+        return self.request("DELETE", "/followers/" + _id(relationship_id))[0]
 
     # Documents
     def list_documents(self, **params: Any) -> list[dict[str, Any]]:
@@ -501,6 +517,8 @@ class MendeleyClient:
     # Groups v2 (legacy /groups endpoints are deliberately not used)
     def list_groups(self, **params: Any) -> list[dict[str, Any]]:
         return self.pages("/groups/v2", params=params, accept="application/vnd.mendeley-group-list+json")
+    def list_popular_groups(self, **params: Any) -> list[dict[str, Any]]:
+        return self.pages("/groups/v2/popular", params=params, accept="application/vnd.mendeley-group-list+json")
     def get_group(self, group_id: str) -> Any:
         return self.request("GET", "/groups/v2/" + _id(group_id), accept="application/vnd.mendeley-group+json")[0]
     def create_group(self, payload: dict[str, Any]) -> Any:
@@ -537,7 +555,11 @@ class MendeleyClient:
         recipients = payload.get("recipients") if isinstance(payload, dict) else None
         if not isinstance(recipients, list) or not recipients:
             raise MendeleyError("Group invitation requires a non-empty recipients array")
-        return self.request("POST", "/groups/v2/" + _id(group_id) + "/invitations", body=payload, accept="application/vnd.mendeley-group-invitation-response-list+json")[0]
+        return self.request(
+            "POST", "/groups/v2/" + _id(group_id) + "/invitations", body=payload,
+            content_type="application/vnd.mendeley-group-invitation+json",
+            accept="application/vnd.mendeley-group-invitation-response-list+json",
+        )[0]
     def group_invitation_action(self, group_id: str, invitation_id: str, action: str) -> Any:
         if action not in {"resend", "revoke"}: raise MendeleyError("Unsupported group invitation action")
         path = "/groups/v2/" + _id(group_id) + "/invitations/" + _id(invitation_id) + "/actions/" + action
@@ -549,6 +571,11 @@ class MendeleyClient:
     def request_group_join(self, group_id: str, message: str) -> Any:
         if not message.strip(): raise MendeleyError("Group join request message must not be empty")
         path = "/groups/v2/" + _id(group_id) + "/actions/join_request"
+        return self.request("POST", path, body={"message": message}, accept="application/vnd.mendeley-group-message+json")[0]
+    def respond_to_group_join_request(self, group_id: str, profile_id: str, accept: bool, message: str) -> Any:
+        if not message.strip(): raise MendeleyError("Group join-request response message must not be empty")
+        action = "accept" if accept else "decline"
+        path = "/groups/v2/" + _id(group_id) + "/members/" + _id(profile_id) + "/actions/" + action
         return self.request("POST", path, body={"message": message}, accept="application/vnd.mendeley-group-message+json")[0]
         path = "/groups/v2/" + _id(group_id) + "/actions/join_request"
         return self.request("POST", path, body={"message": message}, accept="application/vnd.mendeley-group-message+json")[0]
