@@ -165,7 +165,7 @@ If the process or device stops during apply:
 3. Re-run the same `sync-workspace ... --apply` command. The connector verifies the backup and current/staged checksums, rolls the transaction forward where possible, and completes the audit event idempotently.
 4. If the source register no longer matches either recorded transaction checksum, automatic recovery refuses to overwrite it. Preserve the journal and backup for manual reconciliation.
 
-This recovery protocol is covered by fault-injection tests for interruption before register replacement, interruption after replacement but before audit append, and external modification during recovery. It protects the local source-register transaction; it does not guarantee durability against faulty storage hardware, filesystem corruption, or provider-side API failures.
+This recovery protocol is covered by fault-injection tests for interruption before register replacement, interruption after replacement but before audit append, interruption after an audit append but before journal cleanup (verifying audit idempotency), and external modification during recovery. It protects the local source-register transaction; it does not guarantee durability against faulty storage hardware, filesystem corruption, or provider-side API failures.
 
 To treat a linked PDF as reviewed evidence, independently inspect the file and its license/access conditions, record the actual locator, and perform the project's human review gate. A reference-manager entry or attachment is not proof of copyright permission or claim support.
 
