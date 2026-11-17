@@ -215,3 +215,67 @@ class StrictSlideOrderTests(unittest.TestCase):
             )
 
 
+
+
+class MorphMarkupCompatibilityTests(unittest.TestCase):
+    def _replace_slide_xml(self, deck: Path, payload: bytes):
+        rewritten = deck.with_name(deck.stem + ".rewritten.pptx")
+        with zipfile.ZipFile(deck, "r") as source:
+            entries = [(info, source.read(info.filename)) for info in source.infolist()]
+        with zipfile.ZipFile(rewritten, "w", zipfile.ZIP_DEFLATED) as target:
+            for info, data in entries:
+                target.writestr(info, payload if info.filename == "ppt/slides/slide2.xml" else data)
+        rewritten.replace(deck)
+
+    def test_generated_morph_choice_requires_p14_and_p159(self):
+        with tempfile.TemporaryDirectory() as temp:
+            deck = Path(temp) / "morph-choice.pptx"
+            make_deck(deck)
+            apply_morph(deck, [2], duration_ms=950, option="byObject")
+            with zipfile.ZipFile(deck, "r") as archive:
+                root = ET.fromstring(archive.read("ppt/slides/slide2.xml"))
+            choice = root.find(".//mc:AlternateContent/mc:Choice", {
+                "mc": "http://schemas.openxmlformats.org/markup-compatibility/2006",
+            })
+            self.assertIsNotNone(choice)
+            self.assertEqual(set(choice.get("Requires", "").split()), {"p14", "p159"})
+
+    def test_inspector_rejects_p14_duration_without_p14_requirement(self):
+        with tempfile.TemporaryDirectory() as temp:
+            deck = Path(temp) / "missing-p14-requirement.pptx"
+            make_deck(deck)
+            apply_morph(deck, [2], duration_ms=950, option="byObject")
+            with zipfile.ZipFile(deck, "r") as archive:
+                root = ET.fromstring(archive.read("ppt/slides/slide2.xml"))
+            choice = root.find(".//mc:AlternateContent/mc:Choice", {
+                "mc": "http://schemas.openxmlformats.org/markup-compatibility/2006",
+            })
+            self.assertIsNotNone(choice)
+            choice.set("Requires", "p159")
+            self._replace_slide_xml(deck, ET.tostring(root, encoding="utf-8"))
+            report = inspect_deck(deck)
+            self.assertFalse(report["ok"])
+            self.assertTrue(
+                any("Requires is missing p14 for p14:dur" in error for error in report["errors"]),
+                report["errors"],
+            )
+
+    def test_inspector_rejects_morph_without_p159_requirement(self):
+        with tempfile.TemporaryDirectory() as temp:
+            deck = Path(temp) / "missing-p159-requirement.pptx"
+            make_deck(deck)
+            apply_morph(deck, [2], duration_ms=950, option="byObject")
+            with zipfile.ZipFile(deck, "r") as archive:
+                root = ET.fromstring(archive.read("ppt/slides/slide2.xml"))
+            choice = root.find(".//mc:AlternateContent/mc:Choice", {
+                "mc": "http://schemas.openxmlformats.org/markup-compatibility/2006",
+            })
+            self.assertIsNotNone(choice)
+            choice.set("Requires", "p14")
+            self._replace_slide_xml(deck, ET.tostring(root, encoding="utf-8"))
+            report = inspect_deck(deck)
+            self.assertFalse(report["ok"])
+            self.assertTrue(
+                any("Requires is missing p159" in error for error in report["errors"]),
+                report["errors"],
+            )

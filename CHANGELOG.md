@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased] — PowerPoint Morph control correction (2026-11-18)
+
+- Corrected Morph Markup Compatibility requirements: `mc:Choice/@Requires` now lists both `p14` and `p159` when the branch contains `p14:dur` and `p159:morph`.
+- Extended `inspect_deck` to reject Morph choices whose required extension namespaces are not declared in `Requires`; added three regression tests for writer and inspector behavior.
+- This is a structural conformance correction. Actual playback still requires a Microsoft PowerPoint runtime; a non-Morph consumer will select the explicit Fade fallback.
+
 ## [Unreleased] — PowerPoint Morph and visual geometry toolkit (2026-11-17)
 
 - Added a standard-library PowerPoint OOXML Morph patcher and structural inspector. It resolves displayed slide order through presentation relationships, patches destination slides atomically, supports byObject/byWord/byChar, retains a Fade fallback and validates duration and forced object-name pairing.

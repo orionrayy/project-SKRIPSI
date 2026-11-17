@@ -21,9 +21,9 @@ project-skripsi-pptx apply presentation.pptx --slides 5,7,9 --duration-ms 950 --
 
 Slide numbers are one-based displayed order, resolved using the presentation slide list and relationship IDs. A numeric slide-part fallback is used only when a usable slide list is absent.
 
-Supported Morph options are byObject, byWord, and byChar. Morph is attached to the destination slide. For deterministic object matching, reuse an identical, unique name prefixed with two exclamation marks on both slides, for example !!hero-image or !!map-outline. A target name with no preceding object match and duplicate names on the same slide are reported as errors.
+Supported Morph options are byObject, byWord, and byChar. Morph is attached to the destination slide. For deterministic object matching, reuse an identical, unique name prefixed with two exclamation marks on both slides, for example !!hero-image or !!map-outline. A target name with no preceding object match and duplicate names on the same slide are reported as errors. The source and destination object must actually differ in geometry or formatting for motion to be visible; writing a Morph transition alone does not create motion.
 
-The patcher writes the PowerPoint 2015 Morph element in Markup Compatibility AlternateContent and includes a Fade fallback. It supports a 1–30,000 ms duration. The patch is written atomically and can be run more than once without accumulating duplicate transition blocks.
+The patcher writes the PowerPoint 2015 Morph element in Markup Compatibility AlternateContent and includes a Fade fallback. When exact duration is written as the PowerPoint 2010 extension attribute `p14:dur`, the `mc:Choice/@Requires` list must include both `p14` and `p159`: the choice uses both namespaces. The inspector validates this requirement so a malformed compatibility branch cannot be reported as structurally valid. It supports a 1–30,000 ms duration. The patch is written atomically and can be run more than once without accumulating duplicate transition blocks.
 
 ## Python API
 

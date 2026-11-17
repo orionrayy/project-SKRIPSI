@@ -183,7 +183,7 @@ def apply_morph(
             if local == "transition" or (local == "AlternateContent" and child.find(".//p:transition", NS) is not None):
                 root.remove(child)
         alternate = ET.Element(_q("mc", "AlternateContent"))
-        choice = ET.SubElement(alternate, _q("mc", "Choice"), {"Requires": "p159"})
+        choice = ET.SubElement(alternate, _q("mc", "Choice"), {"Requires": "p14 p159"})
         transition = ET.SubElement(choice, _q("p", "transition"), {
             "spd": "slow", "advClick": "1", _q("p14", "dur"): str(duration_ms)
         })
@@ -242,7 +242,30 @@ def inspect_deck(path: str | Path) -> dict:
                     errors.append(f"Slide {display_number}: duplicate forced object names {duplicates}")
                 option, duration, fallback = _morph(root)
                 has_morph = option is not None
+                morph_requires: list[str] = []
                 if has_morph:
+                    morph_choice = next(
+                        (
+                            choice for choice in root.findall(".//mc:AlternateContent/mc:Choice", NS)
+                            if choice.find(".//p159:morph", NS) is not None
+                        ),
+                        None,
+                    )
+                    if morph_choice is None:
+                        errors.append(f"Slide {display_number}: Morph element is not inside mc:Choice")
+                    else:
+                        morph_requires = sorted(set((morph_choice.get("Requires") or "").split()))
+                        if "p159" not in morph_requires:
+                            errors.append(f"Slide {display_number}: Morph Choice Requires is missing p159")
+                        morph_transition = morph_choice.find(".//p:transition", NS)
+                        has_p14_duration = (
+                            morph_transition is not None
+                            and morph_transition.get(_q("p14", "dur")) is not None
+                        )
+                        if has_p14_duration and "p14" not in morph_requires:
+                            errors.append(
+                                f"Slide {display_number}: Morph Choice Requires is missing p14 for p14:dur"
+                            )
                     if option not in OPTIONS:
                         errors.append(f"Slide {display_number}: unsupported Morph option {option!r}")
                     if duration is None or duration < 1:
@@ -257,6 +280,7 @@ def inspect_deck(path: str | Path) -> dict:
                     "shape_count": len(root.findall(".//p:cNvPr", NS)),
                     "forced_object_names": object_names, "morph": has_morph,
                     "morph_option": option, "duration_ms": duration, "fade_fallback": fallback,
+                    "morph_requires": morph_requires,
                 })
                 previous = object_names
     except (zipfile.BadZipFile, OSError, ValueError, ET.ParseError) as exc:

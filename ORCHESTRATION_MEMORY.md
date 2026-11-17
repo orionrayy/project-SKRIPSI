@@ -1,6 +1,6 @@
 # ORCHESTRATION_MEMORY — Public Canonical Project Memory
 
-**Memory version:** 1.4.1  
+**Memory version:** 1.4.2  
 **Project:** `orionrayy/project-SKRIPSI`  
 **Updated:** 2026-11-17 (Asia/Jakarta)  
 **Platform baseline:** 0.8.0  
@@ -85,3 +85,11 @@ On every invocation:
 - Microsoft PowerPoint slide-show playback is NOT_VERIFIED. LibreOffice PDF rendering does not exercise the Microsoft Morph engine; desktop PowerPoint preview remains a required acceptance check.
 - The demonstration PPTX, generated demo photos, uploaded reference videos, and frame captures are local deliverables only; none are added to the public source tree. The public toolkit documentation records which visual mask components remain picture alpha assets rather than live Boolean geometry.
 - The research phase ledger was not changed. P2 remains VALIDATION_PASSED_APPROVAL_PENDING with APR-P2-001 blank; P3–P9 remain NOT_STARTED / NOT_AUTHORIZED. Engineering tests do not change research governance.
+
+
+## 9. Morph control investigation — 2026-11-18
+
+- Reproduced the current demo's slide 2 → 3 object geometry: six pictures share stable unique `!!gallery-pan-image-XX` names while their x-coordinates shift by 2.7 inches. The destination slide contains `p159:morph option="byObject"` and a Fade fallback. The paired object states are designed for genuine movement when the Morph branch is selected.
+- Found a Markup Compatibility conformance defect: the Morph Choice used `Requires="p159"` while also carrying the PowerPoint 2010 `p14:dur` attribute. ISO/IEC 29500-3 defines `Requires` as the namespaces a consumer must understand to select and process the Choice. The corrected writer declares both `p14 p159`, and the inspector rejects omissions.
+- A consumer without Morph support deliberately selects the Fade fallback. LibreOffice/PDF rendering cannot establish Microsoft Morph playback. Acceptance requires preview in a supported Microsoft PowerPoint runtime.
+- This correction is code-level and does not prove playback until the corrected deck is opened in PowerPoint. P0–P9 research governance remains unchanged.
