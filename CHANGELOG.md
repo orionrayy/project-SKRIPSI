@@ -3,7 +3,7 @@
 ### Added
 - Added current REST API coverage for profile lookup by ID, profile v2 listing, private Groups v2 join-request decisions, and invitation requests with distinct `Content-Type` and `Accept` media types. Retired Profile Search, follower, public-group and popular-public-group endpoints are excluded.
 - Draft personal Mendeley REST API integration on `feature/mendeley-api-integration`: OAuth Authorization Code login, private token storage/refresh, user-library search and document CRUD, folders, annotations, file transfer, Catalog lookup, supported private Groups v2 operations, and preview-first metadata synchronization to a private thesis workspace with a durable local transaction journal, checksum-based roll-forward recovery that can run offline, retained backup, idempotent audit completion, and bounded upload reads that reject oversized files before memory allocation.
-- Added isolated Mendeley API contract tests and operating documentation. No paid SDK or third-party Python runtime dependency is required.
+- Added isolated Mendeley API contract tests and operating documentation. No paid SDK or third-party Python runtime dependency is required. OAuth CLI now warns before consent that the documented flow requests `scope=all`; documentation also states that the local token JSON is permission-restricted but not encrypted.
 
 ### Boundaries
 - This candidate is not merged or released and has not completed a real-account OAuth/API test. Provider endpoint permissions, rate limits, account eligibility, and current Developer Terms remain authoritative. It does not automate Mendeley Desktop UI or bypass access restrictions.
