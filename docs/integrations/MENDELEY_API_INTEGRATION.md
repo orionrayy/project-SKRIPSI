@@ -97,6 +97,13 @@ project-skripsi-mendeley files
 # Search the signed-in user's own library
 project-skripsi-mendeley library-search "research methodology" --limit 20
 
+# Search the public Catalog (not the private library)
+project-skripsi-mendeley catalog-search --query "climate adaptation" --min-year 2018 --view all --limit 25
+
+# Retrieve a Catalog item by DOI or by its Mendeley Catalog ID
+project-skripsi-mendeley catalog-lookup --doi 10.1234/example
+project-skripsi-mendeley catalog-get CATALOG_DOCUMENT_ID --view bib
+
 # Retrieve one item, create or update metadata
 project-skripsi-mendeley document-get DOCUMENT_ID
 project-skripsi-mendeley document-create new-document.json
