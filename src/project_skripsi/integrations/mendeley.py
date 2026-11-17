@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import base64
 import email.utils
+import hashlib
 import json
 import mimetypes
 import os
@@ -623,7 +624,6 @@ def _mendeley_source_record(document: dict[str, Any], *, retrieval_date: str) ->
     item_url = document.get("link")
     if not isinstance(item_url, str) or not item_url.startswith("https://"):
         item_url = API_BASE + "/documents/" + urllib.parse.quote(document_id, safe="-")
-    import hashlib
     stable_id = hashlib.sha256(document_id.encode("utf-8")).hexdigest()[:32].upper()
     return {
         "source_id": "MENDELEY-" + stable_id,
@@ -646,16 +646,191 @@ def _mendeley_source_record(document: dict[str, Any], *, retrieval_date: str) ->
     }
 
 
-def sync_library_to_workspace(client: MendeleyClient, workspace: Path, *, apply: bool = False) -> dict[str, Any]:
-    """Preview or explicitly import Mendeley references into a private source register.
+def _sync_fsync_directory(directory: Path) -> None:
+    """Persist directory-entry changes where the platform exposes directory fsync."""
+    if os.name == "nt":
+        return
+    flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
+    fd = os.open(directory, flags)
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)
 
-    The default is read-only. Applying only appends newly identified Mendeley items;
-    it never changes existing source records or creates claim-evidence links.
+
+def _sync_sha256_file(path: Path) -> str:
+    if path.is_symlink() or not path.is_file():
+        raise MendeleyError("Mendeley sync transaction references a missing, non-file, or symlinked artifact")
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def _write_sync_journal(path: Path, payload: dict[str, Any]) -> None:
+    """Atomically persist the recovery intent before replacing the source register."""
+    if path.parent.is_symlink() or not path.parent.is_dir() or path.is_symlink():
+        raise MendeleyError("Mendeley sync journal path is unsafe")
+    fd, temp_name = tempfile.mkstemp(prefix=".mendeley-sync-journal.", suffix=".tmp", dir=path.parent)
+    try:
+        if os.name != "nt":
+            os.fchmod(fd, 0o600)
+        with os.fdopen(fd, "wb") as stream:
+            stream.write((json.dumps(payload, ensure_ascii=False, sort_keys=True, indent=2) + "\n").encode("utf-8"))
+            stream.flush()
+            os.fsync(stream.fileno())
+        if path.is_symlink():
+            raise MendeleyError("Refusing symlinked Mendeley sync journal")
+        os.replace(temp_name, path)
+        if os.name != "nt":
+            path.chmod(0o600)
+        _sync_fsync_directory(path.parent)
+    finally:
+        try:
+            Path(temp_name).unlink(missing_ok=True)
+        except OSError:
+            pass
+
+
+def _recover_mendeley_sync_transaction(
+    project_dir: Path,
+    register_path: Path,
+    project_id: str,
+    validate_source_register: Callable[[list[Any]], list[str]],
+) -> dict[str, Any] | None:
+    """Roll forward a previously journaled transaction and idempotently finish its audit event."""
+    journal_path = project_dir / "state" / ".mendeley-sync-transaction.json"
+    if journal_path.is_symlink():
+        raise MendeleyError("Refusing symlinked Mendeley sync journal")
+    if not journal_path.exists():
+        return None
+    try:
+        if not stat.S_ISREG(journal_path.stat().st_mode):
+            raise MendeleyError("Mendeley sync journal is not a regular file")
+        journal = json.loads(journal_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise MendeleyError("Mendeley sync journal cannot be read; preserving it for manual recovery") from exc
+    if not isinstance(journal, dict):
+        raise MendeleyError("Mendeley sync journal has an invalid structure; preserving it")
+    if journal.get("schema_version") != 1 or journal.get("status") != "PREPARED":
+        raise MendeleyError("Mendeley sync journal version or state is unsupported; preserving it")
+    if journal.get("project_id") != project_id or journal.get("register_relative_path") != "sources/registry/source_register.json":
+        raise MendeleyError("Mendeley sync journal does not match this workspace; preserving it")
+
+    backup_name = journal.get("backup_name")
+    temp_name = journal.get("temp_name")
+    old_sha = journal.get("old_sha256")
+    new_sha = journal.get("new_sha256")
+    added_count = journal.get("added_count")
+    transaction_id = journal.get("transaction_id")
+    if (
+        not isinstance(backup_name, str)
+        or Path(backup_name).name != backup_name
+        or not backup_name.startswith("source_register.mendeley-backup-")
+        or not backup_name.endswith(".json")
+        or not isinstance(temp_name, str)
+        or Path(temp_name).name != temp_name
+        or not temp_name.startswith("source_register.")
+        or not temp_name.endswith(".tmp")
+        or not isinstance(old_sha, str)
+        or re.fullmatch(r"[0-9a-f]{64}", old_sha) is None
+        or not isinstance(new_sha, str)
+        or re.fullmatch(r"[0-9a-f]{64}", new_sha) is None
+        or not isinstance(added_count, int)
+        or isinstance(added_count, bool)
+        or added_count <= 0
+        or not isinstance(transaction_id, str)
+        or not transaction_id
+    ):
+        raise MendeleyError("Mendeley sync journal contains unsafe or invalid recovery metadata; preserving it")
+
+    expected_key = "mendeley-sync-" + hashlib.sha256((project_id + new_sha).encode("utf-8")).hexdigest()[:24]
+    if journal.get("idempotency_key") != expected_key:
+        raise MendeleyError("Mendeley sync journal idempotency key is inconsistent; preserving it")
+    backup_path = register_path.with_name(backup_name)
+    temp_path = register_path.with_name(temp_name)
+    if register_path.is_symlink():
+        raise MendeleyError("Source register became a symlink during Mendeley sync recovery")
+    if _sync_sha256_file(backup_path) != old_sha:
+        raise MendeleyError("Mendeley sync backup checksum mismatch; preserving journal and source register")
+
+    current_sha = _sync_sha256_file(register_path)
+    if current_sha == old_sha:
+        if _sync_sha256_file(temp_path) != new_sha:
+            raise MendeleyError("Mendeley sync staged register checksum mismatch; preserving journal and backup")
+        os.replace(temp_path, register_path)
+        if os.name != "nt":
+            register_path.chmod(0o600)
+        _sync_fsync_directory(register_path.parent)
+    elif current_sha == new_sha:
+        if temp_path.is_symlink():
+            raise MendeleyError("Mendeley sync temporary artifact is a symlink; preserving journal")
+        if temp_path.exists():
+            temp_path.unlink()
+    else:
+        raise MendeleyError("Source register changed after an interrupted Mendeley sync; refusing automatic recovery")
+
+    try:
+        recovered_register = json.loads(register_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise MendeleyError("Recovered source register is unreadable; preserving journal and backup") from exc
+    if (
+        not isinstance(recovered_register, dict)
+        or recovered_register.get("project_id") != project_id
+        or not isinstance(recovered_register.get("sources"), list)
+        or not isinstance(recovered_register.get("claim_evidence_links"), list)
+    ):
+        raise MendeleyError("Recovered source register failed structural validation; preserving journal and backup")
+    validation_errors = validate_source_register(recovered_register["sources"])
+    if validation_errors:
+        raise MendeleyError("Recovered source register failed source validation: " + "; ".join(validation_errors[:8]))
+
+    from ..audit import append_audit_event
+    summary = (
+        f"Imported {added_count} metadata-only Mendeley reference(s); "
+        f"prior source-register SHA-256 {old_sha}; new SHA-256 {new_sha}."
+    )
+    try:
+        append_audit_event(
+            project_dir / "audit" / "events.jsonl",
+            event_type="MENDELEY_LIBRARY_SYNC",
+            object_type="SOURCE_REGISTER",
+            object_id=project_id,
+            summary=summary,
+            actor_type="human_authorized_integration",
+            evidence_refs=["MENDELEY_API:/documents", "source_register.json"],
+            idempotency_key=expected_key,
+        )
+    except Exception as exc:
+        raise MendeleyError(
+            "Mendeley source-register update is present but its audit event is not confirmed; "
+            "the recovery journal is retained. Retry sync-workspace with --apply."
+        ) from exc
+
+    if temp_path.exists():
+        if temp_path.is_symlink():
+            raise MendeleyError("Mendeley sync temporary artifact became a symlink; preserving journal")
+        temp_path.unlink()
+    journal_path.unlink()
+    _sync_fsync_directory(journal_path.parent)
+    return {
+        "transaction_id": transaction_id,
+        "backup": str(backup_path),
+        "source_register_sha256": new_sha,
+        "recovered_audit_event": True,
+    }
+
+
+def sync_library_to_workspace(client: MendeleyClient, workspace: Path, *, apply: bool = False) -> dict[str, Any]:
+    """Preview or explicitly import Mendeley references with journaled crash recovery.
+
+    Preview is read-only. Apply appends only new stable-ID records. A prepared
+    journal is rolled forward only by a subsequent explicit apply call.
     """
     from ..audit import append_audit_event
     from ..quality import validate_source_register
     from ..validation import validate_workspace
-    import hashlib
     supplied_workspace = Path(workspace).expanduser()
     if supplied_workspace.is_symlink():
         raise MendeleyError("Workspace path must not be a symlink")
@@ -670,21 +845,53 @@ def sync_library_to_workspace(client: MendeleyClient, workspace: Path, *, apply:
         raise MendeleyError("Workspace source register is missing or symlinked")
     documents = client.list_documents(view="all")
     date_value = datetime.now(timezone.utc).date().isoformat()
-    candidates = [record for item in documents if isinstance(item, dict) and (record := _mendeley_source_record(item, retrieval_date=date_value)) is not None]
+    candidates = [
+        record for item in documents
+        if isinstance(item, dict)
+        and (record := _mendeley_source_record(item, retrieval_date=date_value)) is not None
+    ]
     skipped = len(documents) - len(candidates)
+    journal_path = project_dir / "state" / ".mendeley-sync-transaction.json"
+
     with FileLock(project_dir / "state" / ".mendeley-sync.lock"):
-        if register_path.is_symlink(): raise MendeleyError("Refusing symlinked source register")
-        try: register = json.loads(register_path.read_text(encoding="utf-8"))
-        except (OSError, UnicodeError, json.JSONDecodeError) as exc: raise MendeleyError("Workspace source register could not be read") from exc
-        if register.get("project_id") != manifest.get("project_id") or not isinstance(register.get("sources"), list) or not isinstance(register.get("claim_evidence_links"), list):
+        if register_path.is_symlink():
+            raise MendeleyError("Refusing symlinked source register")
+        if journal_path.is_symlink():
+            raise MendeleyError("Refusing symlinked Mendeley sync journal")
+        recovery = None
+        if journal_path.exists():
+            if not apply:
+                raise MendeleyError(
+                    "An interrupted Mendeley sync transaction requires recovery. "
+                    "Preview did not change any files; rerun sync-workspace with --apply to recover it."
+                )
+            recovery = _recover_mendeley_sync_transaction(
+                project_dir, register_path, str(manifest["project_id"]), validate_source_register
+            )
+        try:
+            register = json.loads(register_path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+            raise MendeleyError("Workspace source register could not be read") from exc
+        if (
+            not isinstance(register, dict)
+            or register.get("project_id") != manifest.get("project_id")
+            or not isinstance(register.get("sources"), list)
+            or not isinstance(register.get("claim_evidence_links"), list)
+        ):
             raise MendeleyError("Workspace source register has an invalid project identity or structure")
         validation_errors = validate_source_register(register["sources"])
-        if validation_errors: raise MendeleyError("Existing source register is invalid: " + "; ".join(validation_errors[:8]))
-        existing_ids = {str(item.get("source_id")) for item in register["sources"] if isinstance(item, dict)}
+        if validation_errors:
+            raise MendeleyError("Existing source register is invalid: " + "; ".join(validation_errors[:8]))
+        existing_ids = {
+            str(item.get("source_id")) for item in register["sources"] if isinstance(item, dict)
+        }
         additions = [item for item in candidates if item["source_id"] not in existing_ids]
         duplicate_ids = len(candidates) - len(additions)
+        status = "PREVIEW_ONLY"
+        if apply:
+            status = "RECOVERED" if recovery and not additions else ("NO_CHANGES" if not additions else "APPLIED")
         result = {
-            "status": "PREVIEW_ONLY" if not apply else ("NO_CHANGES" if not additions else "APPLIED"),
+            "status": status,
             "project_id": manifest["project_id"],
             "mendeley_documents_seen": len(documents),
             "eligible_metadata_records": len(candidates),
@@ -693,52 +900,115 @@ def sync_library_to_workspace(client: MendeleyClient, workspace: Path, *, apply:
             "skipped_missing_id_or_title": skipped,
             "claim_evidence_links_created": 0,
             "source_register": str(register_path),
+            "recovered_pending_transaction": recovery is not None,
+            "recovered_transaction_id": recovery.get("transaction_id") if recovery else None,
             "note": "Imported entries are METADATA_ONLY; they are not content-reviewed evidence and require human source review.",
         }
-        if not apply or not additions: return result
+        if not apply or not additions:
+            if recovery:
+                result["recovery_backup"] = recovery["backup"]
+                result["source_register_sha256"] = recovery["source_register_sha256"]
+            return result
+
         combined = list(register["sources"]) + additions
         validation_errors = validate_source_register(combined)
-        if validation_errors: raise MendeleyError("Imported source records failed validation: " + "; ".join(validation_errors[:8]))
+        if validation_errors:
+            raise MendeleyError("Imported source records failed validation: " + "; ".join(validation_errors[:8]))
         new_register = dict(register)
         new_register["sources"] = combined
         old_bytes = register_path.read_bytes()
         new_bytes = (json.dumps(new_register, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
         old_sha = hashlib.sha256(old_bytes).hexdigest()
         new_sha = hashlib.sha256(new_bytes).hexdigest()
-        backup = register_path.with_name("source_register.mendeley-backup-" + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ") + ".json")
+        backup = register_path.with_name(
+            "source_register.mendeley-backup-" + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ") + ".json"
+        )
         fd, temp_name = tempfile.mkstemp(prefix="source_register.", suffix=".tmp", dir=register_path.parent)
+        temp_path = Path(temp_name)
+        journal_created = False
+        register_replaced = False
+        audit_appended = False
         try:
-            with os.fdopen(fd, "wb") as stream: stream.write(new_bytes); stream.flush(); os.fsync(stream.fileno())
-            if os.name != "nt": os.chmod(temp_name, 0o600)
-            # A separate immutable snapshot permits manual restoration if the workspace is later edited.
+            with os.fdopen(fd, "wb") as stream:
+                stream.write(new_bytes)
+                stream.flush()
+                os.fsync(stream.fileno())
+            if os.name != "nt":
+                os.chmod(temp_path, 0o600)
             with backup.open("xb") as backup_stream:
-                backup_stream.write(old_bytes); backup_stream.flush(); os.fsync(backup_stream.fileno())
-            if os.name != "nt": backup.chmod(0o600)
-            os.replace(temp_name, register_path)
-            if os.name != "nt": register_path.chmod(0o600)
+                backup_stream.write(old_bytes)
+                backup_stream.flush()
+                os.fsync(backup_stream.fileno())
+            if os.name != "nt":
+                backup.chmod(0o600)
+            _sync_fsync_directory(register_path.parent)
+
+            idempotency_key = "mendeley-sync-" + hashlib.sha256(
+                (str(manifest["project_id"]) + new_sha).encode("utf-8")
+            ).hexdigest()[:24]
+            journal = {
+                "schema_version": 1,
+                "status": "PREPARED",
+                "transaction_id": secrets.token_hex(16),
+                "project_id": str(manifest["project_id"]),
+                "register_relative_path": "sources/registry/source_register.json",
+                "temp_name": temp_path.name,
+                "backup_name": backup.name,
+                "old_sha256": old_sha,
+                "new_sha256": new_sha,
+                "added_count": len(additions),
+                "idempotency_key": idempotency_key,
+                "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            }
+            _write_sync_journal(journal_path, journal)
+            journal_created = True
+            os.replace(temp_path, register_path)
+            register_replaced = True
+            if os.name != "nt":
+                register_path.chmod(0o600)
+            _sync_fsync_directory(register_path.parent)
             append_audit_event(
                 project_dir / "audit" / "events.jsonl",
-                event_type="MENDELEY_LIBRARY_SYNC", object_type="SOURCE_REGISTER",
+                event_type="MENDELEY_LIBRARY_SYNC",
+                object_type="SOURCE_REGISTER",
                 object_id=str(manifest["project_id"]),
-                summary=f"Imported {len(additions)} metadata-only Mendeley reference(s); prior source-register SHA-256 {old_sha}; new SHA-256 {new_sha}.",
+                summary=(
+                    f"Imported {len(additions)} metadata-only Mendeley reference(s); "
+                    f"prior source-register SHA-256 {old_sha}; new SHA-256 {new_sha}."
+                ),
                 actor_type="human_authorized_integration",
                 evidence_refs=["MENDELEY_API:/documents", "source_register.json"],
-                idempotency_key="mendeley-sync-" + hashlib.sha256((str(manifest["project_id"]) + new_sha).encode()).hexdigest()[:24],
+                idempotency_key=idempotency_key,
             )
-        except BaseException:
-            # Restore the original bytes on a caught error; never leave a half-written JSON register.
-            if backup.exists():
-                restore_fd, restore_name = tempfile.mkstemp(prefix="source_register.restore.", suffix=".tmp", dir=register_path.parent)
-                with os.fdopen(restore_fd, "wb") as stream: stream.write(old_bytes); stream.flush(); os.fsync(stream.fileno())
-                os.replace(restore_name, register_path)
-            raise
-        finally:
-            try: Path(temp_name).unlink(missing_ok=True)
-            except OSError: pass
+            audit_appended = True
+            journal_path.unlink()
+            _sync_fsync_directory(journal_path.parent)
+        except Exception as exc:
+            if journal_created:
+                if journal_path.exists():
+                    raise MendeleyError(
+                        "Mendeley sync transaction did not finish. Its journal and backup were retained; "
+                        "rerun sync-workspace with --apply to recover safely before editing the source register."
+                    ) from exc
+                if register_replaced and audit_appended:
+                    raise MendeleyError(
+                        "Mendeley source-register update and audit event were committed, but final journal "
+                        "directory synchronization failed. Verify the audit log and source-register hash."
+                    ) from exc
+                raise MendeleyError(
+                    "Mendeley sync journal disappeared during an incomplete transaction; stop and inspect "
+                    "the source register and backup before retrying."
+                ) from exc
+            try:
+                temp_path.unlink(missing_ok=True)
+                backup.unlink(missing_ok=True)
+            except OSError:
+                pass
+            raise MendeleyError("Mendeley sync could not prepare its transaction; source register was not replaced") from exc
+
         result["backup"] = str(backup)
         result["source_register_sha256"] = new_sha
         return result
-
 
 def _open_no_redirect(request: urllib.request.Request, *, timeout: int = 25):
     class _NoRedirect(urllib.request.HTTPRedirectHandler):
