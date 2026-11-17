@@ -87,3 +87,10 @@ On every invocation:
 - Mendeley Developer Terms must be checked before commercial or multi-client deployment. Keep this personal/local until the one-use-case and competing-product clauses are resolved for the intended use.
 - Workspace sync is preview-only unless `--apply` is explicitly passed; it imports only `METADATA_ONLY` records with unknown rights and creates no claim-evidence relations. Crash-recovery journaling for this sync remains an identified hardening item before broad use.
 - Next gates: verify remote source/test/docs checksums and full-repo manifest; open Draft PR for CI; validate real OAuth and a read-only profile/library call on the account owner's machine; then test each write resource with explicit user intent and a disposable test item before calling any operation production-ready.
+
+
+### Mendeley endpoint audit addendum — 2026-11-17
+
+- Cross-checked resource methods and vendor media types against the current official Mendeley API reference. The request layer now permits different `Content-Type` and `Accept` headers; this is required for group invitation creation.
+- Added profile lookup by ID, follower/followee listing, follow request, acceptance and removal, popular Groups v2 listing, and accept/decline join-request operations. CLI exposes these operations with confirmation on relationship removal.
+- Expanded isolated test harness to 35/35 Mendeley tests PASS, including distinct invitation media types, follower API routes, group join request decisions, profile lookup, and the loopback OAuth callback test. These remain mocked API tests rather than live account/API validation.
