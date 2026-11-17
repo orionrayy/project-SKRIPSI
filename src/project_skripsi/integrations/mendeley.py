@@ -674,9 +674,9 @@ def _write_sync_journal(path: Path, payload: dict[str, Any]) -> None:
         raise MendeleyError("Mendeley sync journal path is unsafe")
     fd, temp_name = tempfile.mkstemp(prefix=".mendeley-sync-journal.", suffix=".tmp", dir=path.parent)
     try:
-        if os.name != "nt":
-            os.fchmod(fd, 0o600)
         with os.fdopen(fd, "wb") as stream:
+            if os.name != "nt":
+                os.fchmod(stream.fileno(), 0o600)
             stream.write((json.dumps(payload, ensure_ascii=False, sort_keys=True, indent=2) + "\n").encode("utf-8"))
             stream.flush()
             os.fsync(stream.fileno())
@@ -984,7 +984,7 @@ def sync_library_to_workspace(client: MendeleyClient, workspace: Path, *, apply:
             journal_path.unlink()
             _sync_fsync_directory(journal_path.parent)
         except Exception as exc:
-            if journal_created:
+            if journal_created or journal_path.exists():
                 if journal_path.exists():
                     raise MendeleyError(
                         "Mendeley sync transaction did not finish. Its journal and backup were retained; "
