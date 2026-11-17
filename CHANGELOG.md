@@ -1,3 +1,12 @@
+## Unreleased
+
+### Added
+- Draft personal Mendeley REST API integration on `feature/mendeley-api-integration`: OAuth Authorization Code login, private token storage/refresh, user-library search and document CRUD, folders, annotations, files, catalog/profile search, Groups v2, and preview-first metadata synchronization to a private thesis workspace.
+- Added isolated Mendeley API contract tests and operating documentation. No paid SDK or third-party Python runtime dependency is required.
+
+### Boundaries
+- This candidate is not merged or released and has not completed a real-account OAuth/API test. Provider endpoint permissions, rate limits, account eligibility, and current Developer Terms remain authoritative. It does not automate Mendeley Desktop UI or bypass access restrictions.
+
 # Changelog
 
 ## 0.8.0 — Turnitin report comparison and empirical evidence QA (2026-11-10)
