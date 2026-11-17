@@ -154,6 +154,19 @@ project-skripsi-mendeley logout
 
 The sync is append-only and stable-ID deduplicated. Existing source records are not overwritten. Imported items remain `METADATA_ONLY`, `UNKNOWN` rights, and have no exact content locator. The sync does not fetch article full text, infer access rights, create evidence claims, or mark the reference as reviewed. A private source-register backup and hash-chained audit event are created when changes are applied.
 
+### Interrupted-sync recovery
+
+Apply mode uses a durable transaction journal at `state/.mendeley-sync-transaction.json`. It stages and flushes the candidate register and backup, records the expected before/after SHA-256 values, atomically replaces the register, and appends a hash-chained audit event with a deterministic idempotency key. The backup is retained after completion.
+
+If the process or device stops during apply:
+
+1. Do not manually edit the source register, journal, staged file, or backup.
+2. A preview-only invocation detects the pending journal and fails closed without changing files.
+3. Re-run the same `sync-workspace ... --apply` command. The connector verifies the backup and current/staged checksums, rolls the transaction forward where possible, and completes the audit event idempotently.
+4. If the source register no longer matches either recorded transaction checksum, automatic recovery refuses to overwrite it. Preserve the journal and backup for manual reconciliation.
+
+This recovery protocol is covered by fault-injection tests for interruption before register replacement, interruption after replacement but before audit append, and external modification during recovery. It protects the local source-register transaction; it does not guarantee durability against faulty storage hardware, filesystem corruption, or provider-side API failures.
+
 To treat a linked PDF as reviewed evidence, independently inspect the file and its license/access conditions, record the actual locator, and perform the project's human review gate. A reference-manager entry or attachment is not proof of copyright permission or claim support.
 
 ## Operational and safety model
@@ -168,4 +181,4 @@ To treat a linked PDF as reviewed evidence, independently inspect the file and i
 
 ## Validation evidence
 
-The isolated connector test suite covers OAuth state/refresh, private token storage, pagination, resource media types, library operations, group-v2 operations, file endpoints, error handling, retry behavior, ID/path validation, confirmation gates, and metadata-only workspace synchronization. Its passing result is not equivalent to a successful OAuth round-trip, a live API test, provider approval, or a full test run of the complete repository. The PR CI run must validate it against the real repository package and existing regression suite before merge.
+The isolated connector test suite covers OAuth state/refresh, private token storage, pagination, resource media types, library operations, group-v2 operations, file endpoints, error handling, retry behavior, ID/path validation, confirmation gates, and metadata-only workspace synchronization. It also injects failures around the local sync transaction and verifies journal-based recovery and fail-closed conflict handling. Its passing result is not equivalent to a successful OAuth round-trip, a live API test, provider approval, or a full test run of the complete repository. The PR CI run must validate it against the real repository package and existing regression suite before merge.
