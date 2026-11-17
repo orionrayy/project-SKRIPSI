@@ -682,7 +682,13 @@ class StableHashTests(unittest.TestCase):
             original = statistics.sha256_file
             def mutate_after_hash(path):
                 digest = original(path)
-                path.write_text("x\n2\n", encoding="utf-8")
+                replacement = path.with_suffix(".replacement")
+                replacement.write_text("x\n2\n", encoding="utf-8")
+                # Atomic replacement plus an explicit timestamp delta makes the
+                # concurrent-mutation fixture deterministic on Windows filesystems.
+                modified = path.stat().st_mtime + 5
+                os.utime(replacement, (modified, modified))
+                os.replace(replacement, path)
                 return digest
             with patch.object(statistics, "sha256_file", side_effect=mutate_after_hash):
                 with self.assertRaisesRegex(StatisticalEngineError, "changed while its SHA-256"):
