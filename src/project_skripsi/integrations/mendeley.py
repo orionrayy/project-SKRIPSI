@@ -548,3 +548,202 @@ class MendeleyClient:
         if not message.strip(): raise MendeleyError("Group join request message must not be empty")
         path = "/groups/v2/" + _id(group_id) + "/actions/join_request"
         return self.request("POST", path, body={"message": message}, accept="application/vnd.mendeley-group-message+json")[0]
+        path = "/groups/v2/" + _id(group_id) + "/actions/join_request"
+        return self.request("POST", path, body={"message": message}, accept="application/vnd.mendeley-group-message+json")[0]
+
+
+def _mendeley_source_record(document: dict[str, Any], *, retrieval_date: str) -> dict[str, Any] | None:
+    """Map a user-library item to a metadata-only, review-required source record."""
+    document_id = document.get("id")
+    title = document.get("title")
+    if not isinstance(document_id, str) or not document_id.strip() or not isinstance(title, str) or not title.strip():
+        return None
+    raw_type = str(document.get("type") or "").casefold()
+    if raw_type in {"journal", "journal_article", "article"}: source_type = "JOURNAL_ARTICLE"
+    elif raw_type in {"book", "book_section"}: source_type = "BOOK"
+    elif raw_type in {"thesis", "dissertation"}: source_type = "THESIS" if raw_type == "thesis" else "DISSERTATION"
+    else: source_type = "OTHER"
+    authors = []
+    for person in document.get("authors", []) if isinstance(document.get("authors", []), list) else []:
+        if not isinstance(person, dict): continue
+        name = " ".join(str(person.get(part) or "").strip() for part in ("first_name", "last_name")).strip()
+        if name: authors.append(name)
+    identifiers = document.get("identifiers") if isinstance(document.get("identifiers"), dict) else {}
+    doi = identifiers.get("doi")
+    year = document.get("year")
+    if not isinstance(year, int) or not 1500 <= year <= 2200: year = None
+    item_url = document.get("link")
+    if not isinstance(item_url, str) or not item_url.startswith("https://"):
+        item_url = API_BASE + "/documents/" + urllib.parse.quote(document_id, safe="-")
+    import hashlib
+    stable_id = hashlib.sha256(document_id.encode("utf-8")).hexdigest()[:32].upper()
+    return {
+        "source_id": "MENDELEY-" + stable_id,
+        "source_type": source_type,
+        "title": title.strip(),
+        "authors": authors,
+        "year": year,
+        "doi": str(doi).strip() if isinstance(doi, str) and doi.strip() else None,
+        "url": item_url,
+        "retrieval_date": retrieval_date,
+        "access_status": "METADATA_ONLY",
+        "retrieval_method": "MENDELEY_API_USER_LIBRARY",
+        "exact_locator": None,
+        "rights_status": "UNKNOWN",
+        "license": None,
+        "file_sha256": None,
+        "notes": f"Imported from the authorized user's Mendeley library (item ID: {document_id}). Metadata only; inspect the item and its file/access rights before using it as evidence.",
+        "citation_author": None,
+        "reference_authors": None,
+    }
+
+
+def sync_library_to_workspace(client: MendeleyClient, workspace: Path, *, apply: bool = False) -> dict[str, Any]:
+    """Preview or explicitly import Mendeley references into a private source register.
+
+    The default is read-only. Applying only appends newly identified Mendeley items;
+    it never changes existing source records or creates claim-evidence links.
+    """
+    from ..audit import append_audit_event
+    from ..quality import validate_source_register
+    from ..validation import validate_workspace
+    import hashlib
+    supplied_workspace = Path(workspace).expanduser()
+    if supplied_workspace.is_symlink():
+        raise MendeleyError("Workspace path must not be a symlink")
+    project_dir = supplied_workspace.resolve(strict=True)
+    if not project_dir.is_dir():
+        raise MendeleyError("Workspace must be an existing real directory")
+    errors, manifest, _ledger = validate_workspace(project_dir)
+    if errors or not manifest:
+        raise MendeleyError("Workspace validation failed: " + "; ".join(errors[:8]))
+    register_path = project_dir / "sources" / "registry" / "source_register.json"
+    if register_path.is_symlink() or not register_path.is_file():
+        raise MendeleyError("Workspace source register is missing or symlinked")
+    documents = client.list_documents(view="all")
+    date_value = datetime.now(timezone.utc).date().isoformat()
+    candidates = [record for item in documents if isinstance(item, dict) and (record := _mendeley_source_record(item, retrieval_date=date_value)) is not None]
+    skipped = len(documents) - len(candidates)
+    with FileLock(project_dir / "state" / ".mendeley-sync.lock"):
+        if register_path.is_symlink(): raise MendeleyError("Refusing symlinked source register")
+        try: register = json.loads(register_path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, json.JSONDecodeError) as exc: raise MendeleyError("Workspace source register could not be read") from exc
+        if register.get("project_id") != manifest.get("project_id") or not isinstance(register.get("sources"), list) or not isinstance(register.get("claim_evidence_links"), list):
+            raise MendeleyError("Workspace source register has an invalid project identity or structure")
+        validation_errors = validate_source_register(register["sources"])
+        if validation_errors: raise MendeleyError("Existing source register is invalid: " + "; ".join(validation_errors[:8]))
+        existing_ids = {str(item.get("source_id")) for item in register["sources"] if isinstance(item, dict)}
+        additions = [item for item in candidates if item["source_id"] not in existing_ids]
+        duplicate_ids = len(candidates) - len(additions)
+        result = {
+            "status": "PREVIEW_ONLY" if not apply else ("NO_CHANGES" if not additions else "APPLIED"),
+            "project_id": manifest["project_id"],
+            "mendeley_documents_seen": len(documents),
+            "eligible_metadata_records": len(candidates),
+            "new_records": len(additions),
+            "already_imported": duplicate_ids,
+            "skipped_missing_id_or_title": skipped,
+            "claim_evidence_links_created": 0,
+            "source_register": str(register_path),
+            "note": "Imported entries are METADATA_ONLY; they are not content-reviewed evidence and require human source review.",
+        }
+        if not apply or not additions: return result
+        combined = list(register["sources"]) + additions
+        validation_errors = validate_source_register(combined)
+        if validation_errors: raise MendeleyError("Imported source records failed validation: " + "; ".join(validation_errors[:8]))
+        new_register = dict(register)
+        new_register["sources"] = combined
+        old_bytes = register_path.read_bytes()
+        new_bytes = (json.dumps(new_register, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
+        old_sha = hashlib.sha256(old_bytes).hexdigest()
+        new_sha = hashlib.sha256(new_bytes).hexdigest()
+        backup = register_path.with_name("source_register.mendeley-backup-" + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ") + ".json")
+        fd, temp_name = tempfile.mkstemp(prefix="source_register.", suffix=".tmp", dir=register_path.parent)
+        try:
+            with os.fdopen(fd, "wb") as stream: stream.write(new_bytes); stream.flush(); os.fsync(stream.fileno())
+            if os.name != "nt": os.chmod(temp_name, 0o600)
+            # A separate immutable snapshot permits manual restoration if the workspace is later edited.
+            with backup.open("xb") as backup_stream:
+                backup_stream.write(old_bytes); backup_stream.flush(); os.fsync(backup_stream.fileno())
+            if os.name != "nt": backup.chmod(0o600)
+            os.replace(temp_name, register_path)
+            if os.name != "nt": register_path.chmod(0o600)
+            append_audit_event(
+                project_dir / "audit" / "events.jsonl",
+                event_type="MENDELEY_LIBRARY_SYNC", object_type="SOURCE_REGISTER",
+                object_id=str(manifest["project_id"]),
+                summary=f"Imported {len(additions)} metadata-only Mendeley reference(s); prior source-register SHA-256 {old_sha}; new SHA-256 {new_sha}.",
+                actor_type="human_authorized_integration",
+                evidence_refs=["MENDELEY_API:/documents", "source_register.json"],
+                idempotency_key="mendeley-sync-" + hashlib.sha256((str(manifest["project_id"]) + new_sha).encode()).hexdigest()[:24],
+            )
+        except BaseException:
+            # Restore the original bytes on a caught error; never leave a half-written JSON register.
+            if backup.exists():
+                restore_fd, restore_name = tempfile.mkstemp(prefix="source_register.restore.", suffix=".tmp", dir=register_path.parent)
+                with os.fdopen(restore_fd, "wb") as stream: stream.write(old_bytes); stream.flush(); os.fsync(stream.fileno())
+                os.replace(restore_name, register_path)
+            raise
+        finally:
+            try: Path(temp_name).unlink(missing_ok=True)
+            except OSError: pass
+        result["backup"] = str(backup)
+        result["source_register_sha256"] = new_sha
+        return result
+
+
+def _open_no_redirect(request: urllib.request.Request, *, timeout: int = 25):
+    class _NoRedirect(urllib.request.HTTPRedirectHandler):
+        def redirect_request(self, req, fp, code, msg, headers, newurl): return None
+    return urllib.request.build_opener(_NoRedirect()).open(request, timeout=timeout)
+
+
+def _retry_after_seconds(value: str | None) -> float | None:
+    if not value:
+        return None
+    try:
+        return max(0.0, float(value))
+    except (TypeError, ValueError):
+        try:
+            target = email.utils.parsedate_to_datetime(value)
+            if target.tzinfo is None:
+                target = target.replace(tzinfo=timezone.utc)
+            return max(0.0, (target - datetime.now(timezone.utc)).total_seconds())
+        except (TypeError, ValueError, OverflowError):
+            return None
+
+
+def _next_link(value: str, base: str) -> str | None:
+    if not value: return None
+    for part in re.split(r",(?=\s*<)", value):
+        match = re.match(r"\s*<([^>]+)>\s*;(.*)$", part)
+        if match and re.search(r'rel\s*=\s*"?next"?(?:\s|$)', match.group(2), re.I):
+            target = urllib.parse.urljoin(base, match.group(1))
+            root, parsed = urllib.parse.urlsplit(base), urllib.parse.urlsplit(target)
+            if parsed.scheme != "https" or parsed.netloc.casefold() != root.netloc.casefold():
+                raise MendeleyError("Refusing pagination link outside the Mendeley API host")
+            return target
+    return None
+
+
+def _id(value: str) -> str:
+    value = str(value).strip()
+    if not value or len(value) > 200 or any(c in value for c in "/?#\\"):
+        raise MendeleyError("Invalid Mendeley resource ID")
+    return urllib.parse.quote(value, safe="-")
+
+
+def _load_json_file(path: Path) -> dict[str, Any]:
+    try: data = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc: raise MendeleyError(f"Cannot read JSON payload file: {path}") from exc
+    if not isinstance(data, dict): raise MendeleyError("JSON payload file must contain an object")
+    return data
+
+
+def _dump(value: Any) -> None:
+    print(json.dumps(value, ensure_ascii=False, indent=2, default=str))
+
+
+def _client(args: argparse.Namespace) -> MendeleyClient:
+    token_path = getattr(args, "token_file", None)
+    return MendeleyClient(MendeleyConfig.from_env(token_path=Path(token_path) if token_path else None))
