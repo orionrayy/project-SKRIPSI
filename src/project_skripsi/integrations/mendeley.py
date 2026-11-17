@@ -48,6 +48,26 @@ MAX_UPLOAD_BYTES = 100 * 1024 * 1024
 MAX_DOWNLOAD_BYTES = 100 * 1024 * 1024
 
 
+def _read_upload_payload(file_path: Path) -> tuple[Path, bytes]:
+    """Read a bounded regular file without allocating for oversized inputs."""
+    supplied = Path(file_path).expanduser()
+    if supplied.is_symlink():
+        raise MendeleyError("Upload path must not be a symlink")
+    path = supplied.resolve(strict=True)
+    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
+    fd = os.open(path, flags)
+    with os.fdopen(fd, "rb") as stream:
+        metadata = os.fstat(stream.fileno())
+        if not stat.S_ISREG(metadata.st_mode):
+            raise MendeleyError("Upload path must be a regular file")
+        if metadata.st_size > MAX_UPLOAD_BYTES:
+            raise MendeleyError("File exceeds 100 MiB upload limit")
+        payload = stream.read(MAX_UPLOAD_BYTES + 1)
+    if len(payload) > MAX_UPLOAD_BYTES:
+        raise MendeleyError("File exceeds 100 MiB upload limit")
+    return path, payload
+
+
 class MendeleyError(RuntimeError):
     """Sanitized API or OAuth failure; never contains request headers or tokens."""
     def __init__(self, message: str, *, status: int | None = None, code: str | None = None, retry_after: float | None = None):
@@ -380,12 +400,7 @@ class MendeleyClient:
     def list_document_types(self) -> list[dict[str, Any]]:
         return self.pages("/document_types", accept="application/vnd.mendeley-document-type.1+json")
     def create_document_from_file(self, file_path: Path) -> Any:
-        supplied = Path(file_path).expanduser()
-        if supplied.is_symlink(): raise MendeleyError("Document import path must not be a symlink")
-        path = supplied.resolve(strict=True)
-        if not path.is_file(): raise MendeleyError("Document import path must be a regular file")
-        payload = path.read_bytes()
-        if len(payload) > MAX_UPLOAD_BYTES: raise MendeleyError("File exceeds 100 MiB upload limit")
+        path, payload = _read_upload_payload(file_path)
         content_type = mimetypes.guess_type(path.name)[0] or "application/octet-stream"
         safe_name = path.name.replace('"', "_").replace("\\", "_").replace("\r", "_").replace("\n", "_")
         headers = {"Content-Type": content_type, "Content-Disposition": f'attachment; filename="{safe_name}"'}
@@ -438,23 +453,13 @@ class MendeleyClient:
     def delete_document_file(self, document_id: str, file_id: str) -> Any:
         return self.request("DELETE", "/documents/v1/" + _id(document_id) + "/files/" + _id(file_id))[0]
     def upload_document_file(self, document_id: str, file_path: Path) -> Any:
-        supplied = Path(file_path).expanduser()
-        if supplied.is_symlink(): raise MendeleyError("Upload path must not be a symlink")
-        path = supplied.resolve(strict=True)
-        if not path.is_file(): raise MendeleyError("Upload path must be a regular file")
-        payload = path.read_bytes()
-        if len(payload) > MAX_UPLOAD_BYTES: raise MendeleyError("File exceeds 100 MiB upload limit")
+        path, payload = _read_upload_payload(file_path)
         mime = mimetypes.guess_type(path.name)[0] or "application/octet-stream"
         name = path.name.replace('"', "_").replace("\\", "_").replace("\r", "_").replace("\n", "_")
         headers = {"Content-Type": mime, "Content-Disposition": f'attachment; filename="{name}"'}
         return self.request("POST", "/documents/v1/" + _id(document_id) + "/files", raw_body=payload, headers=headers, accept=MEDIA["files"])[0]
     def upload_file(self, document_id: str, file_path: Path) -> Any:
-        supplied = Path(file_path).expanduser()
-        if supplied.is_symlink(): raise MendeleyError("Upload path must not be a symlink")
-        path = supplied.resolve(strict=True)
-        if not path.is_file(): raise MendeleyError("Upload path must be a regular file")
-        payload = path.read_bytes()
-        if len(payload) > MAX_UPLOAD_BYTES: raise MendeleyError("File exceeds 100 MiB upload limit")
+        path, payload = _read_upload_payload(file_path)
         mime = mimetypes.guess_type(path.name)[0] or "application/octet-stream"
         name = path.name.replace('"', "_").replace("\\", "_").replace("\r", "_").replace("\n", "_")
         headers = {"Content-Type": mime, "Content-Disposition": f'attachment; filename="{name}"', "Link": f'<{self.config.api_base_url.rstrip("/")}/documents/{_id(document_id)}>; rel="document"'}
