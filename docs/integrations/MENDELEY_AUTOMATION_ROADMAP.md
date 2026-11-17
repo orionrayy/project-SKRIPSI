@@ -101,18 +101,18 @@ Do not put OAuth secrets, access/refresh tokens, private file bytes, or personal
 
 ## 6. Delivery roadmap and acceptance gates
 
-| Priority | Engineering increment | Exit criteria |
+| Engineering ID | Engineering increment | Exit criteria |
 |---|---|---|
-| **P0** | Mendeley OAuth and read-only adapter | Real user consent succeeds; live profile and small library read succeed; no secret in repo/logs. |
-| **P1** | Ingestion preview, source normalization, stable dedup | Unit/property tests; replay idempotency; conflicts surfaced; metadata-only preserved. |
-| **P2** | Crossref/OpenAlex enrichment and identifier reconciliation | Provider provenance preserved; DOI mismatch and duplicate conflicts tested; no silent overwrite. |
-| **P3** | Screening protocol and human decision queue | Versioned criteria, decision log, conflict state, PRISMA count reconciliation; no synthetic reviewer. |
-| **P4** | Rights/access and private file acquisition | File checksum, size cap, path safety, rights evidence, unauthorized access blocked. |
-| **P5** | Extraction and evidence locators | Page labels and locators validated against source; parser/version provenance; human-review transition. |
-| **P6** | Methodology, quantitative and qualitative analysis | Reproducible tests and diagnostics; no fabricated data; assumptions and interpretation limits documented. |
-| **P7** | Manuscript, citation and document engineering | Template/APA-style conformance, section breaks, page numbering, references, tables and figure layout. |
-| **P8** | Rendered visual QA and presentation automation | DOCX/PDF page-image audits, PPTX rendering, Morph compatibility tests, no overflow or missing elements. |
-| **P9** | Revision/delivery and production operations | Acceptance workflow, checksums, privacy boundary, backups, observability, recovery and rollback tests. |
+| **E0** | Mendeley OAuth and read-only adapter | Real user consent succeeds; live profile and small library read succeed; no secret in repo/logs. |
+| **E1** | Ingestion preview, source normalization, stable dedup | Unit/property tests; replay idempotency; conflicts surfaced; metadata-only preserved. |
+| **E2** | Crossref/OpenAlex enrichment and identifier reconciliation | Provider provenance preserved; DOI mismatch and duplicate conflicts tested; no silent overwrite. |
+| **E3** | Screening protocol and human decision queue | Versioned criteria, decision log, conflict state, PRISMA count reconciliation; no synthetic reviewer. |
+| **E4** | Rights/access and private file acquisition | File checksum, size cap, path safety, rights evidence, unauthorized access blocked. |
+| **E5** | Extraction and evidence locators | Page labels and locators validated against source; parser/version provenance; human-review transition. |
+| **E6** | Methodology, quantitative and qualitative analysis | Reproducible tests and diagnostics; no fabricated data; assumptions and interpretation limits documented. |
+| **E7** | Manuscript, citation and document engineering | Template/APA-style conformance, section breaks, page numbering, references, tables and figure layout. |
+| **E8** | Rendered visual QA and presentation automation | DOCX/PDF page-image audits, PPTX rendering, Morph compatibility tests, no overflow or missing elements. |
+| **E9** | Revision/delivery and production operations | Acceptance workflow, checksums, privacy boundary, backups, observability, recovery and rollback tests. |
 
 This roadmap is an engineering plan only. It does not change the canonical P0–P9 research ledger or human acceptance/authorization state. Each increment must pass its engineering tests and the relevant human approval gate before dependent automation is enabled.
 
