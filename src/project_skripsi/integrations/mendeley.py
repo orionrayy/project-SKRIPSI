@@ -39,8 +39,8 @@ MEDIA = {
     "folders": "application/vnd.mendeley-folder.1+json",
     "annotations": "application/vnd.mendeley-annotation.1+json",
     "files": "application/vnd.mendeley-file.1+json",
-    "profiles": "application/vnd.mendeley-profiles.1+json",
-    "profile_patch": "application/vnd.mendeley-profile-amendment.1+json",
+    "profiles": "application/vnd.mendeley-profile.2+json",
+    "profile_patch": "application/vnd.mendeley-profile-amendment.2+json",
     "catalog": "application/vnd.mendeley-document.1+json",
 }
 MAX_UPLOAD_BYTES = 100 * 1024 * 1024
@@ -325,28 +325,16 @@ class MendeleyClient:
 
     # Profile
     def get_profile(self) -> dict[str, Any]:
-        data, _, _ = self.request("GET", "/profiles/me", accept=MEDIA["profiles"])
+        data, _, _ = self.request("GET", "/profiles/v2/me", accept=MEDIA["profiles"])
         if not isinstance(data, dict): raise MendeleyError("Profile response is not an object")
         return data
     def update_profile(self, changes: dict[str, Any]) -> Any:
         if not changes: raise MendeleyError("Profile changes must not be empty")
-        return self.request("PATCH", "/profiles/me", body=changes, accept=MEDIA["profile_patch"])[0]
+        return self.request("PATCH", "/profiles/v2/me", body=changes, accept=MEDIA["profile_patch"])[0]
     def get_profile_by_id(self, profile_id: str) -> dict[str, Any]:
-        data, _, _ = self.request("GET", "/profiles/" + _id(profile_id), accept=MEDIA["profiles"])
+        data, _, _ = self.request("GET", "/profiles/v2/" + _id(profile_id), accept=MEDIA["profiles"])
         if not isinstance(data, dict): raise MendeleyError("Profile response is not an object")
         return data
-    def list_profile_followers(self, profile_id: str, **params: Any) -> list[dict[str, Any]]:
-        params["followed"] = _id(profile_id)
-        return self.pages("/followers", params=params, accept="application/vnd.mendeley-follow.1+json")
-    def list_profile_followees(self, profile_id: str, **params: Any) -> list[dict[str, Any]]:
-        params["follower"] = _id(profile_id)
-        return self.pages("/followers", params=params, accept="application/vnd.mendeley-follow.1+json")
-    def follow_profile(self, profile_id: str) -> Any:
-        return self.request("POST", "/followers", body={"followed": _id(profile_id)}, content_type="application/vnd.mendeley-follow-request.1+json")[0]
-    def accept_profile_follow_request(self, relationship_id: str) -> Any:
-        return self.request("PATCH", "/followers/" + _id(relationship_id), body={"status": "following"}, content_type="application/vnd.mendeley-follow-acceptance.1+json")[0]
-    def unfollow_profile(self, relationship_id: str) -> Any:
-        return self.request("DELETE", "/followers/" + _id(relationship_id))[0]
 
     # Documents
     def list_documents(self, **params: Any) -> list[dict[str, Any]]:
@@ -517,16 +505,18 @@ class MendeleyClient:
     # Groups v2 (legacy /groups endpoints are deliberately not used)
     def list_groups(self, **params: Any) -> list[dict[str, Any]]:
         return self.pages("/groups/v2", params=params, accept="application/vnd.mendeley-group-list+json")
-    def list_popular_groups(self, **params: Any) -> list[dict[str, Any]]:
-        return self.pages("/groups/v2/popular", params=params, accept="application/vnd.mendeley-group-list+json")
     def get_group(self, group_id: str) -> Any:
         return self.request("GET", "/groups/v2/" + _id(group_id), accept="application/vnd.mendeley-group+json")[0]
     def create_group(self, payload: dict[str, Any]) -> Any:
         if not isinstance(payload, dict) or not str(payload.get("name", "")).strip():
             raise MendeleyError("Group creation requires a non-empty name")
+        if str(payload.get("access_level", "private")).casefold() in {"public", "open", "invite_only"}:
+            raise MendeleyError("Mendeley has retired public/open/invite-only group operations; create private groups only")
         return self.request("POST", "/groups/v2", body=payload, accept="application/vnd.mendeley-group+json")[0]
     def update_group(self, group_id: str, changes: dict[str, Any]) -> Any:
         if not changes: raise MendeleyError("Group changes must not be empty")
+        if str(changes.get("access_level", "")).casefold() in {"public", "open", "invite_only"}:
+            raise MendeleyError("Mendeley has retired public/open/invite-only group operations; private groups only")
         return self.request("PATCH", "/groups/v2/" + _id(group_id), body=changes, accept="application/vnd.mendeley-group+json")[0]
     def delete_group(self, group_id: str) -> Any:
         return self.request("DELETE", "/groups/v2/" + _id(group_id))[0]
@@ -537,14 +527,8 @@ class MendeleyClient:
         return self.request("PATCH", "/groups/v2/" + _id(group_id) + "/members/" + _id(profile_id), body={"membership": role}, accept="application/vnd.mendeley-group-membership+json")[0]
     def remove_group_member(self, group_id: str, profile_id: str) -> Any:
         return self.request("DELETE", "/groups/v2/" + _id(group_id) + "/members/" + _id(profile_id))[0]
-    def join_group(self, group_id: str) -> Any:
-        return self.request("POST", "/groups/v2/" + _id(group_id) + "/members")[0]
     def leave_group(self, group_id: str) -> Any:
         return self.request("DELETE", "/groups/v2/" + _id(group_id) + "/members")[0]
-    def follow_group(self, group_id: str) -> Any:
-        return self.request("POST", "/groups/v2/" + _id(group_id) + "/followers")[0]
-    def unfollow_group(self, group_id: str) -> Any:
-        return self.request("DELETE", "/groups/v2/" + _id(group_id) + "/followers")[0]
     def group_limits(self, group_id: str | None = None) -> Any:
         path = "/groups/v2/limits" if group_id is None else "/groups/v2/" + _id(group_id) + "/limits"
         return self.request("GET", path)[0]
@@ -564,9 +548,9 @@ class MendeleyClient:
         if action not in {"resend", "revoke"}: raise MendeleyError("Unsupported group invitation action")
         path = "/groups/v2/" + _id(group_id) + "/invitations/" + _id(invitation_id) + "/actions/" + action
         return self.request("POST", path)[0]
-    def respond_to_group_invitation(self, group_id: str, invitation_id: str, accept: bool) -> Any:
-        action = "accept" if accept else "decline"
-        path = "/groups/v2/" + _id(group_id) + "/invitations/" + _id(invitation_id) + "/actions/" + action
+    def respond_to_group_invitation(self, group_id: str, accept: bool) -> Any:
+        action = "accept_invitation" if accept else "decline_invitation"
+        path = "/groups/v2/" + _id(group_id) + "/actions/" + action
         return self.request("POST", path)[0]
     def request_group_join(self, group_id: str, message: str) -> Any:
         if not message.strip(): raise MendeleyError("Group join request message must not be empty")
