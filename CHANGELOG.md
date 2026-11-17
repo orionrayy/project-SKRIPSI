@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased] — PowerPoint Morph and visual geometry toolkit (2026-11-17)
+
+- Added a standard-library PowerPoint OOXML Morph patcher and structural inspector. It resolves displayed slide order through presentation relationships, patches destination slides atomically, supports byObject/byWord/byChar, retains a Fade fallback and validates duration and forced object-name pairing.
+- Added optional python-pptx helpers for editable freeform paths, stable Morph object names and native preset picture geometry.
+- Added the project-skripsi-pptx CLI, optional slides extra, documentation and 12 regression tests.
+- Local validation: 12/12 toolkit tests PASS, compileall PASS, 13-slide demo PPTX ZIP/OOXML inspection PASS, and LibreOffice PDF render review PASS.
+- Microsoft PowerPoint Morph playback remains NOT_VERIFIED. No uploaded reference videos, frame captures, or source image assets are included in the public repository. No research phase state was changed.
+
 ## 0.8.0 — Turnitin report comparison and empirical evidence QA (2026-11-10)
 
 - Added optional local Turnitin PDF report parser and comparison engine: submission metadata, similarity percentage, visible exclusions, source-category percentages, top-source inventory and visible source-badge references.

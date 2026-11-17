@@ -1,8 +1,8 @@
 # ORCHESTRATION_MEMORY — Public Canonical Project Memory
 
-**Memory version:** 1.4.0  
+**Memory version:** 1.4.1  
 **Project:** `orionrayy/project-SKRIPSI`  
-**Updated:** 2026-11-10 (Asia/Jakarta)  
+**Updated:** 2026-11-17 (Asia/Jakarta)  
 **Platform baseline:** 0.8.0  
 **Repository visibility:** public (pre-existing setting; no setting change made).
 
@@ -70,8 +70,18 @@ The repository remains a platform publication, not a publication of the user's t
 
 On every invocation:
 1. Read this memory and `config/pipeline/PHASE_LEDGER.json`; verify the current `main` head and repository tree rather than relying on a previous checkpoint.
-2. Verify the 130-entry public manifest, archive SHA-256, safe-path rules, and absence of private thesis/report/database/participant artifacts before any further publication.
+2. Verify the current public-source manifest entry count, archive SHA-256, safe-path rules, and absence of private thesis/report/database/participant artifacts before any further publication.
 3. Distinguish engineering checks from research-phase validation, human acceptance, and phase-specific authorization.
 4. Continue the earliest incomplete authorized work item. Preserve P0 and P1 accepted scopes; P2 remains `VALIDATION_PASSED_APPROVAL_PENDING` with APR-P2-001 blank; P3–P9 remain `NOT_STARTED / NOT_AUTHORIZED`.
 5. The project owner's standing instruction to continue implementation without repeated operational approvals does not allow the system to invent a P2 acceptance decision, waive research ethics or source restrictions, or self-authorize P3–P9. Keep execution authorization, human acceptance, and evidence validation separate.
 6. Update the canonical ledger and this memory only from verified repository and artifact evidence. Do not claim a workflow, package installation, external review, or academic acceptance unless its actual result is observed.
+
+
+## 8. Visual presentation engineering checkpoint — 2026-11-17
+
+- Added an optional PowerPoint toolkit on feature branch feat/powerpoint-morph-toolkit: a standard-library OOXML Morph patcher/inspector, optional python-pptx freeform and preset picture-geometry helpers, a CLI, documentation, and synthetic regression tests.
+- Morph transitions are attached to destination slides. The inspector resolves displayed order from presentation slide IDs and relationships, checks ZIP CRC, Morph option/duration, Fade fallback, duplicate forced names and source/destination name pairs.
+- Local validation on the current Linux runtime: 12/12 toolkit tests PASS, Python compileall PASS, and a 13-slide demonstration deck passes structural inspection with Morph targets on slides 5, 7 and 9, 950 ms, 30 forced object names, and no reported structural errors. LibreOffice rendered all 13 slides for visual review.
+- Microsoft PowerPoint slide-show playback is NOT_VERIFIED. LibreOffice PDF rendering does not exercise the Microsoft Morph engine; desktop PowerPoint preview remains a required acceptance check.
+- The demonstration PPTX, generated demo photos, uploaded reference videos, and frame captures are local deliverables only; none are added to the public source tree. The public toolkit documentation records which visual mask components remain picture alpha assets rather than live Boolean geometry.
+- The research phase ledger was not changed. P2 remains VALIDATION_PASSED_APPROVAL_PENDING with APR-P2-001 blank; P3–P9 remain NOT_STARTED / NOT_AUTHORIZED. Engineering tests do not change research governance.

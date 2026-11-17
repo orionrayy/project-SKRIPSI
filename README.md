@@ -35,9 +35,10 @@ A public aggregate-only research status is in `docs/research/P0_P1_P2_PUBLIC_STA
 - Evidence-linked DOCX/PDF document engineering and document verification.
 - Before/after revision-pair auditing and marked-region coverage checks.
 - Empirical study consistency checks for sample counts, constructs, instrument validation, ICC configuration, paired-test evidence and interpretation boundaries.
+- PowerPoint Morph transition inspection/patching, editable freeform geometry and native preset picture geometry (optional slides extra).
 - Local Turnitin report auditing/comparison for visible metadata, exclusions and source inventories. It does not make plagiarism verdicts or AI-detection predictions.
 
-See `docs/operations/QUICKSTART.md`, `docs/platform/REUSABLE_PLATFORM_ARCHITECTURE.md`, and `docs/quality/ACADEMIC_QA_ACCEPTANCE_MATRIX.md`.
+See `docs/operations/QUICKSTART.md`, `docs/platform/REUSABLE_PLATFORM_ARCHITECTURE.md`, `docs/quality/ACADEMIC_QA_ACCEPTANCE_MATRIX.md`, and `docs/visuals/POWERPOINT_MORPH_TOOLKIT.md`.
 
 ## Complete expanded source tree
 
@@ -54,7 +55,7 @@ python scripts/validate_phase_ledger.py
 python scripts/verify_manifest.py
 ```
 
-Optional extras are declared in `pyproject.toml`. The local PDF report parser requires the `pdf-qa` extra. Do not point tools at private thesis paths from this public repository; create a private workspace and review its governance/authorization first.
+Optional extras are declared in `pyproject.toml`. The local PDF report parser requires the `pdf-qa` extra; editable PowerPoint freeform and picture geometry helpers require the `slides` extra. The Morph patcher and inspector use only the Python standard library. Do not point tools at private thesis paths from this public repository; create a private workspace and review its governance/authorization first.
 
 ## Public/private boundary
 
@@ -67,3 +68,8 @@ The generic quality lessons from private case review are documented without sour
 Platform v0.8.0 regression suite: **200/200 PASS**; JSON Schemas: **29/29 PASS** (Draft 2020-12); compileall, phase-ledger validator and CLI smoke tests: PASS in the recorded local release validation. GitHub Actions and native Windows runner remain separate checks; do not claim CI passed until an actual workflow run reports success.
 
 See `CHANGELOG.md` and `ORCHESTRATION_MEMORY.md` for provenance and dated checkpoints. The canonical phase ledger is never to be changed to simulate human acceptance.
+
+
+### PowerPoint toolkit validation boundary
+
+The optional PowerPoint toolkit is covered by 12 local regression tests on the feature branch. Microsoft PowerPoint slide-show playback is still a separate manual acceptance check; LibreOffice rendering and OOXML inspection are not substitutes for that check.
