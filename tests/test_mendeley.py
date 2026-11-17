@@ -311,6 +311,7 @@ class MendeleySyncRecoveryTests(unittest.TestCase):
         self.assertFalse(self.journal_path.exists())
         self.assertTrue(Path(recovered["recovery_backup"]).is_file())
         self.assertEqual(len(self.audit_calls), 1)
+        self.client.list_documents.assert_called_once_with(view="all")
 
     def test_post_replace_audit_failure_recovers_idempotently(self):
         def fail_audit(*_args, **_kwargs):
@@ -337,6 +338,7 @@ class MendeleySyncRecoveryTests(unittest.TestCase):
         self.assertEqual(len(json.loads(self.register_path.read_text(encoding="utf-8"))["sources"]), 1)
         self.assertEqual(len(self.audit_calls), 1)
         self.assertTrue(Path(recovered["recovery_backup"]).is_file())
+        self.client.list_documents.assert_called_once_with(view="all")
 
     def test_audit_committed_before_interruption_is_idempotent_on_recovery(self):
         calls = {"count": 0}
@@ -365,6 +367,7 @@ class MendeleySyncRecoveryTests(unittest.TestCase):
         self.assertEqual(recovered["status"], "RECOVERED")
         self.assertFalse(self.journal_path.exists())
         self.assertEqual(calls["count"], 2)
+        self.client.list_documents.assert_called_once_with(view="all")
 
     def test_recovery_fails_closed_when_register_changed_after_interruption(self):
         def fail_audit(*_args, **_kwargs):
