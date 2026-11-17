@@ -749,17 +749,37 @@ def _dump(value: Any) -> None:
 def _client(args: argparse.Namespace) -> MendeleyClient:
     token_path = getattr(args, "token_file", None)
     return MendeleyClient(MendeleyConfig.from_env(token_path=Path(token_path) if token_path else None))
+
+
+
+def run_local_oauth_login(client: MendeleyClient, *, timeout_seconds: int = 240) -> dict[str, Any]:
+    """Run a temporary loopback callback server for an exact registered localhost URI."""
+    parsed = urllib.parse.urlsplit(client.config.redirect_uri)
+    if parsed.scheme != "http" or parsed.hostname not in {"localhost", "127.0.0.1"}:
+        raise MendeleyError("Automatic login requires a registered http://localhost or http://127.0.0.1 callback URI; otherwise use auth-url/auth-exchange")
+    if parsed.query or parsed.fragment:
+        raise MendeleyError("Registered redirect URI must not contain a query or fragment")
+    try:
+        port = parsed.port or 80
+    except ValueError as exc:
+        raise MendeleyError("Registered localhost redirect URI has an invalid port") from exc
+    expected_path = parsed.path or "/"
+    if timeout_seconds < 1 or timeout_seconds > 600:
+        raise MendeleyError("OAuth callback timeout must be between 1 and 600 seconds")
     url, state = client.authorization_url()
     captured: dict[str, str] = {}
+
     class CallbackHandler(BaseHTTPRequestHandler):
         def do_GET(self):
             request_path, _, query = self.path.partition("?")
             if request_path != expected_path:
-                self.send_error(404); return
+                self.send_error(404)
+                return
             values = urllib.parse.parse_qs(query, keep_blank_values=True)
             callback_state = (values.get("state") or [""])[0]
             if not secrets.compare_digest(callback_state, state):
-                self.send_error(400, "OAuth state mismatch"); return
+                self.send_error(400, "OAuth state mismatch")
+                return
             captured["state"] = callback_state
             if values.get("error"):
                 captured["error"] = (values.get("error_description") or values["error"])[0]
@@ -770,12 +790,16 @@ def _client(args: argparse.Namespace) -> MendeleyClient:
             self.send_header("Content-Type", "text/plain; charset=utf-8")
             self.send_header("Content-Length", str(len(body)))
             self.send_header("Cache-Control", "no-store")
-            self.end_headers(); self.wfile.write(body)
+            self.end_headers()
+            self.wfile.write(body)
+
         def log_message(self, _format, *_args):
             return
+
     try:
         server = HTTPServer(("127.0.0.1", port), CallbackHandler)
     except OSError as exc:
+        client.store.consume_state(state)
         raise MendeleyError("Could not bind the registered localhost callback port; use auth-url/auth-exchange") from exc
     server.timeout = 1
     try:
@@ -791,6 +815,7 @@ def _client(args: argparse.Namespace) -> MendeleyClient:
         client.store.consume_state(state)
         raise MendeleyError("Mendeley authorization was denied or failed: " + captured["error"][:160])
     if not captured.get("code"):
+        client.store.consume_state(state)
         raise MendeleyError("Mendeley OAuth callback timed out; restart login or use auth-url/auth-exchange")
     return client.exchange_code(captured["code"], captured["state"])
 
