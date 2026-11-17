@@ -300,9 +300,15 @@ class MendeleyExpandedResourceTests(unittest.TestCase):
             store = TokenStore(link / "tokens.json")
             with self.assertRaises(MendeleyError): store.load()
 
-    def test_profile_and_catalog_queries_validate_non_empty_query(self):
-        with self.assertRaises(MendeleyError): self.client.list_profiles()
-        with self.assertRaises(MendeleyError): self.client.search_catalog_query("")
+    def test_profile_v2_collection_and_catalog_filters_use_supported_endpoints(self):
+        calls = []
+        self.client.pages = lambda path, **kwargs: calls.append((path, kwargs)) or []
+        self.client.list_profiles(limit=10)
+        self.client.search_catalog(title="climate adaptation", year=2024)
+        self.assertEqual(calls[0][0], "/profiles/v2")
+        self.assertEqual(calls[0][1]["accept"], "application/vnd.mendeley-profile.2+json")
+        self.assertEqual(calls[1][0], "/catalog")
+        self.assertEqual(calls[1][1]["params"], {"title": "climate adaptation", "year": 2024})
 
     def test_cli_group_destructive_actions_require_exact_confirmation(self):
         with patch("project_skripsi.integrations.mendeley._client") as factory:
