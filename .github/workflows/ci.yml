@@ -31,6 +31,22 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Diagnose exact source manifest hashes
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib
+          from pathlib import Path
+          manifest = Path("MANIFEST.sha256").read_text(encoding="utf-8").splitlines()
+          mismatches = 0
+          for line in manifest:
+              expected, relative = line.split("  ", 1)
+              actual = hashlib.sha256(Path(relative).read_bytes()).hexdigest()
+              if actual != expected:
+                  print(f"MISMATCH {relative} expected={expected} actual={actual}")
+                  mismatches += 1
+          print(f"MANIFEST_DIAGNOSTIC mismatches={mismatches} entries={len(manifest)}")
+          PY
       - name: Verify public source manifest (cross-platform)
         run: python scripts/verify_manifest.py
       - name: Install optional document QA dependencies
