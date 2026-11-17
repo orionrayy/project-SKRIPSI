@@ -224,6 +224,134 @@ class MendeleyApiTests(unittest.TestCase):
 
 
 
+class MendeleySyncRecoveryTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.workspace = Path(self.tmp.name) / "workspace"
+        (self.workspace / "state").mkdir(parents=True)
+        (self.workspace / "sources" / "registry").mkdir(parents=True)
+        (self.workspace / "audit").mkdir(parents=True)
+        (self.workspace / "project.json").write_text("{}", encoding="utf-8")
+        self.register_path = self.workspace / "sources" / "registry" / "source_register.json"
+        self.original_register = {
+            "schema_version": "1.0.0",
+            "project_id": "demo-project",
+            "sources": [],
+            "claim_evidence_links": [],
+        }
+        self.original_bytes = (json.dumps(self.original_register) + "\n").encode("utf-8")
+        self.register_path.write_bytes(self.original_bytes)
+
+        from types import ModuleType
+        self.validation_module = ModuleType("project_skripsi.validation")
+        self.validation_module.validate_workspace = lambda _path: ([], {"project_id": "demo-project"}, {})
+        self.quality_module = ModuleType("project_skripsi.quality")
+        self.quality_module.validate_source_register = lambda _records: []
+        self.audit_module = ModuleType("project_skripsi.audit")
+        self.audit_calls = []
+
+        def append_audit(*args, **kwargs):
+            self.audit_calls.append((args, kwargs))
+            return {"event_type": kwargs.get("event_type"), "idempotency_key": kwargs.get("idempotency_key")}
+
+        self.audit_module.append_audit_event = append_audit
+        self.modules_patch = patch.dict("sys.modules", {
+            "project_skripsi.validation": self.validation_module,
+            "project_skripsi.quality": self.quality_module,
+            "project_skripsi.audit": self.audit_module,
+        })
+        self.modules_patch.start()
+        self.addCleanup(self.modules_patch.stop)
+
+        self.client = MagicMock()
+        self.client.list_documents.return_value = [{
+            "id": "123e4567-e89b-12d3-a456-426614174000",
+            "title": "A reference",
+            "type": "journal",
+            "year": 2024,
+            "authors": [{"first_name": "Ayu", "last_name": "Sari"}],
+            "identifiers": {"doi": "10.1234/example"},
+        }]
+        self.journal_path = self.workspace / "state" / ".mendeley-sync-transaction.json"
+
+    def test_pre_replace_failure_is_recovered_only_by_explicit_apply(self):
+        original_replace = os.replace
+
+        def interrupt_register_replace(source, destination):
+            if Path(destination) == self.register_path:
+                raise OSError("fault injection before source-register replace")
+            return original_replace(source, destination)
+
+        with patch("project_skripsi.integrations.mendeley.os.replace", side_effect=interrupt_register_replace):
+            with self.assertRaisesRegex(MendeleyError, "journal and backup were retained"):
+                sync_library_to_workspace(self.client, self.workspace, apply=True)
+
+        self.assertEqual(self.register_path.read_bytes(), self.original_bytes)
+        self.assertTrue(self.journal_path.is_file())
+        staged = list(self.register_path.parent.glob("source_register.*.tmp"))
+        backups = list(self.register_path.parent.glob("source_register.mendeley-backup-*.json"))
+        self.assertEqual(len(staged), 1)
+        self.assertEqual(len(backups), 1)
+
+        with self.assertRaisesRegex(MendeleyError, "Preview did not change any files"):
+            sync_library_to_workspace(self.client, self.workspace, apply=False)
+        self.assertEqual(self.register_path.read_bytes(), self.original_bytes)
+        self.assertTrue(self.journal_path.is_file())
+        self.assertEqual(self.audit_calls, [])
+
+        recovered = sync_library_to_workspace(self.client, self.workspace, apply=True)
+        saved = json.loads(self.register_path.read_text(encoding="utf-8"))
+        self.assertEqual(recovered["status"], "RECOVERED")
+        self.assertTrue(recovered["recovered_pending_transaction"])
+        self.assertEqual(len(saved["sources"]), 1)
+        self.assertEqual(saved["claim_evidence_links"], [])
+        self.assertFalse(self.journal_path.exists())
+        self.assertTrue(Path(recovered["recovery_backup"]).is_file())
+        self.assertEqual(len(self.audit_calls), 1)
+
+    def test_post_replace_audit_failure_recovers_idempotently(self):
+        def fail_audit(*_args, **_kwargs):
+            raise OSError("fault injection while appending audit event")
+
+        self.audit_module.append_audit_event = fail_audit
+        with self.assertRaisesRegex(MendeleyError, "journal and backup were retained"):
+            sync_library_to_workspace(self.client, self.workspace, apply=True)
+
+        after_replace = json.loads(self.register_path.read_text(encoding="utf-8"))
+        self.assertEqual(len(after_replace["sources"]), 1)
+        self.assertTrue(self.journal_path.is_file())
+        self.assertEqual(self.audit_calls, [])
+
+        def append_audit(*args, **kwargs):
+            self.audit_calls.append((args, kwargs))
+            return {"event_type": kwargs.get("event_type"), "idempotency_key": kwargs.get("idempotency_key")}
+
+        self.audit_module.append_audit_event = append_audit
+        recovered = sync_library_to_workspace(self.client, self.workspace, apply=True)
+        self.assertEqual(recovered["status"], "RECOVERED")
+        self.assertTrue(recovered["recovered_pending_transaction"])
+        self.assertFalse(self.journal_path.exists())
+        self.assertEqual(len(json.loads(self.register_path.read_text(encoding="utf-8"))["sources"]), 1)
+        self.assertEqual(len(self.audit_calls), 1)
+        self.assertTrue(Path(recovered["recovery_backup"]).is_file())
+
+    def test_recovery_fails_closed_when_register_changed_after_interruption(self):
+        def fail_audit(*_args, **_kwargs):
+            raise OSError("fault injection while appending audit event")
+
+        self.audit_module.append_audit_event = fail_audit
+        with self.assertRaises(MendeleyError):
+            sync_library_to_workspace(self.client, self.workspace, apply=True)
+        self.register_path.write_text('{"external_edit":true}\n', encoding="utf-8")
+
+        with self.assertRaisesRegex(MendeleyError, "refusing automatic recovery"):
+            sync_library_to_workspace(self.client, self.workspace, apply=True)
+        self.assertTrue(self.journal_path.is_file())
+        self.assertEqual(self.audit_calls, [])
+
+
+
 class MendeleyExpandedResourceTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
