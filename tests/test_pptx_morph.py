@@ -162,3 +162,56 @@ class MorphPatcherTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class StrictSlideOrderTests(unittest.TestCase):
+    def _replace_member(self, deck: Path, member: str, payload: bytes):
+        rewritten = deck.with_name(deck.stem + ".rewritten.pptx")
+        with zipfile.ZipFile(deck, "r") as source:
+            entries = [(info, source.read(info.filename)) for info in source.infolist()]
+        with zipfile.ZipFile(rewritten, "w", zipfile.ZIP_DEFLATED) as target:
+            for info, data in entries:
+                target.writestr(info, payload if info.filename == member else data)
+        rewritten.replace(deck)
+
+    def test_rejects_malformed_presentation_xml_instead_of_numeric_fallback(self):
+        with tempfile.TemporaryDirectory() as temp:
+            deck = Path(temp) / "malformed-presentation.pptx"
+            make_deck(deck)
+            self._replace_member(deck, "ppt/presentation.xml", b"<p:presentation")
+            report = inspect_deck(deck)
+            self.assertFalse(report["ok"])
+            self.assertTrue(
+                any("Malformed XML in ppt/presentation.xml" in error for error in report["errors"]),
+                report["errors"],
+            )
+
+    def test_rejects_malformed_relationships_xml_instead_of_numeric_fallback(self):
+        with tempfile.TemporaryDirectory() as temp:
+            deck = Path(temp) / "malformed-relationships.pptx"
+            make_deck(deck)
+            self._replace_member(deck, "ppt/_rels/presentation.xml.rels", b"<Relationships")
+            report = inspect_deck(deck)
+            self.assertFalse(report["ok"])
+            self.assertTrue(
+                any("Malformed XML in ppt/_rels/presentation.xml.rels" in error for error in report["errors"]),
+                report["errors"],
+            )
+
+    def test_rejects_unresolved_slide_relationship_instead_of_omitting_slide(self):
+        with tempfile.TemporaryDirectory() as temp:
+            deck = Path(temp) / "missing-slide-relationship.pptx"
+            make_deck(deck)
+            self._replace_member(
+                deck,
+                "ppt/_rels/presentation.xml.rels",
+                relationships_xml([1]),
+            )
+            report = inspect_deck(deck)
+            self.assertFalse(report["ok"])
+            self.assertTrue(
+                any("unresolved slide relationship" in error.lower() for error in report["errors"]),
+                report["errors"],
+            )
+
+
