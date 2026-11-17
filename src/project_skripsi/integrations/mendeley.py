@@ -496,9 +496,46 @@ class MendeleyClient:
         import hashlib
         return {"path": str(target), "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
 
-    # Catalog and search (catalog lookup is distinct from the user's private library)
+    # Public Catalog (read-only) and Catalog Search, distinct from the user's private library.
     def search_catalog(self, **params: Any) -> list[dict[str, Any]]:
-        return self.pages("/catalog", params=params, accept=MEDIA["catalog"])
+        allowed = {"query", "title", "author", "source", "abstract", "min_year", "max_year", "open_access", "view", "limit"}
+        unknown = set(params) - allowed
+        if unknown:
+            raise MendeleyError("Unsupported Catalog search parameter(s): " + ", ".join(sorted(unknown)))
+        searchable = ("query", "title", "author", "source", "abstract")
+        if not any(isinstance(params.get(key), str) and params[key].strip() for key in searchable):
+            raise MendeleyError("Catalog search requires query, title, author, source or abstract")
+        for key in ("min_year", "max_year"):
+            value = params.get(key)
+            if value is not None and (not isinstance(value, int) or isinstance(value, bool) or not 1500 <= value <= 2200):
+                raise MendeleyError(f"{key} must be an integer year between 1500 and 2200")
+        minimum, maximum = params.get("min_year"), params.get("max_year")
+        if minimum is not None and maximum is not None and minimum > maximum:
+            raise MendeleyError("min_year cannot be greater than max_year")
+        if "limit" in params and (not isinstance(params["limit"], int) or not 1 <= params["limit"] <= 500):
+            raise MendeleyError("Catalog search limit must be between 1 and 500")
+        return self.pages("/search/catalog", params=params, accept=MEDIA["catalog"])
+
+    def get_catalog_document(self, document_id: str, *, view: str | None = None) -> dict[str, Any]:
+        if view is not None and view not in {"all", "bib", "client", "stats"}:
+            raise MendeleyError("Unsupported Catalog document view")
+        data, _, _ = self.request("GET", "/catalog/" + _id(document_id), params={"view": view}, accept=MEDIA["catalog"])
+        if not isinstance(data, dict):
+            raise MendeleyError("Catalog document response is not an object")
+        return data
+
+    def get_catalog_document_by_identifier(self, **identifiers: str) -> dict[str, Any]:
+        supported = {"arxiv", "doi", "isbn", "issn", "pmid", "scopus", "ssrn", "filehash"}
+        unknown = set(identifiers) - supported
+        if unknown:
+            raise MendeleyError("Unsupported Catalog identifier(s): " + ", ".join(sorted(unknown)))
+        supplied = {key: value.strip() for key, value in identifiers.items() if isinstance(value, str) and value.strip()}
+        if len(supplied) != 1:
+            raise MendeleyError("Catalog lookup requires exactly one non-empty identifier (for example --doi)")
+        data, _, _ = self.request("GET", "/catalog", params=supplied, accept=MEDIA["catalog"])
+        if not isinstance(data, dict):
+            raise MendeleyError("Catalog identifier lookup response is not an object")
+        return data
 
     # Groups v2 (legacy /groups endpoints are deliberately not used)
     def list_groups(self, **params: Any) -> list[dict[str, Any]]:
@@ -888,8 +925,16 @@ def build_parser() -> argparse.ArgumentParser:
     sync = sub.add_parser("sync-workspace", help="preview or append Mendeley library metadata into a private workspace source register")
     sync.add_argument("workspace", type=Path)
     sync.add_argument("--apply", action="store_true", help="perform local source-register update; default is preview-only")
-    catalog = sub.add_parser("catalog-search", help="search public catalog with metadata filters")
-    catalog.add_argument("--doi"); catalog.add_argument("--title"); catalog.add_argument("--authors"); catalog.add_argument("--year", type=int)
+    catalog = sub.add_parser("catalog-search", help="search the public Catalog by query or bibliographic fields")
+    catalog.add_argument("--query"); catalog.add_argument("--title"); catalog.add_argument("--author")
+    catalog.add_argument("--source"); catalog.add_argument("--abstract")
+    catalog.add_argument("--min-year", type=int); catalog.add_argument("--max-year", type=int)
+    catalog.add_argument("--view", choices=["all", "bib", "client", "stats"]); catalog.add_argument("--limit", type=int, default=20)
+    catalog_get = sub.add_parser("catalog-get", help="retrieve a public Catalog document by its Mendeley ID")
+    catalog_get.add_argument("id"); catalog_get.add_argument("--view", choices=["all", "bib", "client", "stats"])
+    catalog_lookup = sub.add_parser("catalog-lookup", help="retrieve one public Catalog document by an external identifier")
+    for identifier in ("doi", "isbn", "arxiv", "issn", "pmid", "scopus", "ssrn", "filehash"):
+        catalog_lookup.add_argument("--" + identifier)
     groups = sub.add_parser("groups", help="list your groups using the current Groups v2 API")
     groups.add_argument("--limit", type=int, default=100)
     group_get = sub.add_parser("group-get"); group_get.add_argument("id")
@@ -979,8 +1024,17 @@ def main(argv: list[str] | None = None) -> int:
             result = client.delete_document_file(args.document_id, args.file_id)
         elif args.command == "sync-workspace": result = sync_library_to_workspace(client, args.workspace, apply=args.apply)
         elif args.command == "catalog-search":
-            params = {"doi": args.doi, "title": args.title, "authors": args.authors, "year": args.year}
-            result = client.search_catalog(**{k: v for k, v in params.items() if v is not None})
+            params = {
+                "query": args.query, "title": args.title, "author": args.author,
+                "source": args.source, "abstract": args.abstract,
+                "min_year": args.min_year, "max_year": args.max_year,
+                "view": args.view, "limit": max(1, min(args.limit, 500)),
+            }
+            result = client.search_catalog(**{key: value for key, value in params.items() if value is not None})
+        elif args.command == "catalog-get": result = client.get_catalog_document(args.id, view=args.view)
+        elif args.command == "catalog-lookup":
+            params = {key: getattr(args, key) for key in ("doi", "isbn", "arxiv", "issn", "pmid", "scopus", "ssrn", "filehash") if getattr(args, key) is not None}
+            result = client.get_catalog_document_by_identifier(**params)
         elif args.command == "groups": result = client.list_groups(limit=max(1, min(args.limit, 500)))
         elif args.command == "group-get": result = client.get_group(args.id)
         elif args.command == "group-create": result = client.create_group(_load_json_file(args.payload))
