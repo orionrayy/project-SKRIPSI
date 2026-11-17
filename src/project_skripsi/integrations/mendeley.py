@@ -1150,6 +1150,8 @@ def run_local_oauth_login(client: MendeleyClient, *, timeout_seconds: int = 240)
         raise MendeleyError("Could not bind the registered localhost callback port; use auth-url/auth-exchange") from exc
     server.timeout = 1
     try:
+        print("NOTICE: Mendeley requires scope=all for this Authorization Code flow; this grants access to all API resources, including private-library write operations.")
+        print("Continue only if you consent to that broad account access.")
         print("Opening Mendeley authorization in the default browser. If it does not open, copy this URL:")
         print(url)
         webbrowser.open(url)
@@ -1261,6 +1263,8 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.command == "auth-url":
             client = _client(args); url, state = client.authorization_url()
+            print("NOTICE: Mendeley requires scope=all for this Authorization Code flow; this grants access to all API resources, including private-library write operations.")
+            print("Continue only if you consent to that broad account access.")
             print("Open this URL and authorize the application in Mendeley:")
             print(url); print("\nOne-time state (keep private until exchange): " + state)
             print("After redirect, run auth-exchange with the callback code and this state.")
