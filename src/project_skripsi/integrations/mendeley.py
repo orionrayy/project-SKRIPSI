@@ -747,3 +747,229 @@ def _dump(value: Any) -> None:
 def _client(args: argparse.Namespace) -> MendeleyClient:
     token_path = getattr(args, "token_file", None)
     return MendeleyClient(MendeleyConfig.from_env(token_path=Path(token_path) if token_path else None))
+    url, state = client.authorization_url()
+    captured: dict[str, str] = {}
+    class CallbackHandler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            request_path, _, query = self.path.partition("?")
+            if request_path != expected_path:
+                self.send_error(404); return
+            values = urllib.parse.parse_qs(query, keep_blank_values=True)
+            callback_state = (values.get("state") or [""])[0]
+            if not secrets.compare_digest(callback_state, state):
+                self.send_error(400, "OAuth state mismatch"); return
+            captured["state"] = callback_state
+            if values.get("error"):
+                captured["error"] = (values.get("error_description") or values["error"])[0]
+            else:
+                captured["code"] = (values.get("code") or [""])[0]
+            body = b"Mendeley authorization response received. You may close this browser tab and return to Project-SKRIPSI."
+            self.send_response(200 if "code" in captured else 400)
+            self.send_header("Content-Type", "text/plain; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers(); self.wfile.write(body)
+        def log_message(self, _format, *_args):
+            return
+    try:
+        server = HTTPServer(("127.0.0.1", port), CallbackHandler)
+    except OSError as exc:
+        raise MendeleyError("Could not bind the registered localhost callback port; use auth-url/auth-exchange") from exc
+    server.timeout = 1
+    try:
+        print("Opening Mendeley authorization in the default browser. If it does not open, copy this URL:")
+        print(url)
+        webbrowser.open(url)
+        deadline = time.monotonic() + timeout_seconds
+        while time.monotonic() < deadline and not captured:
+            server.handle_request()
+    finally:
+        server.server_close()
+    if "error" in captured:
+        client.store.consume_state(state)
+        raise MendeleyError("Mendeley authorization was denied or failed: " + captured["error"][:160])
+    if not captured.get("code"):
+        raise MendeleyError("Mendeley OAuth callback timed out; restart login or use auth-url/auth-exchange")
+    return client.exchange_code(captured["code"], captured["state"])
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="project-skripsi-mendeley", description="Free-first local Mendeley API connector")
+    parser.add_argument("--token-file", help="local private token store; default ~/.project-skripsi/mendeley/tokens.json")
+    sub = parser.add_subparsers(dest="command", required=True)
+    sub.add_parser("auth-url", help="create OAuth authorization URL and one-time CSRF state")
+    sub.add_parser("login", help="open OAuth in browser and receive callback on registered localhost redirect URI")
+    ex = sub.add_parser("auth-exchange", help="exchange callback code after validating the one-time state")
+    ex.add_argument("--code", required=True); ex.add_argument("--state", required=True)
+    sub.add_parser("status", help="show connection/token expiry without displaying tokens")
+    sub.add_parser("logout", help="remove local Mendeley tokens; this does not revoke the provider-side grant")
+    sub.add_parser("profile", help="read logged-in Mendeley profile")
+    updprof = sub.add_parser("profile-update", help="patch the authenticated user profile")
+    updprof.add_argument("payload", type=Path)
+    docs = sub.add_parser("documents", help="list all user-library documents (view=all)")
+    docs.add_argument("--limit", type=int, default=100); docs.add_argument("--modified-since")
+    searchlib = sub.add_parser("library-search", help="search documents in the authenticated user's private library")
+    searchlib.add_argument("query"); searchlib.add_argument("--limit", type=int, default=100)
+    sub.add_parser("document-types", help="list document types accepted by Mendeley")
+    getdoc = sub.add_parser("document-get"); getdoc.add_argument("id")
+    createdoc = sub.add_parser("document-create"); createdoc.add_argument("payload", type=Path)
+    updatedoc = sub.add_parser("document-update", help="patch metadata; optional optimistic-concurrency precondition")
+    updatedoc.add_argument("id"); updatedoc.add_argument("payload", type=Path); updatedoc.add_argument("--if-unmodified-since")
+    trashdoc = sub.add_parser("document-trash"); trashdoc.add_argument("id")
+    deldoc = sub.add_parser("document-delete"); deldoc.add_argument("id"); deldoc.add_argument("--confirm", required=True, help="must exactly match ID; permanently deletes")
+    restore = sub.add_parser("document-restore"); restore.add_argument("id")
+    fromfile = sub.add_parser("document-from-file"); fromfile.add_argument("file", type=Path)
+    folders = sub.add_parser("folders"); folders.add_argument("--limit", type=int, default=100)
+    getfolder = sub.add_parser("folder-get"); getfolder.add_argument("id")
+    newfolder = sub.add_parser("folder-create"); newfolder.add_argument("name"); newfolder.add_argument("--parent-id")
+    upfolder = sub.add_parser("folder-update"); upfolder.add_argument("id"); upfolder.add_argument("payload", type=Path)
+    delfolder = sub.add_parser("folder-delete"); delfolder.add_argument("id"); delfolder.add_argument("--confirm", required=True)
+    folderdocs = sub.add_parser("folder-documents"); folderdocs.add_argument("id")
+    folderadd = sub.add_parser("folder-add-document"); folderadd.add_argument("folder_id"); folderadd.add_argument("document_id")
+    folderremove = sub.add_parser("folder-remove-document"); folderremove.add_argument("folder_id"); folderremove.add_argument("document_id")
+    anns = sub.add_parser("annotations"); anns.add_argument("--document-id")
+    getann = sub.add_parser("annotation-get"); getann.add_argument("id")
+    newann = sub.add_parser("annotation-create"); newann.add_argument("payload", type=Path)
+    upann = sub.add_parser("annotation-update"); upann.add_argument("id"); upann.add_argument("payload", type=Path)
+    delann = sub.add_parser("annotation-delete"); delann.add_argument("id"); delann.add_argument("--confirm", required=True)
+    files = sub.add_parser("files"); files.add_argument("--document-id")
+    upload = sub.add_parser("file-upload", help="upload using the generic /files endpoint")
+    upload.add_argument("document_id"); upload.add_argument("file", type=Path)
+    doc_upload = sub.add_parser("document-file-upload", help="upload through the document-scoped files endpoint")
+    doc_upload.add_argument("document_id"); doc_upload.add_argument("file", type=Path)
+    download = sub.add_parser("file-download"); download.add_argument("id"); download.add_argument("destination", type=Path)
+    delfile = sub.add_parser("file-delete"); delfile.add_argument("id"); delfile.add_argument("--confirm", required=True)
+    docfiles = sub.add_parser("document-files"); docfiles.add_argument("document_id")
+    doc_file_delete = sub.add_parser("document-file-delete")
+    doc_file_delete.add_argument("document_id"); doc_file_delete.add_argument("file_id"); doc_file_delete.add_argument("--confirm", required=True)
+    sync = sub.add_parser("sync-workspace", help="preview or append Mendeley library metadata into a private workspace source register")
+    sync.add_argument("workspace", type=Path)
+    sync.add_argument("--apply", action="store_true", help="perform local source-register update; default is preview-only")
+    catalog = sub.add_parser("catalog-search", help="search public catalog with metadata filters")
+    catalog.add_argument("--doi"); catalog.add_argument("--title"); catalog.add_argument("--authors"); catalog.add_argument("--year", type=int)
+    catalog_query = sub.add_parser("catalog-query", help="search public Mendeley catalog by terms")
+    catalog_query.add_argument("query"); catalog_query.add_argument("--limit", type=int, default=100)
+    profile_search = sub.add_parser("profile-search", help="search public researcher profiles")
+    profile_search.add_argument("query"); profile_search.add_argument("--limit", type=int, default=100)
+    groups = sub.add_parser("groups", help="list your groups using the current Groups v2 API")
+    groups.add_argument("--limit", type=int, default=100)
+    group_get = sub.add_parser("group-get"); group_get.add_argument("id")
+    group_create = sub.add_parser("group-create"); group_create.add_argument("payload", type=Path)
+    group_update = sub.add_parser("group-update"); group_update.add_argument("id"); group_update.add_argument("payload", type=Path)
+    group_delete = sub.add_parser("group-delete"); group_delete.add_argument("id"); group_delete.add_argument("--confirm", required=True)
+    group_members = sub.add_parser("group-members"); group_members.add_argument("id"); group_members.add_argument("--query")
+    group_role = sub.add_parser("group-member-role"); group_role.add_argument("id"); group_role.add_argument("profile_id"); group_role.add_argument("role", choices=["admin", "normal"])
+    group_remove = sub.add_parser("group-member-remove"); group_remove.add_argument("id"); group_remove.add_argument("profile_id"); group_remove.add_argument("--confirm", required=True)
+    group_join = sub.add_parser("group-join"); group_join.add_argument("id")
+    group_leave = sub.add_parser("group-leave"); group_leave.add_argument("id"); group_leave.add_argument("--confirm", required=True)
+    group_follow = sub.add_parser("group-follow"); group_follow.add_argument("id")
+    group_unfollow = sub.add_parser("group-unfollow"); group_unfollow.add_argument("id"); group_unfollow.add_argument("--confirm", required=True)
+    group_limits = sub.add_parser("group-limits"); group_limits.add_argument("--id")
+    invitations = sub.add_parser("group-invitations"); invitations.add_argument("--id")
+    invite = sub.add_parser("group-invite"); invite.add_argument("id"); invite.add_argument("payload", type=Path)
+    invite_action = sub.add_parser("group-invitation-action"); invite_action.add_argument("id"); invite_action.add_argument("invitation_id"); invite_action.add_argument("action", choices=["revoke", "resend"])
+    invite_response = sub.add_parser("group-invitation-response"); invite_response.add_argument("id"); invite_response.add_argument("invitation_id"); invite_response.add_argument("decision", choices=["accept", "decline"])
+    group_request = sub.add_parser("group-join-request"); group_request.add_argument("id"); group_request.add_argument("message")
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = build_parser().parse_args(argv)
+    try:
+        if args.command == "auth-url":
+            client = _client(args); url, state = client.authorization_url()
+            print("Open this URL and authorize the application in Mendeley:")
+            print(url); print("\nOne-time state (keep private until exchange): " + state)
+            print("After redirect, run auth-exchange with the callback code and this state.")
+            return 0
+        client = _client(args)
+        if args.command == "login":
+            result = run_local_oauth_login(client)
+            _dump(result); return 0
+        if args.command == "auth-exchange": result = client.exchange_code(args.code, args.state)
+        elif args.command == "status":
+            token = client.store.load()
+            result = {"status": "CONNECTED" if token and float(token.get("expires_at", 0)) > time.time() else ("TOKEN_REFRESH_REQUIRED" if token else "DISCONNECTED"), "expires_at": token.get("expires_at") if token else None, "token_path": str(client.store.path)}
+        elif args.command == "logout": result = {"local_tokens_removed": client.store.clear(), "provider_grant_revoked": False}
+        elif args.command == "profile": result = client.get_profile()
+        elif args.command == "profile-update": result = client.update_profile(_load_json_file(args.payload))
+        elif args.command == "documents": result = client.list_documents(limit=max(1, min(args.limit, 500)), modified_since=args.modified_since)
+        elif args.command == "library-search": result = client.search_library_documents(args.query, limit=max(1, min(args.limit, 500)))
+        elif args.command == "document-types": result = client.list_document_types()
+        elif args.command == "document-get": result = client.get_document(args.id)
+        elif args.command == "document-create": result = client.create_document(_load_json_file(args.payload))
+        elif args.command == "document-update": result = client.update_document(args.id, _load_json_file(args.payload), if_unmodified_since=args.if_unmodified_since)
+        elif args.command == "document-trash": result = client.trash_document(args.id)
+        elif args.command == "document-delete":
+            if args.confirm != args.id: raise MendeleyError("Confirmation ID does not match; permanent deletion refused")
+            result = client.delete_document_permanently(args.id)
+        elif args.command == "document-restore": result = client.restore_document(args.id)
+        elif args.command == "document-from-file": result = client.create_document_from_file(args.file)
+        elif args.command == "folders": result = client.list_folders(limit=max(1, min(args.limit, 500)))
+        elif args.command == "folder-get": result = client.get_folder(args.id)
+        elif args.command == "folder-create": result = client.create_folder(args.name, parent_id=args.parent_id)
+        elif args.command == "folder-update": result = client.update_folder(args.id, _load_json_file(args.payload))
+        elif args.command == "folder-delete":
+            if args.confirm != args.id: raise MendeleyError("Confirmation ID does not match; folder deletion refused")
+            result = client.delete_folder(args.id)
+        elif args.command == "folder-documents": result = client.list_folder_documents(args.id)
+        elif args.command == "folder-add-document": result = client.add_document_to_folder(args.folder_id, args.document_id)
+        elif args.command == "folder-remove-document": result = client.remove_document_from_folder(args.folder_id, args.document_id)
+        elif args.command == "annotations": result = client.list_annotations(document_id=args.document_id)
+        elif args.command == "annotation-get": result = client.get_annotation(args.id)
+        elif args.command == "annotation-create": result = client.create_annotation(_load_json_file(args.payload))
+        elif args.command == "annotation-update": result = client.update_annotation(args.id, _load_json_file(args.payload))
+        elif args.command == "annotation-delete":
+            if args.confirm != args.id: raise MendeleyError("Confirmation ID does not match; annotation deletion refused")
+            result = client.delete_annotation(args.id)
+        elif args.command == "files": result = client.list_files(document_id=args.document_id)
+        elif args.command == "file-upload": result = client.upload_file(args.document_id, args.file)
+        elif args.command == "document-file-upload": result = client.upload_document_file(args.document_id, args.file)
+        elif args.command == "file-download": result = client.download_file(args.id, args.destination)
+        elif args.command == "file-delete":
+            if args.confirm != args.id: raise MendeleyError("Confirmation ID does not match; file deletion refused")
+            result = client.delete_file(args.id)
+        elif args.command == "document-files": result = client.list_document_files(args.document_id)
+        elif args.command == "document-file-delete":
+            if args.confirm != args.file_id: raise MendeleyError("Confirmation file ID does not match; document file deletion refused")
+            result = client.delete_document_file(args.document_id, args.file_id)
+        elif args.command == "sync-workspace": result = sync_library_to_workspace(client, args.workspace, apply=args.apply)
+        elif args.command == "catalog-search":
+            params = {"doi": args.doi, "title": args.title, "authors": args.authors, "year": args.year}
+            result = client.search_catalog(**{k: v for k, v in params.items() if v is not None})
+        elif args.command == "catalog-query": result = client.search_catalog_query(args.query, limit=max(1, min(args.limit, 500)))
+        elif args.command == "profile-search": result = client.search_profiles(args.query, limit=max(1, min(args.limit, 500)))
+        elif args.command == "groups": result = client.list_groups(limit=max(1, min(args.limit, 500)))
+        elif args.command == "group-get": result = client.get_group(args.id)
+        elif args.command == "group-create": result = client.create_group(_load_json_file(args.payload))
+        elif args.command == "group-update": result = client.update_group(args.id, _load_json_file(args.payload))
+        elif args.command == "group-delete":
+            if args.confirm != args.id: raise MendeleyError("Confirmation ID does not match; group deletion refused")
+            result = client.delete_group(args.id)
+        elif args.command == "group-members": result = client.list_group_members(args.id, query=args.query)
+        elif args.command == "group-member-role": result = client.update_group_member(args.id, args.profile_id, args.role)
+        elif args.command == "group-member-remove":
+            if args.confirm != args.profile_id: raise MendeleyError("Confirmation profile ID does not match; member removal refused")
+            result = client.remove_group_member(args.id, args.profile_id)
+        elif args.command == "group-join": result = client.join_group(args.id)
+        elif args.command == "group-leave":
+            if args.confirm != args.id: raise MendeleyError("Confirmation group ID does not match; leave action refused")
+            result = client.leave_group(args.id)
+        elif args.command == "group-follow": result = client.follow_group(args.id)
+        elif args.command == "group-unfollow":
+            if args.confirm != args.id: raise MendeleyError("Confirmation group ID does not match; unfollow action refused")
+            result = client.unfollow_group(args.id)
+        elif args.command == "group-limits": result = client.group_limits(args.id)
+        elif args.command == "group-invitations": result = client.list_group_invitations(args.id)
+        elif args.command == "group-invite": result = client.invite_group_members(args.id, _load_json_file(args.payload))
+        elif args.command == "group-invitation-action": result = client.group_invitation_action(args.id, args.invitation_id, args.action)
+        elif args.command == "group-invitation-response": result = client.respond_to_group_invitation(args.id, args.invitation_id, args.decision == "accept")
+        elif args.command == "group-join-request": result = client.request_group_join(args.id, args.message)
+        else: raise MendeleyError("Unsupported command")
+        _dump(result); return 0
+    except (MendeleyError, ValueError, OSError) as exc:
+        print(f"ERROR: {exc}", file=sys.stderr); return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
