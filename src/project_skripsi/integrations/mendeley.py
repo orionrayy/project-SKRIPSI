@@ -336,6 +336,9 @@ class MendeleyClient:
         if not isinstance(data, dict): raise MendeleyError("Profile response is not an object")
         return data
 
+    def list_profiles(self, **params: Any) -> list[dict[str, Any]]:
+        return self.pages("/profiles/v2", params=params, accept=MEDIA["profiles"])
+
     # Documents
     def list_documents(self, **params: Any) -> list[dict[str, Any]]:
         params.setdefault("view", "all")
@@ -359,8 +362,14 @@ class MendeleyClient:
         return self.request("POST", "/documents/" + _id(document_id) + "/trash")[0]
     def delete_document_permanently(self, document_id: str) -> Any:
         return self.request("DELETE", "/documents/" + _id(document_id))[0]
-    def deleted_document_ids(self, **params: Any) -> list[Any]:
-        return self.pages("/deleted_documents", params=params, accept="application/vnd.mendeley-deleted-document.1+json")
+    def list_trash_documents(self, **params: Any) -> list[dict[str, Any]]:
+        return self.pages("/trash", params=params, accept=MEDIA["documents"])
+    def get_trash_document(self, document_id: str) -> dict[str, Any]:
+        data, _, _ = self.request("GET", "/trash/" + _id(document_id), accept=MEDIA["documents"])
+        if not isinstance(data, dict): raise MendeleyError("Trashed document response is not an object")
+        return data
+    def delete_trash_document(self, document_id: str) -> Any:
+        return self.request("DELETE", "/trash/" + _id(document_id))[0]
     def restore_document(self, document_id: str) -> Any:
         return self.request("POST", "/trash/" + _id(document_id) + "/restore")[0]
     def search_library_documents(self, query: str, **params: Any) -> list[dict[str, Any]]:
@@ -491,16 +500,6 @@ class MendeleyClient:
     # Catalog and search (catalog lookup is distinct from the user's private library)
     def search_catalog(self, **params: Any) -> list[dict[str, Any]]:
         return self.pages("/catalog", params=params, accept=MEDIA["catalog"])
-    def search_catalog_query(self, query: str, **params: Any) -> list[dict[str, Any]]:
-        if not isinstance(query, str) or not query.strip():
-            raise MendeleyError("Catalog search query must not be empty")
-        params["query"] = query.strip()
-        return self.pages("/search/catalog", params=params, accept=MEDIA["catalog"])
-    def search_profiles(self, query: str, **params: Any) -> list[dict[str, Any]]:
-        if not isinstance(query, str) or not query.strip():
-            raise MendeleyError("Profile search query must not be empty")
-        params["query"] = query.strip()
-        return self.pages("/search/profiles", params=params, accept="application/vnd.mendeley-profile.1+json")
 
     # Groups v2 (legacy /groups endpoints are deliberately not used)
     def list_groups(self, **params: Any) -> list[dict[str, Any]]:
