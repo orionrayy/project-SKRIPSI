@@ -554,6 +554,22 @@ class MendeleyExpandedResourceTests(unittest.TestCase):
             self.assertEqual(kwargs["raw_body"], b"%PDF-demo")
             self.assertEqual(kwargs["headers"]["Content-Type"], "application/pdf")
 
+    def test_oversized_uploads_are_rejected_before_reading_file_contents(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            oversized = Path(tmp) / "oversized.pdf"
+            with oversized.open("wb") as stream:
+                stream.truncate(100 * 1024 * 1024 + 1)
+            self.client.request = MagicMock()
+            with patch("pathlib.Path.read_bytes", side_effect=AssertionError("must not allocate an oversized upload")):
+                for operation in (
+                    lambda: self.client.create_document_from_file(oversized),
+                    lambda: self.client.upload_file("doc-1", oversized),
+                    lambda: self.client.upload_document_file("doc-1", oversized),
+                ):
+                    with self.assertRaisesRegex(MendeleyError, "100 MiB upload limit"):
+                        operation()
+            self.client.request.assert_not_called()
+
     def test_logout_only_clears_local_token_store(self):
         with patch("project_skripsi.integrations.mendeley._client") as factory:
             fake = MagicMock(); fake.store.clear.return_value = True; factory.return_value = fake
