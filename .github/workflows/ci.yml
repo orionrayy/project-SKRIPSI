@@ -69,3 +69,30 @@ jobs:
         run: python -m pip install --no-deps -e .
       - name: CLI smoke test
         run: project-skripsi --help
+
+  mendeley-python-314:
+    name: Mendeley connector (Python 3.14)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Preserve byte-exact checkout for manifest integrity
+        shell: bash
+        run: |
+          git config core.autocrlf false
+          git config core.eol lf
+          git checkout-index --force --all
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Verify public source manifest
+        run: python scripts/verify_manifest.py
+      - name: Compile Mendeley connector and isolated tests
+        run: python -m compileall -q src/project_skripsi/integrations/mendeley.py tests/test_mendeley.py
+      - name: Run Mendeley API, OAuth, and sync recovery tests
+        env:
+          PYTHONPATH: src
+        run: python -m unittest discover -s tests -p "test_mendeley.py" -v
+      - name: Install editable package
+        run: python -m pip install --no-deps -e .
+      - name: Mendeley CLI smoke test
+        run: project-skripsi-mendeley --help
