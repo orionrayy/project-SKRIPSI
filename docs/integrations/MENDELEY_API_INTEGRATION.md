@@ -189,8 +189,9 @@ If the process or device stops during apply:
 
 1. Do not manually edit the source register, journal, staged file, or backup.
 2. A preview-only invocation detects the pending journal and fails closed without changing files.
-3. Re-run the same `sync-workspace ... --apply` command. The connector verifies the backup and current/staged checksums, rolls the transaction forward where possible, and completes the audit event idempotently.
-4. If the source register no longer matches either recorded transaction checksum, automatic recovery refuses to overwrite it. Preserve the journal and backup for manual reconciliation.
+3. Re-run `sync-workspace ... --apply`. Recovery is a local filesystem operation: it does not call Mendeley and can complete while the account is offline or the OAuth token has expired.
+4. A successful recovery returns `status=RECOVERED` and stops after completing the prior transaction. Run `sync-workspace ... --apply` again when you are ready to fetch and append any newer Mendeley references.
+5. If the source register no longer matches either recorded transaction checksum, automatic recovery refuses to overwrite it. Preserve the journal and backup for manual reconciliation.
 
 This recovery protocol is covered by fault-injection tests for interruption before register replacement, interruption after replacement but before audit append, interruption after an audit append but before journal cleanup (verifying audit idempotency), and external modification during recovery. It protects the local source-register transaction; it does not guarantee durability against faulty storage hardware, filesystem corruption, or provider-side API failures.
 
@@ -202,7 +203,7 @@ To treat a linked PDF as reviewed evidence, independently inspect the file and i
 - Mutating requests are never blindly retried after ambiguous network errors. Inspect Mendeley state before retrying a create/update/upload/delete that may have reached the server.
 - OAuth state is one-use and expires after ten minutes. Access-token refresh is serialized and rotated tokens are atomically stored.
 - API requests use HTTPS and explicit Mendeley resource media types. Pagination links are restricted to the configured API host.
-- File upload/download is bounded to 100 MiB per operation. Signed download URLs are fetched without forwarding the Mendeley bearer token.
+- File upload/download is bounded to 100 MiB per operation. Uploads reject an oversized file from its file metadata before reading it into memory, then enforce the limit again on the bounded read. Signed download URLs are fetched without forwarding the Mendeley bearer token.
 - Secrets, raw PDFs, library exports, private source registers, and user-specific API responses must not be committed to the public repository.
 - Mendeley API rate limits, endpoint permissions, account policy, and provider availability may change. An HTTP/API test double is not a live integration test.
 
