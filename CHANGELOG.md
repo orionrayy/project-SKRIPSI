@@ -1,8 +1,8 @@
 ## Unreleased
 
 ### Added
-- Added current REST API coverage for profiles by ID, follower/followee relationships, popular groups, and acceptance/decline of group join requests. Request construction now supports distinct `Content-Type` and `Accept` media types for invitation APIs.
-- Draft personal Mendeley REST API integration on `feature/mendeley-api-integration`: OAuth Authorization Code login, private token storage/refresh, user-library search and document CRUD, folders, annotations, files, catalog/profile search, Groups v2, and preview-first metadata synchronization to a private thesis workspace.
+- Added current REST API coverage for profile lookup by ID, profile v2 listing, private Groups v2 join-request decisions, and invitation requests with distinct `Content-Type` and `Accept` media types. Retired Profile Search, follower, public-group and popular-public-group endpoints are excluded.
+- Draft personal Mendeley REST API integration on `feature/mendeley-api-integration`: OAuth Authorization Code login, private token storage/refresh, user-library search and document CRUD, folders, annotations, file transfer, Catalog lookup, supported private Groups v2 operations, and preview-first metadata synchronization to a private thesis workspace.
 - Added isolated Mendeley API contract tests and operating documentation. No paid SDK or third-party Python runtime dependency is required.
 
 ### Boundaries
