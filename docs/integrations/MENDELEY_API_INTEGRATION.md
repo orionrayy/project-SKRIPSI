@@ -9,13 +9,13 @@ The connector is a local Python-standard-library adapter over the documented Men
 With an explicitly authorized Mendeley account, it exposes:
 
 - OAuth 2.0 Authorization Code login, one-time `state`, refresh-token rotation, and private token storage.
-- User profile read/update/by-ID; profile search and follower/followee relationships (follow, accept, remove).
+- Profiles v2: read and update the authorized user's profile, retrieve a profile by ID, and list profiles visible to the account. Profile Search and follower/followee endpoints are retired and are deliberately not exposed.
 - Document list/search/get/create/update/trash/restore/permanent delete; document types and deleted-document ID retrieval.
 - Folder list/get/create/update/delete and document membership operations.
 - Annotation list/get/create/update/delete.
 - File listing, upload, download, and deletion using the API file resources and document-scoped file routes.
-- Public catalog search and profile search.
-- Groups v2: list/popular/get/create/update/delete, group membership and role operations, join/follow/leave, invitation creation/accept/decline/revoke/resend, join-request decisions, and limits. Legacy `/groups` endpoints are not used.
+- Public Catalog search and document lookup. Profile search is not included because Mendeley retired that endpoint.
+- Groups v2: list/get and the documented private-group, membership, invitation, join-request and limits operations supported by the current API contract. Public/invite-only group access, profile followers, public-group joining and popular-public-group search are not exposed; Mendeley retired the corresponding social/public-group capabilities. Legacy `/groups` endpoints are not used.
 - Optional workspace sync. Preview is the default; applying it only appends new Mendeley metadata records as `METADATA_ONLY` with `rights_status=UNKNOWN`. It creates no claim-evidence links and does not promote metadata to reviewed evidence.
 
 Not every Mendeley GUI function has a documented API equivalent. API endpoint coverage is bounded by Mendeley's published OpenAPI/REST reference and the permissions of the authorizing account. Availability of a feature in the desktop/web UI does not prove an API operation exists.
@@ -32,6 +32,11 @@ Reference pages:
 - [Authorization Code flow](https://dev.mendeley.com/reference/topics/authorization_auth_code.html)
 - [Current API OpenAPI index](https://api.mendeley.com/apidocs/openapi)
 - [Mendeley API reference](https://dev.mendeley.com/methods/)
+- [Mendeley API change notice](https://www.elsevier.support/mendeley/answer/mendeley-api-changes)
+
+### Retired Mendeley API features
+
+Mendeley's API change notice records the removal of Profile Search and follower endpoints, and the removal of public/invite-only group capabilities. This connector intentionally omits those resources even though some older pages in the reference site still show examples. Public group joins and follower relationships are not supported. The private-group routes retained in this adapter are still subject to the permissions and live behavior of the account that authorizes the app.
 - [Developer terms and conditions](https://dev.mendeley.com/terms-and-conditions.html)
 
 ## Register a Mendeley API application
