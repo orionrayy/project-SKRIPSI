@@ -62,15 +62,42 @@ python -m pip install -e .
 project-skripsi-mendeley login
 ```
 
-### Linux, macOS, or Termux
+### Linux or macOS
 
 ```sh
-export MENDELEY_CLIENT_ID='YOUR_CLIENT_ID'
-export MENDELEY_CLIENT_SECRET='YOUR_CLIENT_SECRET'
-export MENDELEY_REDIRECT_URI='http://localhost:8765/mendeley/callback'
 python -m pip install -e .
+read -r -p "Mendeley Client ID: " MENDELEY_CLIENT_ID
+read -r -s -p "Mendeley Client Secret: " MENDELEY_CLIENT_SECRET
+printf '\\n'
+export MENDELEY_CLIENT_ID MENDELEY_CLIENT_SECRET
+export MENDELEY_REDIRECT_URI='http://localhost:8765/mendeley/callback'
 project-skripsi-mendeley login
+project-skripsi-mendeley profile
 ```
+
+### Termux on Android
+
+The branch is not merged into `main`; clone the integration branch explicitly:
+
+```sh
+pkg install git
+git clone --depth 1 --single-branch --branch feature/mendeley-api-integration https://github.com/orionrayy/project-SKRIPSI.git
+cd project-SKRIPSI
+python -m pip install -e .
+
+read -r -p "Mendeley Client ID: " MENDELEY_CLIENT_ID
+read -r -s -p "Mendeley Client Secret: " MENDELEY_CLIENT_SECRET
+printf '\\n'
+export MENDELEY_CLIENT_ID MENDELEY_CLIENT_SECRET
+export MENDELEY_REDIRECT_URI='http://localhost:8765/mendeley/callback'
+
+project-skripsi-mendeley login
+project-skripsi-mendeley status
+project-skripsi-mendeley profile
+project-skripsi-mendeley documents --limit 50
+```
+
+The hidden `read -s` prompt avoids putting the client secret directly in shell history or displaying it while typing. Keep these variables in the active Termux session while running Mendeley commands, because token refresh also requires the client credentials. Do not save the secret in `.bashrc`, `.profile`, repository files, screenshots, or chat. Re-enter it privately in a new Termux session when needed. If Android does not open the browser automatically, copy the authorization URL printed by `login` into the browser on the same device; the browser must return to the same device's loopback callback. If automatic callback cannot be hosted, use `auth-url` and `auth-exchange` as the manual fallback.
 
 The redirect URI must match the application registration exactly. During `login`, a temporary HTTP listener is bound only to the loopback interface and the configured port/path. The browser opens the Mendeley consent page. Approve the requested access in Mendeley; the CLI then exchanges the authorization code and stores the resulting tokens locally.
 
