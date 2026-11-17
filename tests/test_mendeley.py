@@ -308,15 +308,47 @@ class MendeleyExpandedResourceTests(unittest.TestCase):
             store = TokenStore(link / "tokens.json")
             with self.assertRaises(MendeleyError): store.load()
 
-    def test_profile_v2_collection_and_catalog_filters_use_supported_endpoints(self):
+    def test_profile_v2_collection_and_catalog_search_use_supported_endpoints(self):
         calls = []
         self.client.pages = lambda path, **kwargs: calls.append((path, kwargs)) or []
         self.client.list_profiles(limit=10)
-        self.client.search_catalog(title="climate adaptation", year=2024)
+        self.client.search_catalog(title="climate adaptation", author="Ayu Sari", min_year=2020, max_year=2024)
         self.assertEqual(calls[0][0], "/profiles/v2")
         self.assertEqual(calls[0][1]["accept"], "application/vnd.mendeley-profile.2+json")
-        self.assertEqual(calls[1][0], "/catalog")
-        self.assertEqual(calls[1][1]["params"], {"title": "climate adaptation", "year": 2024})
+        self.assertEqual(calls[1][0], "/search/catalog")
+        self.assertEqual(calls[1][1]["params"], {"title": "climate adaptation", "author": "Ayu Sari", "min_year": 2020, "max_year": 2024})
+
+    def test_catalog_search_validates_query_fields_and_year_bounds(self):
+        with self.assertRaises(MendeleyError): self.client.search_catalog()
+        with self.assertRaises(MendeleyError): self.client.search_catalog(doi="10.1234/example")
+        with self.assertRaises(MendeleyError): self.client.search_catalog(query="climate", min_year=2025, max_year=2020)
+        with self.assertRaises(MendeleyError): self.client.search_catalog(query="climate", min_year=1499)
+        with self.assertRaises(MendeleyError): self.client.search_catalog(query="climate", unsupported="value")
+        with self.assertRaises(MendeleyError): self.client.search_catalog(query="climate", limit=501)
+
+    def test_catalog_identifier_and_id_retrieval_use_catalog_resource(self):
+        calls = []
+        def fake(method, path, **kwargs):
+            calls.append((method, path, kwargs))
+            return ({"id": "catalog-doc"}, {}, 200)
+        self.client.request = fake
+        self.client.get_catalog_document_by_identifier(doi="10.1234/example")
+        self.client.get_catalog_document("catalog-doc", view="bib")
+        self.assertEqual(calls[0][0:2], ("GET", "/catalog"))
+        self.assertEqual(calls[0][2]["params"], {"doi": "10.1234/example"})
+        self.assertEqual(calls[1][0:2], ("GET", "/catalog/catalog-doc"))
+        self.assertEqual(calls[1][2]["params"], {"view": "bib"})
+        with self.assertRaises(MendeleyError): self.client.get_catalog_document_by_identifier(doi="10.1234/example", isbn="9780000000000")
+        with self.assertRaises(MendeleyError): self.client.get_catalog_document_by_identifier(doi="")
+
+    def test_catalog_cli_exposes_search_get_and_identifier_lookup(self):
+        parser = build_parser()
+        search = parser.parse_args(["catalog-search", "--query", "climate change", "--min-year", "2018", "--view", "all"])
+        get_item = parser.parse_args(["catalog-get", "catalog-id", "--view", "bib"])
+        lookup = parser.parse_args(["catalog-lookup", "--doi", "10.1234/example"])
+        self.assertEqual((search.command, search.query, search.min_year, search.view), ("catalog-search", "climate change", 2018, "all"))
+        self.assertEqual((get_item.command, get_item.id, get_item.view), ("catalog-get", "catalog-id", "bib"))
+        self.assertEqual((lookup.command, lookup.doi), ("catalog-lookup", "10.1234/example"))
 
     def test_cli_group_destructive_actions_require_exact_confirmation(self):
         with patch("project_skripsi.integrations.mendeley._client") as factory:
