@@ -357,3 +357,70 @@ class MendeleyExpandedResourceTests(unittest.TestCase):
 
 
 if __name__ == "__main__": unittest.main()
+
+
+class MendeleyOAuthCallbackTests(unittest.TestCase):
+    def test_local_browser_callback_completes_authorization_code_exchange(self):
+        import socket
+        import threading
+        from urllib.parse import parse_qs, urlencode, urlsplit
+        from urllib.request import urlopen
+        from project_skripsi.integrations.mendeley import run_local_oauth_login
+
+        with tempfile.TemporaryDirectory() as tmp:
+            with socket.socket() as sock:
+                sock.bind(("127.0.0.1", 0))
+                port = sock.getsockname()[1]
+            client = MendeleyClient(MendeleyConfig(
+                client_id="demo-client",
+                client_secret="demo-secret",
+                redirect_uri=f"http://127.0.0.1:{port}/mendeley/callback",
+                token_path=Path(tmp) / "tokens.json",
+            ))
+            callback_errors = []
+            callback_thread = []
+
+            def fake_browser_open(auth_url):
+                query = parse_qs(urlsplit(auth_url).query)
+                state = query["state"][0]
+                def send_callback():
+                    callback_url = f"http://127.0.0.1:{port}/mendeley/callback?" + urlencode({"code": "authorization-code", "state": state})
+                    try:
+                        with urlopen(callback_url, timeout=5) as response:
+                            self.assertEqual(response.status, 200)
+                    except Exception as exc:
+                        callback_errors.append(exc)
+                worker = threading.Thread(target=send_callback, daemon=True)
+                callback_thread.append(worker)
+                worker.start()
+                return True
+
+            token_payload = {
+                "access_token": "live-test-access",
+                "refresh_token": "live-test-refresh",
+                "expires_at": time.time() + 3600,
+                "token_type": "bearer",
+            }
+            with patch("project_skripsi.integrations.mendeley.webbrowser.open", side_effect=fake_browser_open):
+                with patch.object(client, "_token_request", return_value=token_payload) as exchange:
+                    result = run_local_oauth_login(client, timeout_seconds=8)
+            callback_thread[0].join(timeout=5)
+            self.assertFalse(callback_thread[0].is_alive())
+            self.assertEqual(callback_errors, [])
+            self.assertEqual(result["status"], "AUTHORIZED")
+            exchange.assert_called_once()
+            self.assertEqual(client.store.load()["access_token"], "live-test-access")
+
+    def test_automatic_login_rejects_non_loopback_redirect(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            config = MendeleyConfig(
+                client_id="demo-client", client_secret="demo-secret",
+                redirect_uri="https://example.com/oauth/callback",
+                token_path=Path(tmp) / "tokens.json",
+            )
+            client = MendeleyClient(config)
+            from project_skripsi.integrations.mendeley import run_local_oauth_login
+            with self.assertRaises(MendeleyError):
+                run_local_oauth_login(client)
+
+
