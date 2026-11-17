@@ -846,24 +846,24 @@ def sync_library_to_workspace(client: MendeleyClient, workspace: Path, *, apply:
     if errors or not manifest:
         raise MendeleyError("Workspace validation failed: " + "; ".join(errors[:8]))
     register_path = project_dir / "sources" / "registry" / "source_register.json"
-    if register_path.is_symlink() or not register_path.is_file():
-        raise MendeleyError("Workspace source register is missing or symlinked")
-    documents = client.list_documents(view="all")
-    date_value = datetime.now(timezone.utc).date().isoformat()
-    candidates = [
-        record for item in documents
-        if isinstance(item, dict)
-        and (record := _mendeley_source_record(item, retrieval_date=date_value)) is not None
-    ]
-    skipped = len(documents) - len(candidates)
+    protected_paths = (
+        project_dir / "state",
+        project_dir / "sources",
+        project_dir / "sources" / "registry",
+        project_dir / "audit",
+        register_path,
+    )
+    if any(path.is_symlink() for path in protected_paths):
+        raise MendeleyError("Workspace state, source, audit, or source-register paths must not be symlinks")
+    if not register_path.is_file():
+        raise MendeleyError("Workspace source register is missing")
     journal_path = project_dir / "state" / ".mendeley-sync-transaction.json"
 
+    # Recover a previously prepared local transaction before contacting Mendeley.
+    # This allows safe recovery even when the account is offline or authorization expired.
     with FileLock(project_dir / "state" / ".mendeley-sync.lock"):
-        if register_path.is_symlink():
-            raise MendeleyError("Refusing symlinked source register")
         if journal_path.is_symlink():
             raise MendeleyError("Refusing symlinked Mendeley sync journal")
-        recovery = None
         if journal_path.exists():
             if not apply:
                 raise MendeleyError(
@@ -873,6 +873,37 @@ def sync_library_to_workspace(client: MendeleyClient, workspace: Path, *, apply:
             recovery = _recover_mendeley_sync_transaction(
                 project_dir, register_path, str(manifest["project_id"]), validate_source_register
             )
+            return {
+                "status": "RECOVERED",
+                "project_id": manifest["project_id"],
+                "mendeley_documents_seen": 0,
+                "eligible_metadata_records": 0,
+                "new_records": 0,
+                "already_imported": 0,
+                "skipped_missing_id_or_title": 0,
+                "claim_evidence_links_created": 0,
+                "source_register": str(register_path),
+                "recovered_pending_transaction": True,
+                "recovered_transaction_id": recovery["transaction_id"],
+                "recovery_backup": recovery["backup"],
+                "source_register_sha256": recovery["source_register_sha256"],
+                "note": "Recovered the previous local transaction. Run sync-workspace again to fetch new Mendeley metadata.",
+            }
+
+    documents = client.list_documents(view="all")
+    date_value = datetime.now(timezone.utc).date().isoformat()
+    candidates = [
+        record for item in documents
+        if isinstance(item, dict)
+        and (record := _mendeley_source_record(item, retrieval_date=date_value)) is not None
+    ]
+    skipped = len(documents) - len(candidates)
+
+    with FileLock(project_dir / "state" / ".mendeley-sync.lock"):
+        if any(path.is_symlink() for path in protected_paths):
+            raise MendeleyError("Workspace state or source-register path became a symlink during Mendeley sync")
+        if journal_path.is_symlink() or journal_path.exists():
+            raise MendeleyError("Another or interrupted Mendeley sync transaction requires recovery; rerun sync-workspace with --apply")
         try:
             register = json.loads(register_path.read_text(encoding="utf-8"))
         except (OSError, UnicodeError, json.JSONDecodeError) as exc:
@@ -892,9 +923,7 @@ def sync_library_to_workspace(client: MendeleyClient, workspace: Path, *, apply:
         }
         additions = [item for item in candidates if item["source_id"] not in existing_ids]
         duplicate_ids = len(candidates) - len(additions)
-        status = "PREVIEW_ONLY"
-        if apply:
-            status = "RECOVERED" if recovery and not additions else ("NO_CHANGES" if not additions else "APPLIED")
+        status = "PREVIEW_ONLY" if not apply else ("NO_CHANGES" if not additions else "APPLIED")
         result = {
             "status": status,
             "project_id": manifest["project_id"],
@@ -905,14 +934,11 @@ def sync_library_to_workspace(client: MendeleyClient, workspace: Path, *, apply:
             "skipped_missing_id_or_title": skipped,
             "claim_evidence_links_created": 0,
             "source_register": str(register_path),
-            "recovered_pending_transaction": recovery is not None,
-            "recovered_transaction_id": recovery.get("transaction_id") if recovery else None,
+            "recovered_pending_transaction": False,
+            "recovered_transaction_id": None,
             "note": "Imported entries are METADATA_ONLY; they are not content-reviewed evidence and require human source review.",
         }
         if not apply or not additions:
-            if recovery:
-                result["recovery_backup"] = recovery["backup"]
-                result["source_register_sha256"] = recovery["source_register_sha256"]
             return result
 
         combined = list(register["sources"]) + additions
