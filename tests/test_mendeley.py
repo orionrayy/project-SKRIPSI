@@ -279,7 +279,9 @@ class MendeleySyncRecoveryTests(unittest.TestCase):
         original_replace = os.replace
 
         def interrupt_register_replace(source, destination):
-            if Path(destination) == self.register_path:
+            destination_key = os.path.normcase(os.path.abspath(str(destination)))
+            register_key = os.path.normcase(os.path.abspath(str(self.register_path)))
+            if destination_key == register_key:
                 raise OSError("fault injection before source-register replace")
             return original_replace(source, destination)
 
