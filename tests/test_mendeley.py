@@ -221,3 +221,138 @@ class MendeleyApiTests(unittest.TestCase):
                 repeated = sync_library_to_workspace(fake_client, workspace, apply=True)
                 self.assertEqual(repeated["status"], "NO_CHANGES")
                 self.assertEqual(len(calls), 1)
+
+
+
+if __name__ == "__main__": unittest.main()
+
+class MendeleyExpandedResourceTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.client = make_client(self.tmp.name)
+        self.client.store.save({"access_token": "access", "refresh_token": "refresh", "expires_at": time.time() + 3600})
+
+    def test_library_search_uses_private_library_endpoint_and_query(self):
+        calls = []
+        def fake(method, path, **kwargs):
+            calls.append((method, path, kwargs))
+            return ([{"id": "doc-1"}], {}, 200)
+        self.client.request = fake
+        self.client.search_library_documents("climate adaptation", limit=12)
+        self.assertEqual(calls[0][0:2], ("GET", "/search/documents"))
+        self.assertEqual(calls[0][2]["params"], {"limit": 12, "query": "climate adaptation"})
+
+    def test_group_v2_creation_and_member_role_use_versioned_contract(self):
+        calls = []
+        def fake(method, path, **kwargs):
+            calls.append((method, path, kwargs))
+            return ({"id": "g-1"}, {}, 201)
+        self.client.request = fake
+        self.client.create_group({"name": "Research team", "access_level": "private"})
+        self.client.update_group_member("g-1", "profile-1", "admin")
+        self.assertEqual(calls[0][0:2], ("POST", "/groups/v2"))
+        self.assertEqual(calls[0][2]["accept"], "application/vnd.mendeley-group+json")
+        self.assertEqual(calls[1][0:2], ("PATCH", "/groups/v2/g-1/members/profile-1"))
+        self.assertEqual(calls[1][2]["body"], {"membership": "admin"})
+        with self.assertRaises(MendeleyError): self.client.update_group_member("g-1", "p-1", "owner")
+
+    def test_group_invite_requires_recipient_list_and_action_allowlist(self):
+        with self.assertRaises(MendeleyError): self.client.invite_group_members("g-1", {"recipients": []})
+        with self.assertRaises(MendeleyError): self.client.group_invitation_action("g-1", "i-1", "delete")
+
+    def test_document_file_routes_use_document_scoped_api(self):
+        calls = []
+        def fake(method, path, **kwargs):
+            calls.append((method, path, kwargs))
+            return ([{"id": "f-1"}], {}, 200)
+        self.client.request = fake
+        self.client.pages = lambda path, **kwargs: calls.append(("PAGES", path, kwargs)) or [{"id": "f-1"}]
+        self.client.list_document_files("d-1", limit=10)
+        self.client.delete_document_file("d-1", "f-1")
+        self.assertEqual(calls[0][0:2], ("PAGES", "/documents/v1/d-1/files"))
+        self.assertEqual(calls[1][0:2], ("DELETE", "/documents/v1/d-1/files/f-1"))
+
+    def test_retry_after_parser_handles_seconds_and_http_date(self):
+        from project_skripsi.integrations.mendeley import _retry_after_seconds
+        self.assertEqual(_retry_after_seconds("12"), 12.0)
+        self.assertIsNone(_retry_after_seconds("bad-value"))
+
+    def test_credential_load_rejects_symlinked_parent(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            target = root / "real"
+            target.mkdir()
+            link = root / "link"
+            link.symlink_to(target, target_is_directory=True)
+            store = TokenStore(link / "tokens.json")
+            with self.assertRaises(MendeleyError): store.load()
+
+    def test_profile_and_catalog_queries_validate_non_empty_query(self):
+        with self.assertRaises(MendeleyError): self.client.search_profiles("  ")
+        with self.assertRaises(MendeleyError): self.client.search_catalog_query("")
+
+    def test_cli_group_destructive_actions_require_exact_confirmation(self):
+        with patch("project_skripsi.integrations.mendeley._client") as factory:
+            fake = MagicMock(); factory.return_value = fake
+            with patch("sys.stderr"):
+                code = main(["group-delete", "g-1", "--confirm", "wrong"])
+            self.assertEqual(code, 2)
+            fake.delete_group.assert_not_called()
+
+    def test_get_retry_honors_retry_after_seconds_and_still_never_retries_writes(self):
+        calls = []
+        def opener(req, timeout=25):
+            calls.append(req)
+            if len(calls) == 1:
+                headers = {"Retry-After": "2", "Content-Type": "application/json"}
+                raise urllib.error.HTTPError(req.full_url, 429, "rate limited", headers, None)
+            return Response(b'{"ok":true}')
+        self.client._open = opener
+        with patch("project_skripsi.integrations.mendeley.time.sleep") as sleep:
+            payload, _, _ = self.client.request("GET", "/profiles/me")
+        self.assertEqual(payload, {"ok": True})
+        sleep.assert_called_once_with(2.0)
+        self.assertEqual(len(calls), 2)
+
+    def test_long_retry_after_is_not_ignored_by_retrying_early(self):
+        def opener(req, timeout=25):
+            headers = {"Retry-After": "120", "Content-Type": "application/json"}
+            raise urllib.error.HTTPError(req.full_url, 429, "rate limited", headers, None)
+        self.client._open = opener
+        with patch("project_skripsi.integrations.mendeley.time.sleep") as sleep:
+            with self.assertRaises(MendeleyError) as error:
+                self.client.request("GET", "/profiles/me")
+        sleep.assert_not_called()
+        self.assertEqual(error.exception.retry_after, 120.0)
+
+    def test_document_file_upload_uses_document_scoped_route_and_file_headers(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp) / "sample.pdf"
+            source.write_bytes(b"%PDF-demo")
+            calls = []
+            self.client.request = lambda *a, **kw: calls.append((a, kw)) or ({"id": "f-1"}, {}, 201)
+            self.client.upload_document_file("doc-1", source)
+            args, kwargs = calls[0]
+            self.assertEqual(args[:2], ("POST", "/documents/v1/doc-1/files"))
+            self.assertEqual(kwargs["raw_body"], b"%PDF-demo")
+            self.assertEqual(kwargs["headers"]["Content-Type"], "application/pdf")
+
+    def test_logout_only_clears_local_token_store(self):
+        with patch("project_skripsi.integrations.mendeley._client") as factory:
+            fake = MagicMock(); fake.store.clear.return_value = True; factory.return_value = fake
+            with patch("builtins.print") as output:
+                code = main(["logout"])
+        self.assertEqual(code, 0)
+        fake.store.clear.assert_called_once_with()
+        self.assertIn('"provider_grant_revoked": false', output.call_args[0][0])
+
+    def test_document_update_can_use_optimistic_concurrency_precondition(self):
+        calls = []
+        self.client.request = lambda *a, **kw: calls.append((a, kw)) or ({"id": "d-1"}, {}, 200)
+        self.client.update_document("d-1", {"title": "Updated"}, if_unmodified_since="Tue, 17 Nov 2026 00:00:00 GMT")
+        self.assertEqual(calls[0][1]["headers"]["If-Unmodified-Since"], "Tue, 17 Nov 2026 00:00:00 GMT")
+        with self.assertRaises(MendeleyError): self.client.update_document("d-1", {"title": "x"}, if_unmodified_since="bad\r\nAuthorization:evil")
+
+    def test_request_rejects_auth_header_override(self):
+        with self.assertRaises(MendeleyError): self.client.request("GET", "/profiles/me", headers={"Authorization": "Bearer attacker"})
