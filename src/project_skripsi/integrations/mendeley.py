@@ -40,6 +40,7 @@ MEDIA = {
     "annotations": "application/vnd.mendeley-annotation.1+json",
     "files": "application/vnd.mendeley-file.1+json",
     "profiles": "application/vnd.mendeley-profile.2+json",
+    "profile_search": "application/vnd.mendeley-profile.1+json",
     "profile_patch": "application/vnd.mendeley-profile-amendment.2+json",
     "catalog": "application/vnd.mendeley-document.1+json",
 }
@@ -338,6 +339,15 @@ class MendeleyClient:
 
     def list_profiles(self, **params: Any) -> list[dict[str, Any]]:
         return self.pages("/profiles/v2", params=params, accept=MEDIA["profiles"])
+    def search_profiles(self, query: str, *, limit: int = 100) -> list[dict[str, Any]]:
+        if not isinstance(query, str) or not query.strip():
+            raise MendeleyError("Profile search query must not be empty")
+        if not 1 <= limit <= 100:
+            raise MendeleyError("Profile search limit must be between 1 and 100")
+        return self.pages(
+            "/search/profiles", params={"query": query.strip(), "limit": limit},
+            accept=MEDIA["profile_search"],
+        )
 
     # Documents
     def list_documents(self, **params: Any) -> list[dict[str, Any]]:
@@ -504,6 +514,8 @@ class MendeleyClient:
     # Groups v2 (legacy /groups endpoints are deliberately not used)
     def list_groups(self, **params: Any) -> list[dict[str, Any]]:
         return self.pages("/groups/v2", params=params, accept="application/vnd.mendeley-group-list+json")
+    def list_popular_groups(self, **params: Any) -> list[dict[str, Any]]:
+        return self.pages("/groups/v2/popular", params=params, accept="application/vnd.mendeley-group-list+json")
     def get_group(self, group_id: str) -> Any:
         return self.request("GET", "/groups/v2/" + _id(group_id), accept="application/vnd.mendeley-group+json")[0]
     def create_group(self, payload: dict[str, Any]) -> Any:
@@ -843,6 +855,8 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("profile", help="read logged-in Mendeley profile")
     profiles = sub.add_parser("profiles", help="list profiles visible to the authorized Mendeley account")
     profiles.add_argument("--limit", type=int, default=100)
+    profile_search = sub.add_parser("profile-search", help="search public profiles by name, institution or discipline")
+    profile_search.add_argument("query"); profile_search.add_argument("--limit", type=int, default=100)
     profile_get = sub.add_parser("profile-get", help="read a public profile by ID")
     profile_get.add_argument("id")
     updprof = sub.add_parser("profile-update", help="patch the authenticated user profile")
@@ -894,6 +908,8 @@ def build_parser() -> argparse.ArgumentParser:
     profile_search.add_argument("query"); profile_search.add_argument("--limit", type=int, default=100)
     groups = sub.add_parser("groups", help="list your groups using the current Groups v2 API")
     groups.add_argument("--limit", type=int, default=100)
+    popular_groups = sub.add_parser("popular-groups", help="list popular public Mendeley groups")
+    popular_groups.add_argument("--limit", type=int, default=100)
     popular_groups.add_argument("--limit", type=int, default=100)
     group_get = sub.add_parser("group-get"); group_get.add_argument("id")
     group_create = sub.add_parser("group-create"); group_create.add_argument("payload", type=Path)
@@ -933,6 +949,7 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "logout": result = {"local_tokens_removed": client.store.clear(), "provider_grant_revoked": False}
         elif args.command == "profile": result = client.get_profile()
         elif args.command == "profiles": result = client.list_profiles(limit=max(1, min(args.limit, 100)))
+        elif args.command == "profile-search": result = client.search_profiles(args.query, limit=max(1, min(args.limit, 100)))
         elif args.command == "profile-get": result = client.get_profile_by_id(args.id)
         elif args.command == "profile-update": result = client.update_profile(_load_json_file(args.payload))
         elif args.command == "documents": result = client.list_documents(limit=max(1, min(args.limit, 500)), modified_since=args.modified_since)
@@ -985,6 +1002,7 @@ def main(argv: list[str] | None = None) -> int:
             params = {"doi": args.doi, "title": args.title, "authors": args.authors, "year": args.year}
             result = client.search_catalog(**{k: v for k, v in params.items() if v is not None})
         elif args.command == "groups": result = client.list_groups(limit=max(1, min(args.limit, 500)))
+        elif args.command == "popular-groups": result = client.list_popular_groups(limit=max(1, min(args.limit, 500)))
         elif args.command == "group-get": result = client.get_group(args.id)
         elif args.command == "group-create": result = client.create_group(_load_json_file(args.payload))
         elif args.command == "group-update": result = client.update_group(args.id, _load_json_file(args.payload))
