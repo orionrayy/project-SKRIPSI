@@ -1,0 +1,88 @@
+{
+  "schema_version": "1.0.0",
+  "case_id": "CASE-VISUAL-COMPOSITION-TOR-2026-11",
+  "case_type": "EVENT_TOR_DOCUMENT_COMPOSITION",
+  "classification": "PUBLIC_SANITIZED_DERIVED_CASE",
+  "scope": "PLATFORM_QUALITY_LEARNING",
+  "privacy": {
+    "personal_identifiers_included": false,
+    "institution_identifiers_included": false,
+    "original_document_text_included": false,
+    "original_docx_or_pdf_included": false,
+    "original_assets_included": false,
+    "personal_filenames_or_hashes_included": false
+  },
+  "task_profile": {
+    "language": "id-ID",
+    "document_family": "EVENT_TOR",
+    "primary_reader_tasks": [
+      "identify the event and theme",
+      "locate date, time and venue",
+      "locate speaker and participant group",
+      "understand the event sequence and duration",
+      "locate the contact person"
+    ],
+    "identity_values": "REDACTED_AND_REPLACED_WITH_PLACEHOLDERS"
+  },
+  "iteration_history": [
+    {
+      "iteration": "T0",
+      "observed_symptoms": ["generic visual hierarchy", "content clustered toward the upper page", "weak motif identity"],
+      "learning": "Content correctness does not establish visual identity or reader navigation."
+    },
+    {
+      "iteration": "T1",
+      "observed_symptoms": ["palette and font hierarchy improved", "metadata and list groups still looked templated"],
+      "learning": "Color changes alone do not solve layout composition."
+    },
+    {
+      "iteration": "T2",
+      "observed_symptoms": ["stronger section labels", "repeated boxed or card-like groups remained"],
+      "learning": "Repeated rectangles can create a rigid visual grammar even when the palette is coherent."
+    },
+    {
+      "iteration": "T3",
+      "observed_symptoms": ["open editorial lists improved the page", "manual pagination created a blank page"],
+      "learning": "Every layout change must be rendered again and checked for page-flow regressions."
+    },
+    {
+      "iteration": "T4",
+      "observed_symptoms": ["pagination recovered", "composition still appeared flat and mechanically repetitive"],
+      "learning": "A technical layout fix does not establish visual acceptance."
+    },
+    {
+      "iteration": "T5",
+      "observed_symptoms": ["open three-page editorial structure", "motif family repeated across cover, materials and timeline", "metadata and narrative lists no longer enclosed as cards", "schedule expressed as a curved sequence"],
+      "learning": "Motif continuity, varied rhythm and purposeful negative space can add character without inventing content."
+    }
+  ],
+  "latest_candidate": {
+    "physical_page_count": 3,
+    "page_size": "A4",
+    "composition_profile": "OPEN_EDITORIAL_ORGANIC_MOTIF",
+    "repeated_filled_card_containers": 0,
+    "reader_task_test_status": "NOT_RUN",
+    "eye_tracking_status": "NOT_MEASURED",
+    "user_acceptance_status": "PENDING",
+    "open_design_risks": [
+      "Final motif preference is not yet confirmed by the user.",
+      "Reader-task usability has not been tested with representative readers.",
+      "The composition must be adapted to other document families rather than reused as a universal template."
+    ]
+  },
+  "reusable_controls": [
+    "Separate content integrity, layout integrity, visual composition and reader usability gates.",
+    "Do not encode a universal attention-span duration.",
+    "Choose visual hierarchy around actual reader tasks.",
+    "Avoid repeated cards or rectangular frames when open typography, columns or timelines communicate the content more clearly.",
+    "Use a motif family with semantic or identity relevance; do not paste unrelated decoration onto a template.",
+    "Assess whitespace by function and page-to-page rhythm, not by a universal fill percentage.",
+    "Render and inspect every page after meaningful revisions.",
+    "Keep eye-tracking status NOT_MEASURED unless eye-tracking evidence exists."
+  ],
+  "limitations": [
+    "This is one sanitized event-TOR iteration case and is not representative of every institution, discipline or document family.",
+    "The public learning record contains no original TOR text, identity values, source files, filenames or hashes.",
+    "Visual composition proxy results are not a measure of gaze, comprehension or aesthetic preference."
+  ]
+}
