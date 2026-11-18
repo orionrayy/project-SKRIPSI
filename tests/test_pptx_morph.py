@@ -235,10 +235,10 @@ class MorphMarkupCompatibilityTests(unittest.TestCase):
             apply_morph(deck, [2], duration_ms=950, option="byObject")
             with zipfile.ZipFile(deck, "r") as archive:
                 xml = archive.read("ppt/slides/slide2.xml")
-            root_open = re.search(rb"<p:sld\\b[^>]*>", xml)
-            choice_open = re.search(rb"<mc:Choice\\b[^>]*>", xml)
+            root_open = re.search(rb"<p:sld\b[^>]*>", xml)
+            choice_open = re.search(rb"<mc:Choice\b[^>]*>", xml)
             transition_open = re.search(
-                rb"<mc:Choice\\b[^>]*>.*?(<p:transition\\b[^>]*>)",
+                rb"<mc:Choice\b[^>]*>.*?(<p:transition\b[^>]*>)",
                 xml,
                 re.DOTALL,
             )
