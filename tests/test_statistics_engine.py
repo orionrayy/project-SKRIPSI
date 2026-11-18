@@ -682,7 +682,9 @@ class StableHashTests(unittest.TestCase):
             original = statistics.sha256_file
             def mutate_after_hash(path):
                 digest = original(path)
-                path.write_text("x\n2\n", encoding="utf-8")
+                # Change size as well as content so the regression does not
+                # depend on sub-second filesystem timestamp resolution on Windows.
+                path.write_text("x\nmutated-payload\n", encoding="utf-8")
                 return digest
             with patch.object(statistics, "sha256_file", side_effect=mutate_after_hash):
                 with self.assertRaisesRegex(StatisticalEngineError, "changed while its SHA-256"):
