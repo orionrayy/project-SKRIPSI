@@ -141,20 +141,20 @@ def _morph(root: ET.Element) -> tuple[str | None, int | None, bool]:
 def _strip_existing_transition_markup(data: bytes) -> bytes:
     """Remove existing direct slide-transition markup without reserializing the slide."""
     alternate_pattern = re.compile(
-        rb'<(?P<prefix>(?:[A-Za-z_][\\w.-]*:)?)AlternateContent\\b[^>]*>.*?</(?P=prefix)AlternateContent\\s*>',
+        rb'<(?P<prefix>(?:[A-Za-z_][\w.-]*:)?)AlternateContent\b[^>]*>.*?</(?P=prefix)AlternateContent\s*>',
         re.DOTALL,
     )
     for match in reversed(list(alternate_pattern.finditer(data))):
-        if re.search(rb'<(?:[A-Za-z_][\\w.-]*:)?transition\\b', match.group(0)):
+        if re.search(rb'<(?:[A-Za-z_][\w.-]*:)?transition\b', match.group(0)):
             data = data[:match.start()] + data[match.end():]
 
     paired_transition_pattern = re.compile(
-        rb'<(?P<prefix>(?:[A-Za-z_][\\w.-]*:)?)transition\\b[^>]*>.*?</(?P=prefix)transition\\s*>',
+        rb'<(?P<prefix>(?:[A-Za-z_][\w.-]*:)?)transition\b[^>]*>.*?</(?P=prefix)transition\s*>',
         re.DOTALL,
     )
     data = paired_transition_pattern.sub(b"", data)
     empty_transition_pattern = re.compile(
-        rb'<(?:[A-Za-z_][\\w.-]*:)?transition\\b[^>]*/\\s*>'
+        rb'<(?:[A-Za-z_][\w.-]*:)?transition\b[^>]*/\s*>'
     )
     return empty_transition_pattern.sub(b"", data)
 
@@ -189,7 +189,7 @@ def _patch_slide_transition(data: bytes, duration_ms: int, option: str, part: st
     pfx = f"{slide_prefix}:" if slide_prefix else ""
     if anchor is not None:
         closing = re.compile(
-            rb"</" + re.escape(f"{pfx}{anchor}".encode("ascii")) + rb"\\s*>"
+            rb"</" + re.escape(f"{pfx}{anchor}".encode("ascii")) + rb"\s*>"
         )
         matches = list(closing.finditer(clean))
         if not matches:
@@ -197,7 +197,7 @@ def _patch_slide_transition(data: bytes, duration_ms: int, option: str, part: st
         insert_at = matches[-1].end()
     else:
         root_close = re.compile(
-            rb"</" + re.escape(f"{pfx}sld".encode("ascii")) + rb"\\s*>"
+            rb"</" + re.escape(f"{pfx}sld".encode("ascii")) + rb"\s*>"
         )
         match = root_close.search(clean)
         if not match:
