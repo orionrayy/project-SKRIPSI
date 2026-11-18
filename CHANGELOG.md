@@ -2,9 +2,10 @@
 
 ## [Unreleased] — PowerPoint Morph control correction (2026-11-18)
 
-- Corrected Morph Markup Compatibility requirements: `mc:Choice/@Requires` now lists both `p14` and `p159` when the branch contains `p14:dur` and `p159:morph`.
-- Extended `inspect_deck` to reject Morph choices whose required extension namespaces are not declared in `Requires`; added three regression tests for writer and inspector behavior.
-- This is a structural conformance correction. Actual playback still requires a Microsoft PowerPoint runtime; a non-Morph consumer will select the explicit Fade fallback.
+- Reconciled Morph namespace documentation with the writer and regression tests: the generated Choice uses `Requires="p159"`; `p159` is declared on `mc:Choice`, while `p14` is declared locally on the Morph `p:transition` carrying `p14:dur`.
+- Added a diagnostic comparison based on the uploaded six-slide grouped-object deck: an original-name baseline and a variant forcing the lower group name to `!!large-ball` across all six slides. Both contain Morph on destination slides 2–6 and pass package/XML/render checks.
+- GitHub Actions run #143 completed **6/6 matrix jobs**, each passing 220 tests plus manifest, compile, phase-ledger and CLI checks.
+- Microsoft PowerPoint playback remains NOT_VERIFIED; local static rendering is not Morph-engine evidence.
 
 ## [Unreleased] — PowerPoint Morph and visual geometry toolkit (2026-11-17)
 
