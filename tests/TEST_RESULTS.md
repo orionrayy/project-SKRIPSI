@@ -1,3 +1,22 @@
+# Visual composition candidate follow-up — 2026-11-18
+
+The learning case now includes the T6 over-designed motif-led TOR and T7 understated, reference-aligned TOR. The local private V3 DOCX/PDF were rendered and visually inspected page-by-page; the PDF contains two A4 pages. No private source file or per-document hash is included in this repository.
+
+| Review dimension | Result |
+|---|---|
+| DOCX render page count | 2 |
+| PDF page count / A4 geometry | PASS |
+| Full-page visual review | PASS |
+| Content/placeholder preservation | PASS |
+| Genre-fidelity profile | CONVENTIONAL_UNDERSTATED_ACTIVITY_TOR |
+| Reader-task testing | NOT_RUN |
+| Eye-tracking evidence | NOT_MEASURED |
+| User acceptance | PENDING |
+
+The full GitHub Actions matrix was previously observed as 6/6 PASS on the pre-follow-up candidate. The follow-up documentation/case changes require a fresh CI run; no new result is claimed here.
+
+---
+
 # Deterministic Windows stable-hash regression fixture — 2026-11-18
 
 | Check | Result |
