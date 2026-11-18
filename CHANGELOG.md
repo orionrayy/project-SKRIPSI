@@ -1,3 +1,12 @@
+## [Unreleased] — Visual composition and reader-task diagnostics (2026-11-18)
+
+- Added an optional rendered-PDF composition auditor and source-checkout CLI. It reports profile-configured geometry proxies for text-area ratio, text bounds, margin bands, typographic levels, rectangle counts and image counts; it does not store extracted text or file paths.
+- Added seven synthetic PDF regression tests, a profile contract, an audit-report schema and an event-TOR-specific diagnostic profile.
+- Added a sanitized event-TOR iteration case and design guidance that separates content integrity, layout integrity, visual composition and reader usability.
+- Clarified that scanning patterns are task-dependent and that a fixed "attention span" timer is not an evidence-based acceptance rule. Eye-tracking remains NOT_MEASURED unless actual eye-tracking data is collected; reader-task status defaults to NOT_RUN.
+- Validation for this feature candidate: 7/7 dedicated tests PASS; 2/2 new schemas pass Draft 2020-12 meta-schema checks; profile and generated report instances validate. The complete repository regression suite was not re-run in this feature branch.
+- No P0-P9 research phase, authorization, acceptance, dataset or ledger status changed. The candidate is not merged or released.
+
 # Changelog
 
 ## 0.8.0 — Turnitin report comparison and empirical evidence QA (2026-11-10)
