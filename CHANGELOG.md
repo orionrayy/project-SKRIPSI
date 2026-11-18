@@ -1,3 +1,9 @@
+## [Unreleased] — Windows matrix interpreter priority (2026-11-18)
+
+- The follow-up run after Git-blob restoration passed manifest verification on the Windows jobs, but one Windows/Python 3.12 job exposed that LibreOffice's embedded Python path shadowed the configured matrix interpreter.
+- Reordered CI so LibreOffice setup occurs before actions/setup-python. This preserves soffice discoverability while making the selected matrix Python the active interpreter for dependency installation and test execution.
+- The full six-job run after this ordering change is pending; no Windows matrix pass is claimed yet.
+
 ## [Unreleased] — Byte-exact manifest restoration for Windows PR checkout (2026-11-18)
 
 - Added a fail-closed helper that restores manifest-listed paths directly from Git blob bytes before the existing SHA-256 verifier, avoiding dependence on working-tree line-ending filters.
