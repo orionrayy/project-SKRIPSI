@@ -37,6 +37,55 @@ def slide_xml(shape_names: list[str]) -> bytes:
     return ET.tostring(root, encoding="utf-8", xml_declaration=True)
 
 
+def group_slide_xml(group_name: str, child_name: str) -> bytes:
+    root = ET.Element(f"{{{P}}}sld")
+    c_sld = ET.SubElement(root, f"{{{P}}}cSld")
+    tree = ET.SubElement(c_sld, f"{{{P}}}spTree")
+    group_nv = ET.SubElement(tree, f"{{{P}}}nvGrpSpPr")
+    ET.SubElement(group_nv, f"{{{P}}}cNvPr", {"id": "1", "name": ""})
+    ET.SubElement(group_nv, f"{{{P}}}cNvGrpSpPr")
+    ET.SubElement(group_nv, f"{{{P}}}nvPr")
+    ET.SubElement(tree, f"{{{P}}}grpSpPr")
+    group = ET.SubElement(tree, f"{{{P}}}grpSp")
+    nv = ET.SubElement(group, f"{{{P}}}nvGrpSpPr")
+    ET.SubElement(nv, f"{{{P}}}cNvPr", {"id": "2", "name": group_name})
+    ET.SubElement(nv, f"{{{P}}}cNvGrpSpPr")
+    ET.SubElement(nv, f"{{{P}}}nvPr")
+    group_props = ET.SubElement(group, f"{{{P}}}grpSpPr")
+    xfrm = ET.SubElement(group_props, f"{{{A}}}xfrm")
+    ET.SubElement(xfrm, f"{{{A}}}off", {"x": "0", "y": "0"})
+    ET.SubElement(xfrm, f"{{{A}}}ext", {"cx": "914400", "cy": "914400"})
+    ET.SubElement(xfrm, f"{{{A}}}chOff", {"x": "0", "y": "0"})
+    ET.SubElement(xfrm, f"{{{A}}}chExt", {"cx": "914400", "cy": "914400"})
+    shape = ET.SubElement(group, f"{{{P}}}sp")
+    sp_nv = ET.SubElement(shape, f"{{{P}}}nvSpPr")
+    ET.SubElement(sp_nv, f"{{{P}}}cNvPr", {"id": "3", "name": child_name})
+    ET.SubElement(sp_nv, f"{{{P}}}cNvSpPr")
+    ET.SubElement(sp_nv, f"{{{P}}}nvPr")
+    sppr = ET.SubElement(shape, f"{{{P}}}spPr")
+    geom = ET.SubElement(sppr, f"{{{A}}}prstGeom", {"prst": "ellipse"})
+    ET.SubElement(geom, f"{{{A}}}avLst")
+    return ET.tostring(root, encoding="utf-8", xml_declaration=True)
+
+
+def make_group_pair_deck(path: Path):
+    with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as z:
+        z.writestr("[Content_Types].xml", f'<Types xmlns="{CT}"/>')
+        z.writestr("ppt/presentation.xml", presentation_xml(2))
+        z.writestr("ppt/_rels/presentation.xml.rels", relationships_xml([1, 2]))
+        z.writestr("ppt/slides/slide1.xml", group_slide_xml("!!group", "!!child"))
+        z.writestr("ppt/slides/slide2.xml", group_slide_xml("!!group", "!!child"))
+
+
+def make_shape_to_group_deck(path: Path):
+    with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as z:
+        z.writestr("[Content_Types].xml", f'<Types xmlns="{CT}"/>')
+        z.writestr("ppt/presentation.xml", presentation_xml(2))
+        z.writestr("ppt/_rels/presentation.xml.rels", relationships_xml([1, 2]))
+        z.writestr("ppt/slides/slide1.xml", slide_xml(["!!object"]))
+        z.writestr("ppt/slides/slide2.xml", group_slide_xml("!!object", "child"))
+
+
 def presentation_xml(count: int) -> bytes:
     root = ET.Element(f"{{{P}}}presentation", {"xmlns:r": "http://schemas.openxmlformats.org/officeDocument/2006/relationships"})
     slide_list = ET.SubElement(root, f"{{{P}}}sldIdLst")
@@ -159,6 +208,36 @@ class MorphPatcherTests(unittest.TestCase):
             deck.write_bytes(b"not a zip file")
             report = inspect_deck(deck)
             self.assertFalse(report["ok"])
+
+
+class MorphObjectTypeTests(unittest.TestCase):
+    def test_inspector_accepts_consistent_group_and_nested_shape_pairs(self):
+        with tempfile.TemporaryDirectory() as temp:
+            deck = Path(temp) / "consistent-groups.pptx"
+            make_group_pair_deck(deck)
+            apply_morph(deck, [2])
+            report = inspect_deck(deck)
+            self.assertTrue(report["ok"], report["errors"])
+            self.assertEqual(
+                report["slides"][1]["forced_object_types"],
+                [
+                    {"name": "!!group", "object_type": "grpSp"},
+                    {"name": "!!child", "object_type": "sp"},
+                ],
+            )
+
+    def test_inspector_rejects_group_to_shape_type_mismatch(self):
+        with tempfile.TemporaryDirectory() as temp:
+            deck = Path(temp) / "shape-to-group.pptx"
+            make_shape_to_group_deck(deck)
+            apply_morph(deck, [2])
+            report = inspect_deck(deck)
+            self.assertFalse(report["ok"])
+            self.assertTrue(
+                any("forced Morph object !!object changes object type from sp to grpSp" in error
+                    for error in report["errors"]),
+                report["errors"],
+            )
 
 
 if __name__ == "__main__":

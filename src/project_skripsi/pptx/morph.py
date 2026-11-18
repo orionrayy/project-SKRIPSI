@@ -119,8 +119,40 @@ def _parse_slide(data: bytes, part: str) -> ET.Element:
         raise ValueError(f"Malformed XML in {part}: {exc}") from exc
 
 
+_OBJECT_NV_TAGS = {
+    "sp": "nvSpPr",
+    "pic": "nvPicPr",
+    "graphicFrame": "nvGraphicFramePr",
+    "cxnSp": "nvCxnSpPr",
+    "grpSp": "nvGrpSpPr",
+}
+
+
+def _forced_objects(root: ET.Element) -> list[tuple[str, str]]:
+    """Return forced Morph names with their OOXML object element types.
+
+    The cNvPr record is nested inside the corresponding shape container's
+    non-visual properties. Inspecting the parent container type prevents a
+    same-name group/shape or picture/shape pair from passing validation.
+    """
+    result: list[tuple[str, str]] = []
+    for element in root.iter():
+        object_type = element.tag.rsplit("}", 1)[-1]
+        nv_tag = _OBJECT_NV_TAGS.get(object_type)
+        if nv_tag is None:
+            continue
+        nonvisual = element.find(f"p:{nv_tag}/p:cNvPr", NS)
+        if nonvisual is None:
+            continue
+        name = nonvisual.get("name", "")
+        if name.startswith("!!"):
+            result.append((name, object_type))
+    return result
+
+
 def _names(root: ET.Element) -> list[str]:
-    return [node.get("name", "") for node in root.findall(".//p:cNvPr", NS) if node.get("name", "").startswith("!!")]
+    """Compatibility helper returning only the forced names."""
+    return [name for name, _ in _forced_objects(root)]
 
 
 def _morph(root: ET.Element) -> tuple[str | None, int | None, bool]:
@@ -302,10 +334,12 @@ def inspect_deck(path: str | Path) -> dict:
             if not slides:
                 errors.append("No usable slide sequence found")
                 return {"path": str(deck), "ok": False, "slide_count": 0, "morph_slides": [], "slides": [], "errors": errors}
-            previous: list[str] = []
+            previous: dict[str, str] = {}
             for display_number, (_, part) in enumerate(slides, start=1):
                 root = _parse_slide(archive.read(part), part)
-                object_names = _names(root)
+                object_pairs = _forced_objects(root)
+                object_names = [name for name, _ in object_pairs]
+                object_types = {name: object_type for name, object_type in object_pairs}
                 duplicates = sorted({name for name in object_names if object_names.count(name) > 1})
                 if duplicates:
                     errors.append(f"Slide {display_number}: duplicate forced object names {duplicates}")
@@ -355,17 +389,29 @@ def inspect_deck(path: str | Path) -> dict:
                         errors.append(f"Slide {display_number}: Morph duration missing or invalid")
                     if not fallback:
                         errors.append(f"Slide {display_number}: Fade fallback missing")
+                    changed_types = sorted(
+                        (name, previous[name], object_type)
+                        for name, object_type in object_pairs
+                        if name in previous and previous[name] != object_type
+                    )
+                    for name, prior_type, current_type in changed_types:
+                        errors.append(
+                            f"Slide {display_number}: forced Morph object {name} changes object type "
+                            f"from {prior_type} to {current_type}"
+                        )
                     unmatched = sorted(set(object_names) - set(previous))
                     if unmatched:
                         errors.append(f"Slide {display_number}: unpaired Morph objects {unmatched}")
                 report.append({
                     "number": display_number, "part": part,
                     "shape_count": len(root.findall(".//p:cNvPr", NS)),
-                    "forced_object_names": object_names, "morph": has_morph,
+                    "forced_object_names": object_names,
+                    "forced_object_types": [{"name": name, "object_type": kind} for name, kind in object_pairs],
+                    "morph": has_morph,
                     "morph_option": option, "duration_ms": duration, "fade_fallback": fallback,
                     "morph_requires": morph_requires,
                 })
-                previous = object_names
+                previous = object_types
     except (zipfile.BadZipFile, OSError, ValueError, ET.ParseError) as exc:
         errors.append(str(exc))
         return {"path": str(deck), "ok": False, "errors": errors}
