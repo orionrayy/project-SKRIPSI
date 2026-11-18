@@ -113,3 +113,12 @@ The CI workflow has been reordered so LibreOffice is installed first and `action
 The latest full matrix after interpreter-order correction passed Windows/Python 3.10 and 3.12. Windows/Python 3.11 failed one pre-existing stable-file-hash test because its fixture rewrote the same-length content and depended on filesystem timestamp resolution. The method-scaffold test's stderr was the expected second-call no-overwrite message and the test itself passed.
 
 The test fixture now changes both content and file size during the injected mutation, so the existing stable-hash metadata guard receives a deterministic size delta across filesystems. No production hashing behavior was relaxed. The next CI run is pending.
+
+
+## 9. Follow-up: genre fidelity and visual restraint (2026-11-18)
+
+The event-TOR composition case was extended from T5 to T7 after user feedback that the motif-led version looked excessively fancy and recognizable as a generic AI-style template. T6 records the over-designed result; T7 records a conventional understated candidate based on the supplied TOR reference: Times New Roman, centered formal title, ordinary bold section labels, numbered lists, label-value metadata, one restrained rule, one functional schedule table and no invented logo/motif system.
+
+The latest private TOR candidate is two A4 pages and is intentionally not included in this public repository. Its user acceptance remains pending. The public learning case contains no original document content, identity values, source PDF, final DOCX/PDF, original assets, private filenames or document hashes.
+
+The reusable rule is genre fidelity before decorative novelty. Document-family conventions, the actual organization identity and reader tasks determine the level of visual treatment. Visual restraint must not become cramped or unfinished; whitespace and pagination still require full-page review. Reader-task testing remains NOT_RUN and eye-tracking remains NOT_MEASURED. No P0-P9 phase, acceptance or authorization state changed.
