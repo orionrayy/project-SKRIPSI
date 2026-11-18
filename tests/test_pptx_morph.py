@@ -287,3 +287,18 @@ class MorphMarkupCompatibilityTests(unittest.TestCase):
             with zipfile.ZipFile(deck, "r") as archive:
                 patched_slide_1 = archive.read("ppt/slides/slide1.xml")
             self.assertEqual(patched_slide_1, original_slide_1)
+
+
+    def test_apply_twice_keeps_single_morph_transition(self):
+        with tempfile.TemporaryDirectory() as temp:
+            deck = Path(temp) / "idempotent-morph.pptx"
+            make_deck(deck)
+            apply_morph(deck, [2], duration_ms=950, option="byObject")
+            apply_morph(deck, [2], duration_ms=1200, option="byObject")
+            with zipfile.ZipFile(deck, "r") as archive:
+                xml = archive.read("ppt/slides/slide2.xml")
+            self.assertEqual(xml.count(b"<mc:AlternateContent"), 1)
+            self.assertEqual(xml.count(b"<p159:morph"), 1)
+            report = inspect_deck(deck)
+            self.assertTrue(report["ok"], report["errors"])
+            self.assertEqual(report["slides"][1]["duration_ms"], 1200)
