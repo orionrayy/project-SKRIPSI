@@ -90,3 +90,12 @@ The auditor measures static geometry proxies only: text-area ratio, text bounds,
 Candidate validation recorded in this branch: 7/7 dedicated unit tests pass; both new Draft 2020-12 schemas pass meta-schema validation; the synthetic event-TOR policy and a generated audit report validate against their schemas. The local TOR redesign is a separate private deliverable and is not included in this public repository. No private document, identity value, original asset, user file hash or raw case content was published.
 
 This addition changes no P0-P9 research phase, approval, acceptance, ledger record, or authorization. P2 remains `VALIDATION_PASSED_APPROVAL_PENDING` and P3-P9 remain `NOT_STARTED / NOT_AUTHORIZED`. The candidate must be reviewed and merged separately before it becomes the canonical main-branch implementation.
+
+
+## 9. Cross-platform manifest checkout remediation candidate
+
+The first pull-request CI run for visual-composition candidate head `8863c1de20e489e70a6d2d76b00fba44d324f003` passed all three Ubuntu jobs but failed the three Windows jobs at manifest verification before compile/tests. Its logs reported SHA-256 mismatches across many tracked text files. The earlier main-branch push run had passed Windows manifest verification; the precise cause has not been conclusively isolated.
+
+A fail-closed helper, `scripts/restore_manifest_blobs.py`, now restores only manifest-listed paths directly from Git blob bytes with `git cat-file`, validates manifest paths and rejects symlink targets, then lets the existing exact-byte verifier run. The CI workflow uses this helper before manifest verification. Three dedicated helper unit tests pass locally. The corrected manifest contains 140 entries.
+
+The follow-up CI run is pending. Do not call cross-platform CI complete until all six jobs pass. This is an engineering/checkout remediation only; no private files, research records, phase status, approval, or authorization were changed.
