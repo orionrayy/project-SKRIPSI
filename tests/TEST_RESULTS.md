@@ -1,3 +1,20 @@
+# Cross-platform manifest restoration candidate — 2026-11-18
+
+| Check | Result |
+|---|---:|
+| Git-blob restoration helper tests | **3/3 PASS (local)** |
+| Exact-byte write assertion | PASS |
+| Missing Git blob fail-closed test | PASS |
+| Path traversal rejection | PASS |
+| First feature PR Ubuntu matrix | **3/3 PASS** |
+| First feature PR Windows matrix | **3/3 FAIL at manifest verification** |
+| Follow-up six-job CI | PENDING |
+| Full repository suite on follow-up head | PENDING |
+
+The Windows failures occurred before compile and unit-test steps. Earlier main-branch push CI had passed the Windows manifest check. The follow-up candidate now restores manifest-listed files directly from Git blobs before invoking the existing exact-byte verifier. This is a remediation candidate, not yet a validated cross-platform resolution.
+
+---
+
 # Visual composition candidate validation — 2026-11-18
 
 | Check | Result |
