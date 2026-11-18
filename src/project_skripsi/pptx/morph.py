@@ -332,9 +332,9 @@ def inspect_deck(path: str | Path) -> dict:
                             and morph_transition.get(_q("p14", "dur")) is not None
                         )
                         slide_xml = archive.read(part)
-                        choice_tag = re.search(rb'<mc:Choice\\b[^>]*>', slide_xml)
+                        choice_tag = re.search(rb'<mc:Choice\b[^>]*>', slide_xml)
                         transition_tag = re.search(
-                            rb'<mc:Choice\\b[^>]*>.*?(<p:transition\\b[^>]*>)',
+                            rb'<mc:Choice\b[^>]*>.*?(<p:transition\b[^>]*>)',
                             slide_xml,
                             re.DOTALL,
                         )
