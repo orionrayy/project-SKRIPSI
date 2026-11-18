@@ -1,3 +1,9 @@
+## [Unreleased] — Deterministic stable-hash mutation test (2026-11-18)
+
+- Changed the existing stable-file-hash regression fixture to mutate the file to a different byte length, so the test does not depend on sub-second modification-time precision on Windows.
+- Production hash validation is unchanged. The prior 5/6 result had two Ubuntu and two Windows successes plus one Windows/Python 3.11 failure in that single flaky test; Windows/Python 3.10 and 3.12 had passed.
+- Follow-up full matrix after the fixture correction is pending.
+
 ## [Unreleased] — Windows matrix interpreter priority (2026-11-18)
 
 - The follow-up run after Git-blob restoration passed manifest verification on the Windows jobs, but one Windows/Python 3.12 job exposed that LibreOffice's embedded Python path shadowed the configured matrix interpreter.
