@@ -106,3 +106,10 @@ The follow-up CI run is pending. Do not call cross-platform CI complete until al
 The follow-up CI after exact Git-blob restoration showed all six jobs passed the manifest restoration and exact-byte verification steps. One Windows/Python 3.12 job then failed unit tests because the LibreOffice installation step added its embedded Python directory to PATH ahead of the matrix interpreter; the log showed missing `fitz` and `jsonschema` and imports from LibreOffice's embedded Python. This is an environment-ordering defect, not a visual-composition audit failure.
 
 The CI workflow has been reordered so LibreOffice is installed first and `actions/setup-python` runs afterwards, preserving `soffice` discovery while restoring the requested matrix interpreter to PATH priority. The next six-job run is pending. Do not claim Windows matrix acceptance until all jobs complete successfully.
+
+
+## 11. Deterministic Windows regression fixture
+
+The latest full matrix after interpreter-order correction passed Windows/Python 3.10 and 3.12. Windows/Python 3.11 failed one pre-existing stable-file-hash test because its fixture rewrote the same-length content and depended on filesystem timestamp resolution. The method-scaffold test's stderr was the expected second-call no-overwrite message and the test itself passed.
+
+The test fixture now changes both content and file size during the injected mutation, so the existing stable-hash metadata guard receives a deterministic size delta across filesystems. No production hashing behavior was relaxed. The next CI run is pending.
