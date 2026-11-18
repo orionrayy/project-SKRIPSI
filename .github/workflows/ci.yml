@@ -12,7 +12,6 @@ permissions:
 jobs:
   test:
     # The initial archive bootstrap commit is intentionally not a testable source tree.
-    # The full matrix runs on the subsequent expanded-source commit.
     if: ${{ github.event_name != 'push' || !contains(github.event.head_commit.message, '[bootstrap]') }}
     strategy:
       fail-fast: false
@@ -22,19 +21,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - name: Restore manifest-listed files from exact Git blob bytes
-        shell: bash
-        run: |
-          git config core.autocrlf false
-          git config core.eol lf
-          python scripts/restore_manifest_blobs.py
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Verify public source manifest (cross-platform)
-        run: python scripts/verify_manifest.py
-      - name: Install optional document QA dependencies
-        run: python -m pip install "python-docx>=1.1" "PyMuPDF>=1.24" "jsonschema>=4.22"
+
+      # Install the renderer before setup-python. On Windows, LibreOffice adds its
+      # embedded Python directory to PATH; setup-python must run afterwards so the
+      # matrix interpreter remains first while soffice stays discoverable.
       - name: Install LibreOffice for rendered document integration tests (Ubuntu)
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y libreoffice
@@ -48,6 +38,21 @@ jobs:
           if (-not (Test-Path $soffice)) { throw "LibreOffice executable not found at $soffice" }
           $loPath | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           & $soffice --headless --version
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Restore manifest-listed files from exact Git blob bytes
+        shell: bash
+        run: |
+          git config core.autocrlf false
+          git config core.eol lf
+          python scripts/restore_manifest_blobs.py
+      - name: Verify public source manifest (cross-platform)
+        run: python scripts/verify_manifest.py
+      - name: Install optional document QA dependencies
+        run: python -m pip install "python-docx>=1.1" "PyMuPDF>=1.24" "jsonschema>=4.22"
       - name: Compile package
         run: python -m compileall -q src scripts tests
       - name: Validate reference research ledger
