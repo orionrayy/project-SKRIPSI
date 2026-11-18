@@ -1,3 +1,19 @@
+# Visual composition candidate validation — 2026-11-18
+
+| Check | Result |
+|---|---:|
+| Dedicated visual composition unit tests | **7/7 PASS** |
+| New Draft 2020-12 schemas (meta-validation) | **2/2 PASS** |
+| Event-TOR policy schema instance | PASS |
+| Generated audit report schema instance | PASS |
+| Reader-task test | NOT_RUN |
+| Eye-tracking evidence | NOT_MEASURED |
+| Full repository suite on this candidate branch | NOT_RUN |
+
+The audit operates on synthetic PDF test fixtures. The separate local TOR output was inspected and audited outside the public repository; its source files, identity fields, assets and per-document report are not included here. A profile-specific geometry PASS does not certify aesthetic quality, reader comprehension, institutional compliance or human acceptance.
+
+---
+
 # Project-SKRIPSI v0.8.0 — Public Platform Test Results
 
 **Release checkpoint:** 2026-11-10 (Asia/Jakarta)
