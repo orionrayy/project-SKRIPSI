@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/project-skripsi/schemas/quality/visual-composition-audit.schema.json",
+  "title": "Privacy-minimizing rendered PDF visual composition audit",
+  "type": "object",
+  "required": ["schema_version", "status", "audited_at", "assessment_scope", "profile_id", "reader_attention", "summary", "pages", "findings"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "status": {"enum": ["PASS", "WARN", "FAIL"]},
+    "audited_at": {"type": "string", "format": "date-time"},
+    "assessment_scope": {"const": "PDF_LAYOUT_PROXIES_ONLY_NOT_EYE_TRACKING_OR_AESTHETIC_ACCEPTANCE"},
+    "profile_id": {"type": ["string", "null"]},
+    "reader_attention": {
+      "type": "object",
+      "required": ["eye_tracking_status", "reader_task_test_status", "note"],
+      "properties": {
+        "eye_tracking_status": {"const": "NOT_MEASURED"},
+        "reader_task_test_status": {"enum": ["NOT_RUN", "PASS", "WARN", "FAIL", "NOT_APPLICABLE"]},
+        "note": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "summary": {
+      "type": "object",
+      "required": ["page_count", "error_count", "warning_count", "policy_threshold_count"],
+      "properties": {
+        "page_count": {"type": "integer", "minimum": 1},
+        "error_count": {"type": "integer", "minimum": 0},
+        "warning_count": {"type": "integer", "minimum": 0},
+        "policy_threshold_count": {"type": "integer", "minimum": 0, "maximum": 6}
+      },
+      "additionalProperties": false
+    },
+    "pages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["page_number", "page_size_pt", "text_area_ratio", "text_content_bounds_ratio", "margin_band_ratios", "text_block_count", "text_line_count", "text_span_count", "distinct_font_size_count", "font_sizes_pt", "body_median_font_size_pt", "heading_median_font_size_pt", "heading_body_size_ratio", "font_families", "rectangle_shape_count", "repeated_rectangle_size_max_count", "drawing_item_counts", "embedded_image_count"],
+        "properties": {
+          "page_number": {"type": "integer", "minimum": 1},
+          "page_size_pt": {"type": "array", "prefixItems": [{"type": "number", "exclusiveMinimum": 0}, {"type": "number", "exclusiveMinimum": 0}], "minItems": 2, "maxItems": 2},
+          "text_area_ratio": {"type": "number", "minimum": 0, "maximum": 1},
+          "text_content_bounds_ratio": {"type": "number", "minimum": 0, "maximum": 1},
+          "margin_band_ratios": {
+            "type": "object",
+            "required": ["top", "right", "bottom", "left"],
+            "properties": {
+              "top": {"type": "number", "minimum": 0, "maximum": 1},
+              "right": {"type": "number", "minimum": 0, "maximum": 1},
+              "bottom": {"type": "number", "minimum": 0, "maximum": 1},
+              "left": {"type": "number", "minimum": 0, "maximum": 1}
+            },
+            "additionalProperties": false
+          },
+          "text_block_count": {"type": "integer", "minimum": 0},
+          "text_line_count": {"type": "integer", "minimum": 0},
+          "text_span_count": {"type": "integer", "minimum": 0},
+          "distinct_font_size_count": {"type": "integer", "minimum": 0},
+          "font_sizes_pt": {"type": "array", "items": {"type": "number", "exclusiveMinimum": 0}},
+          "body_median_font_size_pt": {"type": ["number", "null"], "exclusiveMinimum": 0},
+          "heading_median_font_size_pt": {"type": ["number", "null"], "exclusiveMinimum": 0},
+          "heading_body_size_ratio": {"type": ["number", "null"], "exclusiveMinimum": 0},
+          "font_families": {"type": "array", "items": {"type": "string"}},
+          "rectangle_shape_count": {"type": "integer", "minimum": 0},
+          "repeated_rectangle_size_max_count": {"type": "integer", "minimum": 0},
+          "drawing_item_counts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+          "embedded_image_count": {"type": "integer", "minimum": 0}
+        },
+        "additionalProperties": false
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "severity", "message"],
+        "properties": {
+          "code": {"type": "string", "minLength": 1},
+          "severity": {"enum": ["WARNING", "ERROR"]},
+          "page_number": {"type": "integer", "minimum": 1},
+          "message": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
