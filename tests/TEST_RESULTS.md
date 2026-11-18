@@ -1,3 +1,18 @@
+# Deterministic Windows stable-hash regression fixture — 2026-11-18
+
+| Check | Result |
+|---|---:|
+| Dedicated visual-composition tests | **7/7 PASS (local)** |
+| Git-blob restoration tests | **3/3 PASS (local)** |
+| Combined focused tests | **10/10 PASS (local)** |
+| Latest matrix before fixture correction | 5/6 jobs PASS; Windows/Python 3.11 failed the same-length mutation timing test |
+| Windows manifest restore + verification | PASS on all three Windows jobs |
+| Windows matrix interpreter selection | Corrected and verified in Python 3.10, 3.11 and 3.12 job setup |
+| Stable-hash test fixture | Changed to deterministic file-size mutation |
+| Next six-job CI run | PENDING |
+
+The method-scaffold "already exists" message is the expected second invocation's stderr; the corresponding test status was ok. No production hashing logic has been weakened.
+
 # Windows matrix interpreter-order candidate — 2026-11-18
 
 | Check | Result |
