@@ -3,7 +3,7 @@
 ## [Unreleased] — PowerPoint Morph control correction (2026-11-18)
 
 - Reconciled Morph namespace documentation with the writer and regression tests: the generated Choice uses `Requires="p159"`; `p159` is declared on `mc:Choice`, while `p14` is declared locally on the Morph `p:transition` carrying `p14:dur`.
-- Added a diagnostic comparison based on the uploaded six-slide grouped-object deck: an original-name baseline and a variant forcing the lower group name to `!!large-ball` across all six slides. Both contain Morph on destination slides 2–6 and pass package/XML/render checks.
+- Added three diagnostic variants based on the uploaded six-slide grouped-object deck: original names, lower-group forced name `!!large-ball`, and nested child-freeform forced name `!!large-ball-path`. All contain Morph on destination slides 2–6 and pass package/XML/static-render checks.
 - GitHub Actions run #143 completed **6/6 matrix jobs**, each passing 220 tests plus manifest, compile, phase-ledger and CLI checks.
 - Microsoft PowerPoint playback remains NOT_VERIFIED; local static rendering is not Morph-engine evidence.
 
