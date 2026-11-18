@@ -1,8 +1,8 @@
 # ORCHESTRATION_MEMORY — Public Canonical Project Memory
 
-**Memory version:** 1.4.0  
+**Memory version:** 1.5.0  
 **Project:** `orionrayy/project-SKRIPSI`  
-**Updated:** 2026-11-10 (Asia/Jakarta)  
+**Updated:** 2026-11-18 (Asia/Jakarta)  
 **Platform baseline:** 0.8.0  
 **Repository visibility:** public (pre-existing setting; no setting change made).
 
@@ -75,3 +75,18 @@ On every invocation:
 4. Continue the earliest incomplete authorized work item. Preserve P0 and P1 accepted scopes; P2 remains `VALIDATION_PASSED_APPROVAL_PENDING` with APR-P2-001 blank; P3–P9 remain `NOT_STARTED / NOT_AUTHORIZED`.
 5. The project owner's standing instruction to continue implementation without repeated operational approvals does not allow the system to invent a P2 acceptance decision, waive research ethics or source restrictions, or self-authorize P3–P9. Keep execution authorization, human acceptance, and evidence validation separate.
 6. Update the canonical ledger and this memory only from verified repository and artifact evidence. Do not claim a workflow, package installation, external review, or academic acceptance unless its actual result is observed.
+
+
+## 8. Visual composition and reader-task engineering candidate
+
+A new additive feature candidate is being reviewed on branch `feature/visual-composition-reader-attention-v0.1.0`, based on the verified `main` head `2ddab892c9c4c927930e8424280a32f49ea0600e`. It is not merged or released.
+
+The candidate adds a privacy-minimizing rendered-PDF composition auditor, a CLI wrapper, synthetic regression tests, profile and audit schemas, an event-TOR composition profile, a sanitized iteration-learning case, and generic design/reader-task guidance. Its purpose is to complement document layout preservation with visual composition and reader-usability checks.
+
+The guidance separates four acceptance dimensions: content integrity, layout integrity, visual composition and reader usability. It discourages box/card overuse, promotes document-family-specific motif systems, intentional whitespace, typographic hierarchy, page-to-page rhythm and task-oriented scanability. It does not assert a universal attention-span duration.
+
+The auditor measures static geometry proxies only: text-area ratio, text bounds, margin bands, font size/family distribution, approximate heading/body size contrast, vector rectangle counts and image counts. It deliberately reports eye-tracking as `NOT_MEASURED`; the reader task test remains `NOT_RUN` unless a human test is performed. A configured mechanical PASS is not a visual acceptance or user approval.
+
+Candidate validation recorded in this branch: 7/7 dedicated unit tests pass; both new Draft 2020-12 schemas pass meta-schema validation; the synthetic event-TOR policy and a generated audit report validate against their schemas. The local TOR redesign is a separate private deliverable and is not included in this public repository. No private document, identity value, original asset, user file hash or raw case content was published.
+
+This addition changes no P0-P9 research phase, approval, acceptance, ledger record, or authorization. P2 remains `VALIDATION_PASSED_APPROVAL_PENDING` and P3-P9 remain `NOT_STARTED / NOT_AUTHORIZED`. The candidate must be reviewed and merged separately before it becomes the canonical main-branch implementation.
