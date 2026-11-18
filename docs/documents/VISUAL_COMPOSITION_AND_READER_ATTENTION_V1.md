@@ -98,3 +98,18 @@ T5 remains pending user review and is not a universal template.
 - Chiu, T.-Y., & Drieghe, D. (2023). The role of visual crowding in eye movements during reading: Effects of text spacing. Attention, Perception, & Psychophysics, 85, 2834–2858. https://doi.org/10.3758/s13414-023-02787-1
 
 The eye-tracking sources primarily concern web scanning and controlled reading experiments. Chiu and Drieghe report spacing-related changes in fixation behavior, but some line-spacing effects were subtle and not uniformly beneficial. These findings inform hypotheses; they do not justify maximizing whitespace or transferring one layout to every document.
+
+
+## 9. Genre fidelity and restrained visual authorship
+
+A later review found that the open editorial/motif-led T5 TOR still looked like a conspicuous generated design template. The oversized display heading, moon illustration, repeated ornamental dots, gold-green accents and decorative timeline were not grounded in any supplied organization identity or brand system.
+
+For document families with established office conventions, use those conventions as the default:
+- Follow the supplied real-world reference's typographic and structural grammar before inventing a new visual system.
+- Prefer a coherent type family, ordinary section labels, numbered lists and label-value metadata where those conventions fit the document.
+- Use rules and tables only for functional separation or genuine row/column relationships.
+- Do not invent organization logos, symbolic motifs, brand colors or decorative marks.
+- Keep visual emphasis proportional to information importance. Distinctiveness can come from accurate content, hierarchy, alignment and careful spacing rather than ornamental complexity.
+- Avoid overcorrecting into compressed, monotonous or unfinished pages; review spacing and page balance after removing decoration.
+
+The sanitized case now records T6 (over-designed motif-led candidate) and T7 (conventional understated TOR). The private V3 DOCX/PDF are not included in the public repository. The candidate remains pending user acceptance; no user approval is inferred.
