@@ -1,3 +1,11 @@
+## [Unreleased] — Byte-exact manifest restoration for Windows PR checkout (2026-11-18)
+
+- Added a fail-closed helper that restores manifest-listed paths directly from Git blob bytes before the existing SHA-256 verifier, avoiding dependence on working-tree line-ending filters.
+- Added three synthetic unit tests for exact byte restoration, missing blobs and traversal rejection.
+- Updated the CI workflow to restore exact Git blob bytes before cross-platform manifest verification.
+- Initial PR run: 3/3 Ubuntu jobs passed; 3/3 Windows jobs failed at manifest verification before unit tests. The earlier main-branch push run had passed manifest verification on Windows. The checkout-context cause is not yet conclusively isolated.
+- Local helper tests: 3/3 PASS. Follow-up six-job CI run pending. No full-suite or cross-platform pass is claimed.
+
 ## [Unreleased] — Visual composition and reader-task diagnostics (2026-11-18)
 
 - Added an optional rendered-PDF composition auditor and source-checkout CLI. It reports profile-configured geometry proxies for text-area ratio, text bounds, margin bands, typographic levels, rectangle counts and image counts; it does not store extracted text or file paths.
