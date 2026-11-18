@@ -7,6 +7,7 @@ The patcher uses only Python's standard library; it does not automate Office.
 from __future__ import annotations
 
 import argparse
+import io
 import json
 import os
 import posixpath
@@ -137,6 +138,87 @@ def _morph(root: ET.Element) -> tuple[str | None, int | None, bool]:
     return None, None, False
 
 
+def _strip_existing_transition_markup(data: bytes) -> bytes:
+    """Remove existing direct slide-transition markup without reserializing the slide."""
+    alternate_pattern = re.compile(
+        rb'<(?P<prefix>(?:[A-Za-z_][\\w.-]*:)?)AlternateContent\\b[^>]*>.*?</(?P=prefix)AlternateContent\\s*>',
+        re.DOTALL,
+    )
+    for match in reversed(list(alternate_pattern.finditer(data))):
+        if re.search(rb'<(?:[A-Za-z_][\\w.-]*:)?transition\\b', match.group(0)):
+            data = data[:match.start()] + data[match.end():]
+
+    paired_transition_pattern = re.compile(
+        rb'<(?P<prefix>(?:[A-Za-z_][\\w.-]*:)?)transition\\b[^>]*>.*?</(?P=prefix)transition\\s*>',
+        re.DOTALL,
+    )
+    data = paired_transition_pattern.sub(b"", data)
+    empty_transition_pattern = re.compile(
+        rb'<(?:[A-Za-z_][\\w.-]*:)?transition\\b[^>]*/\\s*>'
+    )
+    return empty_transition_pattern.sub(b"", data)
+
+
+def _patch_slide_transition(data: bytes, duration_ms: int, option: str, part: str) -> bytes:
+    """Insert PowerPoint-authored Morph markup while preserving all other slide XML bytes.
+
+    The namespace declarations intentionally stay on the MCE Choice and transition
+    elements. PowerPoint-authored Morph examples use p159 on mc:Choice and p14 on
+    p:transition; the p14 duration attribute does not need p14 in Requires.
+    """
+    root = _parse_slide(data, part)
+    if root.tag != _q("p", "sld"):
+        raise ValueError(f"Unexpected slide root element in {part}: {root.tag}")
+
+    slide_prefix = ""
+    for _, (prefix, namespace) in ET.iterparse(io.BytesIO(data), events=("start-ns",)):
+        if namespace == NS["p"]:
+            slide_prefix = prefix
+            break
+
+    clean = _strip_existing_transition_markup(data)
+    root = _parse_slide(clean, part)
+    direct_tags = {child.tag for child in list(root)}
+    if _q("p", "clrMapOvr") in direct_tags:
+        anchor = "clrMapOvr"
+    elif _q("p", "cSld") in direct_tags:
+        anchor = "cSld"
+    else:
+        anchor = None
+
+    pfx = f"{slide_prefix}:" if slide_prefix else ""
+    if anchor is not None:
+        closing = re.compile(
+            rb"</" + re.escape(f"{pfx}{anchor}".encode("ascii")) + rb"\\s*>"
+        )
+        matches = list(closing.finditer(clean))
+        if not matches:
+            raise ValueError(f"Could not locate closing {anchor} element in {part}")
+        insert_at = matches[-1].end()
+    else:
+        root_close = re.compile(
+            rb"</" + re.escape(f"{pfx}sld".encode("ascii")) + rb"\\s*>"
+        )
+        match = root_close.search(clean)
+        if not match:
+            raise ValueError(f"Could not locate closing slide root in {part}")
+        insert_at = match.start()
+
+    fragment = (
+        f'<mc:AlternateContent xmlns:mc="{NS["mc"]}" xmlns:p="{NS["p"]}">'
+        f'<mc:Choice xmlns:p159="{NS["p159"]}" Requires="p159">'
+        f'<p:transition spd="slow" advClick="1" xmlns:p14="{NS["p14"]}" p14:dur="{duration_ms}">'
+        f'<p159:morph option="{option}"/>'
+        f'</p:transition>'
+        f'</mc:Choice>'
+        f'<mc:Fallback><p:transition spd="slow" advClick="1"><p:fade/></p:transition></mc:Fallback>'
+        f'</mc:AlternateContent>'
+    ).encode("utf-8")
+    patched = clean[:insert_at] + fragment + clean[insert_at:]
+    _parse_slide(patched, part)
+    return patched
+
+
 def apply_morph(
     source: str | Path,
     slide_numbers: Iterable[int],
@@ -175,25 +257,12 @@ def apply_morph(
         raise ValueError("Input is not a valid PPTX/ZIP package") from exc
 
     patched: dict[str, bytes] = {}
+    slide_data = {info.filename: data for info, data in entries}
     for display_number in requested:
         _, part = slides[display_number - 1]
-        root = _parse_slide(next(data for info, data in entries if info.filename == part), part)
-        for child in list(root):
-            local = child.tag.rsplit("}", 1)[-1]
-            if local == "transition" or (local == "AlternateContent" and child.find(".//p:transition", NS) is not None):
-                root.remove(child)
-        alternate = ET.Element(_q("mc", "AlternateContent"))
-        choice = ET.SubElement(alternate, _q("mc", "Choice"), {"Requires": "p14 p159"})
-        transition = ET.SubElement(choice, _q("p", "transition"), {
-            "spd": "slow", "advClick": "1", _q("p14", "dur"): str(duration_ms)
-        })
-        ET.SubElement(transition, _q("p159", "morph"), {"option": option})
-        fallback = ET.SubElement(alternate, _q("mc", "Fallback"))
-        fade = ET.SubElement(fallback, _q("p", "transition"), {"spd": "slow", "advClick": "1"})
-        ET.SubElement(fade, _q("p", "fade"))
-        insert_at = next((i for i, child in enumerate(root) if child.tag in {_q("p", "timing"), _q("p", "extLst")}), len(root))
-        root.insert(insert_at, alternate)
-        patched[part] = ET.tostring(root, encoding="utf-8", xml_declaration=True)
+        patched[part] = _patch_slide_transition(
+            slide_data[part], duration_ms=duration_ms, option=option, part=part
+        )
 
     dst.parent.mkdir(parents=True, exist_ok=True)
     fd, temp_name = tempfile.mkstemp(prefix=f".{dst.name}.", suffix=".tmp", dir=dst.parent)
@@ -262,9 +331,23 @@ def inspect_deck(path: str | Path) -> dict:
                             morph_transition is not None
                             and morph_transition.get(_q("p14", "dur")) is not None
                         )
-                        if has_p14_duration and "p14" not in morph_requires:
+                        slide_xml = archive.read(part)
+                        choice_tag = re.search(rb'<mc:Choice\\b[^>]*>', slide_xml)
+                        transition_tag = re.search(
+                            rb'<mc:Choice\\b[^>]*>.*?(<p:transition\\b[^>]*>)',
+                            slide_xml,
+                            re.DOTALL,
+                        )
+                        if choice_tag is None or f'xmlns:p159="{NS["p159"]}"'.encode() not in choice_tag.group(0):
                             errors.append(
-                                f"Slide {display_number}: Morph Choice Requires is missing p14 for p14:dur"
+                                f"Slide {display_number}: p159 namespace must be declared on mc:Choice"
+                            )
+                        if has_p14_duration and (
+                            transition_tag is None
+                            or f'xmlns:p14="{NS["p14"]}"'.encode() not in transition_tag.group(1)
+                        ):
+                            errors.append(
+                                f"Slide {display_number}: p14 namespace must be declared on the Morph p:transition"
                             )
                     if option not in OPTIONS:
                         errors.append(f"Slide {display_number}: unsupported Morph option {option!r}")
