@@ -22,12 +22,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - name: Preserve byte-exact checkout for manifest integrity
+      - name: Restore manifest-listed files from exact Git blob bytes
         shell: bash
         run: |
           git config core.autocrlf false
           git config core.eol lf
-          git checkout-index --force --all
+          python scripts/restore_manifest_blobs.py
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
