@@ -1,3 +1,10 @@
+## [Unreleased] — Restrained genre-fidelity refinement (2026-11-18)
+
+- Extended the sanitized event-TOR learning case with T6 (motif-led over-design) and T7 (conventional understated layout) after user feedback that the decorative treatment looked like a generic AI design template.
+- Added a genre-fidelity rule: follow the supplied document family's real conventions before inventing motifs, logos, color systems or decorative elements.
+- The two-page private TOR V3 is not included in the public repository; the public case records only sanitized design symptoms and reusable lessons. User acceptance remains pending.
+- No research phase, phase authorization, or human-acceptance state changed.
+
 ## [Unreleased] — Deterministic stable-hash mutation test (2026-11-18)
 
 - Changed the existing stable-file-hash regression fixture to mutate the file to a different byte length, so the test does not depend on sub-second modification-time precision on Windows.
