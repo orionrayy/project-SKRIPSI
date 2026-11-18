@@ -1,3 +1,39 @@
+## [Unreleased] — Restrained genre-fidelity refinement (2026-11-18)
+
+- Extended the sanitized event-TOR learning case with T6 (motif-led over-design) and T7 (conventional understated layout) after user feedback that the decorative treatment looked like a generic AI design template.
+- Added a genre-fidelity rule: follow the supplied document family's real conventions before inventing motifs, logos, color systems or decorative elements.
+- The two-page private TOR V3 is not included in the public repository; the public case records only sanitized design symptoms and reusable lessons. User acceptance remains pending.
+- No research phase, phase authorization, or human-acceptance state changed.
+
+## [Unreleased] — Deterministic stable-hash mutation test (2026-11-18)
+
+- Changed the existing stable-file-hash regression fixture to mutate the file to a different byte length, so the test does not depend on sub-second modification-time precision on Windows.
+- Production hash validation is unchanged. The prior 5/6 result had two Ubuntu and two Windows successes plus one Windows/Python 3.11 failure in that single flaky test; Windows/Python 3.10 and 3.12 had passed.
+- Follow-up full matrix after the fixture correction is pending.
+
+## [Unreleased] — Windows matrix interpreter priority (2026-11-18)
+
+- The follow-up run after Git-blob restoration passed manifest verification on the Windows jobs, but one Windows/Python 3.12 job exposed that LibreOffice's embedded Python path shadowed the configured matrix interpreter.
+- Reordered CI so LibreOffice setup occurs before actions/setup-python. This preserves soffice discoverability while making the selected matrix Python the active interpreter for dependency installation and test execution.
+- The full six-job run after this ordering change is pending; no Windows matrix pass is claimed yet.
+
+## [Unreleased] — Byte-exact manifest restoration for Windows PR checkout (2026-11-18)
+
+- Added a fail-closed helper that restores manifest-listed paths directly from Git blob bytes before the existing SHA-256 verifier, avoiding dependence on working-tree line-ending filters.
+- Added three synthetic unit tests for exact byte restoration, missing blobs and traversal rejection.
+- Updated the CI workflow to restore exact Git blob bytes before cross-platform manifest verification.
+- Initial PR run: 3/3 Ubuntu jobs passed; 3/3 Windows jobs failed at manifest verification before unit tests. The earlier main-branch push run had passed manifest verification on Windows. The checkout-context cause is not yet conclusively isolated.
+- Local helper tests: 3/3 PASS. Follow-up six-job CI run pending. No full-suite or cross-platform pass is claimed.
+
+## [Unreleased] — Visual composition and reader-task diagnostics (2026-11-18)
+
+- Added an optional rendered-PDF composition auditor and source-checkout CLI. It reports profile-configured geometry proxies for text-area ratio, text bounds, margin bands, typographic levels, rectangle counts and image counts; it does not store extracted text or file paths.
+- Added seven synthetic PDF regression tests, a profile contract, an audit-report schema and an event-TOR-specific diagnostic profile.
+- Added a sanitized event-TOR iteration case and design guidance that separates content integrity, layout integrity, visual composition and reader usability.
+- Clarified that scanning patterns are task-dependent and that a fixed "attention span" timer is not an evidence-based acceptance rule. Eye-tracking remains NOT_MEASURED unless actual eye-tracking data is collected; reader-task status defaults to NOT_RUN.
+- Validation for this feature candidate: 7/7 dedicated tests PASS; 2/2 new schemas pass Draft 2020-12 meta-schema checks; profile and generated report instances validate. The complete repository regression suite was not re-run in this feature branch.
+- No P0-P9 research phase, authorization, acceptance, dataset or ledger status changed. The candidate is not merged or released.
+
 # Changelog
 
 ## 0.8.0 — Turnitin report comparison and empirical evidence QA (2026-11-10)

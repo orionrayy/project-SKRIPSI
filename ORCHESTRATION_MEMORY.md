@@ -1,8 +1,8 @@
 # ORCHESTRATION_MEMORY — Public Canonical Project Memory
 
-**Memory version:** 1.4.0  
+**Memory version:** 1.5.0  
 **Project:** `orionrayy/project-SKRIPSI`  
-**Updated:** 2026-11-10 (Asia/Jakarta)  
+**Updated:** 2026-11-18 (Asia/Jakarta)  
 **Platform baseline:** 0.8.0  
 **Repository visibility:** public (pre-existing setting; no setting change made).
 
@@ -75,3 +75,50 @@ On every invocation:
 4. Continue the earliest incomplete authorized work item. Preserve P0 and P1 accepted scopes; P2 remains `VALIDATION_PASSED_APPROVAL_PENDING` with APR-P2-001 blank; P3–P9 remain `NOT_STARTED / NOT_AUTHORIZED`.
 5. The project owner's standing instruction to continue implementation without repeated operational approvals does not allow the system to invent a P2 acceptance decision, waive research ethics or source restrictions, or self-authorize P3–P9. Keep execution authorization, human acceptance, and evidence validation separate.
 6. Update the canonical ledger and this memory only from verified repository and artifact evidence. Do not claim a workflow, package installation, external review, or academic acceptance unless its actual result is observed.
+
+
+## 8. Visual composition and reader-task engineering candidate
+
+A new additive feature candidate is being reviewed on branch `feature/visual-composition-reader-attention-v0.1.0`, based on the verified `main` head `2ddab892c9c4c927930e8424280a32f49ea0600e`. It is not merged or released.
+
+The candidate adds a privacy-minimizing rendered-PDF composition auditor, a CLI wrapper, synthetic regression tests, profile and audit schemas, an event-TOR composition profile, a sanitized iteration-learning case, and generic design/reader-task guidance. Its purpose is to complement document layout preservation with visual composition and reader-usability checks.
+
+The guidance separates four acceptance dimensions: content integrity, layout integrity, visual composition and reader usability. It discourages box/card overuse, promotes document-family-specific motif systems, intentional whitespace, typographic hierarchy, page-to-page rhythm and task-oriented scanability. It does not assert a universal attention-span duration.
+
+The auditor measures static geometry proxies only: text-area ratio, text bounds, margin bands, font size/family distribution, approximate heading/body size contrast, vector rectangle counts and image counts. It deliberately reports eye-tracking as `NOT_MEASURED`; the reader task test remains `NOT_RUN` unless a human test is performed. A configured mechanical PASS is not a visual acceptance or user approval.
+
+Candidate validation recorded in this branch: 7/7 dedicated unit tests pass; both new Draft 2020-12 schemas pass meta-schema validation; the synthetic event-TOR policy and a generated audit report validate against their schemas. The local TOR redesign is a separate private deliverable and is not included in this public repository. No private document, identity value, original asset, user file hash or raw case content was published.
+
+This addition changes no P0-P9 research phase, approval, acceptance, ledger record, or authorization. P2 remains `VALIDATION_PASSED_APPROVAL_PENDING` and P3-P9 remain `NOT_STARTED / NOT_AUTHORIZED`. The candidate must be reviewed and merged separately before it becomes the canonical main-branch implementation.
+
+
+## 9. Cross-platform manifest checkout remediation candidate
+
+The first pull-request CI run for visual-composition candidate head `8863c1de20e489e70a6d2d76b00fba44d324f003` passed all three Ubuntu jobs but failed the three Windows jobs at manifest verification before compile/tests. Its logs reported SHA-256 mismatches across many tracked text files. The earlier main-branch push run had passed Windows manifest verification; the precise cause has not been conclusively isolated.
+
+A fail-closed helper, `scripts/restore_manifest_blobs.py`, now restores only manifest-listed paths directly from Git blob bytes with `git cat-file`, validates manifest paths and rejects symlink targets, then lets the existing exact-byte verifier run. The CI workflow uses this helper before manifest verification. Three dedicated helper unit tests pass locally. The corrected manifest contains 140 entries.
+
+The follow-up CI run is pending. Do not call cross-platform CI complete until all six jobs pass. This is an engineering/checkout remediation only; no private files, research records, phase status, approval, or authorization were changed.
+
+
+## 10. Windows matrix interpreter-priority remediation
+
+The follow-up CI after exact Git-blob restoration showed all six jobs passed the manifest restoration and exact-byte verification steps. One Windows/Python 3.12 job then failed unit tests because the LibreOffice installation step added its embedded Python directory to PATH ahead of the matrix interpreter; the log showed missing `fitz` and `jsonschema` and imports from LibreOffice's embedded Python. This is an environment-ordering defect, not a visual-composition audit failure.
+
+The CI workflow has been reordered so LibreOffice is installed first and `actions/setup-python` runs afterwards, preserving `soffice` discovery while restoring the requested matrix interpreter to PATH priority. The next six-job run is pending. Do not claim Windows matrix acceptance until all jobs complete successfully.
+
+
+## 11. Deterministic Windows regression fixture
+
+The latest full matrix after interpreter-order correction passed Windows/Python 3.10 and 3.12. Windows/Python 3.11 failed one pre-existing stable-file-hash test because its fixture rewrote the same-length content and depended on filesystem timestamp resolution. The method-scaffold test's stderr was the expected second-call no-overwrite message and the test itself passed.
+
+The test fixture now changes both content and file size during the injected mutation, so the existing stable-hash metadata guard receives a deterministic size delta across filesystems. No production hashing behavior was relaxed. The next CI run is pending.
+
+
+## 9. Follow-up: genre fidelity and visual restraint (2026-11-18)
+
+The event-TOR composition case was extended from T5 to T7 after user feedback that the motif-led version looked excessively fancy and recognizable as a generic AI-style template. T6 records the over-designed result; T7 records a conventional understated candidate based on the supplied TOR reference: Times New Roman, centered formal title, ordinary bold section labels, numbered lists, label-value metadata, one restrained rule, one functional schedule table and no invented logo/motif system.
+
+The latest private TOR candidate is two A4 pages and is intentionally not included in this public repository. Its user acceptance remains pending. The public learning case contains no original document content, identity values, source PDF, final DOCX/PDF, original assets, private filenames or document hashes.
+
+The reusable rule is genre fidelity before decorative novelty. Document-family conventions, the actual organization identity and reader tasks determine the level of visual treatment. Visual restraint must not become cramped or unfinished; whitespace and pagination still require full-page review. Reader-task testing remains NOT_RUN and eye-tracking remains NOT_MEASURED. No P0-P9 phase, acceptance or authorization state changed.

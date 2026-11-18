@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/project-skripsi/schemas/quality/visual-composition-policy.schema.json",
+  "title": "Profile-specific visual composition diagnostic policy",
+  "type": "object",
+  "properties": {
+    "profile_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "heading_min_size_pt": {"type": "number", "minimum": 6, "maximum": 72},
+    "min_text_area_ratio": {"type": "number", "minimum": 0, "maximum": 1},
+    "max_text_area_ratio": {"type": "number", "minimum": 0, "maximum": 1},
+    "min_distinct_font_sizes": {"type": "integer", "minimum": 1, "maximum": 30},
+    "min_heading_body_size_ratio": {"type": "number", "exclusiveMinimum": 0, "maximum": 10},
+    "max_rectangle_shapes_per_page": {"type": "integer", "minimum": 0, "maximum": 10000},
+    "max_repeated_rectangle_size_count": {"type": "integer", "minimum": 1, "maximum": 10000},
+    "density_severity": {"enum": ["WARNING", "ERROR"]},
+    "hierarchy_severity": {"enum": ["WARNING", "ERROR"]},
+    "shape_severity": {"enum": ["WARNING", "ERROR"]},
+    "reader_task_test_status": {"enum": ["NOT_RUN", "PASS", "WARN", "FAIL", "NOT_APPLICABLE"]}
+  },
+  "additionalProperties": false
+}

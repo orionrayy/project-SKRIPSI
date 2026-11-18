@@ -1,0 +1,14 @@
+{
+  "profile_id": "EVENT_TOR_EDITORIAL_V1",
+  "heading_min_size_pt": 14,
+  "min_text_area_ratio": 0.08,
+  "max_text_area_ratio": 0.30,
+  "min_distinct_font_sizes": 5,
+  "min_heading_body_size_ratio": 1.25,
+  "max_rectangle_shapes_per_page": 16,
+  "max_repeated_rectangle_size_count": 6,
+  "density_severity": "WARNING",
+  "hierarchy_severity": "WARNING",
+  "shape_severity": "WARNING",
+  "reader_task_test_status": "NOT_RUN"
+}
