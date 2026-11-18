@@ -27,47 +27,92 @@
   "iteration_history": [
     {
       "iteration": "T0",
-      "observed_symptoms": ["generic visual hierarchy", "content clustered toward the upper page", "weak motif identity"],
+      "observed_symptoms": [
+        "generic visual hierarchy",
+        "content clustered toward the upper page",
+        "weak motif identity"
+      ],
       "learning": "Content correctness does not establish visual identity or reader navigation."
     },
     {
       "iteration": "T1",
-      "observed_symptoms": ["palette and font hierarchy improved", "metadata and list groups still looked templated"],
+      "observed_symptoms": [
+        "palette and font hierarchy improved",
+        "metadata and list groups still looked templated"
+      ],
       "learning": "Color changes alone do not solve layout composition."
     },
     {
       "iteration": "T2",
-      "observed_symptoms": ["stronger section labels", "repeated boxed or card-like groups remained"],
+      "observed_symptoms": [
+        "stronger section labels",
+        "repeated boxed or card-like groups remained"
+      ],
       "learning": "Repeated rectangles can create a rigid visual grammar even when the palette is coherent."
     },
     {
       "iteration": "T3",
-      "observed_symptoms": ["open editorial lists improved the page", "manual pagination created a blank page"],
+      "observed_symptoms": [
+        "open editorial lists improved the page",
+        "manual pagination created a blank page"
+      ],
       "learning": "Every layout change must be rendered again and checked for page-flow regressions."
     },
     {
       "iteration": "T4",
-      "observed_symptoms": ["pagination recovered", "composition still appeared flat and mechanically repetitive"],
+      "observed_symptoms": [
+        "pagination recovered",
+        "composition still appeared flat and mechanically repetitive"
+      ],
       "learning": "A technical layout fix does not establish visual acceptance."
     },
     {
       "iteration": "T5",
-      "observed_symptoms": ["open three-page editorial structure", "motif family repeated across cover, materials and timeline", "metadata and narrative lists no longer enclosed as cards", "schedule expressed as a curved sequence"],
+      "observed_symptoms": [
+        "open three-page editorial structure",
+        "motif family repeated across cover, materials and timeline",
+        "metadata and narrative lists no longer enclosed as cards",
+        "schedule expressed as a curved sequence"
+      ],
       "learning": "Motif continuity, varied rhythm and purposeful negative space can add character without inventing content."
+    },
+    {
+      "iteration": "T6",
+      "observed_symptoms": [
+        "T5's organic-motif composition was judged too decorative and too recognizable as a generic AI-style design treatment",
+        "oversized display typography, celestial illustration, repeated decorative marks, gold-green accents and a curved timeline formed a conspicuous visual signature",
+        "the decoration was not grounded in an actual organization identity, supplied logo or confirmed brand system"
+      ],
+      "learning": "A visually polished page can still look synthetic when decorative motifs are more prominent than the document's genre and purpose. Do not invent a brand or ornamental system to manufacture visual interest. Return to the conventions of the supplied document family and let information hierarchy carry the design."
+    },
+    {
+      "iteration": "T7",
+      "observed_symptoms": [
+        "conventional Times New Roman typography and plain bold section labels",
+        "centered formal title and simple subtitle without illustration",
+        "ordinary numbered lists and label-value metadata",
+        "one understated rule and one functional table for the schedule",
+        "decorative motifs, repeated cards, display lettering and ornamental section numbering removed"
+      ],
+      "learning": "Genre fidelity is a stronger default than decorative novelty for an organizational TOR. Improve spacing, alignment and reading rhythm within familiar office-document conventions; do not confuse visual restraint with cramped or unfinished layout."
     }
   ],
   "latest_candidate": {
-    "physical_page_count": 3,
+    "physical_page_count": 2,
     "page_size": "A4",
-    "composition_profile": "OPEN_EDITORIAL_ORGANIC_MOTIF",
+    "composition_profile": "CONVENTIONAL_UNDERSTATED_ACTIVITY_TOR",
+    "decorative_illustrations": 0,
     "repeated_filled_card_containers": 0,
+    "functional_tables": 1,
+    "typography": "TIMES_NEW_ROMAN_SINGLE_FAMILY",
+    "section_heading_style": "BOLD_PLAIN_LABELS",
     "reader_task_test_status": "NOT_RUN",
     "eye_tracking_status": "NOT_MEASURED",
     "user_acceptance_status": "PENDING",
     "open_design_risks": [
-      "Final motif preference is not yet confirmed by the user.",
       "Reader-task usability has not been tested with representative readers.",
-      "The composition must be adapted to other document families rather than reused as a universal template."
+      "The understated treatment is a candidate for this TOR, not a universal template for other document families.",
+      "Organization-specific marks or brand colors must only be used when supplied or verified."
     ]
   },
   "reusable_controls": [
