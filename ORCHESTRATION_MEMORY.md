@@ -99,3 +99,10 @@ The first pull-request CI run for visual-composition candidate head `8863c1de20e
 A fail-closed helper, `scripts/restore_manifest_blobs.py`, now restores only manifest-listed paths directly from Git blob bytes with `git cat-file`, validates manifest paths and rejects symlink targets, then lets the existing exact-byte verifier run. The CI workflow uses this helper before manifest verification. Three dedicated helper unit tests pass locally. The corrected manifest contains 140 entries.
 
 The follow-up CI run is pending. Do not call cross-platform CI complete until all six jobs pass. This is an engineering/checkout remediation only; no private files, research records, phase status, approval, or authorization were changed.
+
+
+## 10. Windows matrix interpreter-priority remediation
+
+The follow-up CI after exact Git-blob restoration showed all six jobs passed the manifest restoration and exact-byte verification steps. One Windows/Python 3.12 job then failed unit tests because the LibreOffice installation step added its embedded Python directory to PATH ahead of the matrix interpreter; the log showed missing `fitz` and `jsonschema` and imports from LibreOffice's embedded Python. This is an environment-ordering defect, not a visual-composition audit failure.
+
+The CI workflow has been reordered so LibreOffice is installed first and `actions/setup-python` runs afterwards, preserving `soffice` discovery while restoring the requested matrix interpreter to PATH priority. The next six-job run is pending. Do not claim Windows matrix acceptance until all jobs complete successfully.
