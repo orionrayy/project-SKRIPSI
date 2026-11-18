@@ -1,3 +1,20 @@
+# Windows matrix interpreter-order candidate — 2026-11-18
+
+| Check | Result |
+|---|---:|
+| Visual composition unit tests | **7/7 PASS (local)** |
+| Git-blob restoration helper tests | **3/3 PASS (local)** |
+| Combined focused tests | **10/10 PASS (local)** |
+| Manifest restoration and verification | **6/6 jobs passed this step in follow-up run** |
+| Compile + phase-ledger validation | Passed on all observed completed jobs |
+| Windows/Python 3.12 full suite | Failed: LibreOffice embedded Python shadowed matrix Python |
+| CI step ordering fix | Committed; follow-up run pending |
+| Full six-platform suite | NOT_YET_VERIFIED |
+
+The interpreter-order correction moves LibreOffice installation before actions/setup-python. Wait for the next six-job run before changing the cross-platform validation status.
+
+---
+
 # Cross-platform manifest restoration candidate — 2026-11-18
 
 | Check | Result |
