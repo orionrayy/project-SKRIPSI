@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased] — Morph mask playback feedback correction (2026-11-19)
+
+- User playback feedback reported no visible picture-mask change in the first demo. That generator used p:pic with a:custGeom; XML validity and LibreOffice static rendering were insufficient evidence of Morph interpolation.
+- Added a shape-based picture-fill authoring path: native p:sp custom freeform geometry with a:blipFill, stable !!hero-photo-mask identity and ten cubic Bezier segments per keyframe.
+- Strengthened the generated-deck regression test to compare serialized custom geometry on all five slides and fail unless every keyframe is genuinely distinct.
+- Kept Microsoft PowerPoint playback marked NOT_VERIFIED. A static render or XML inspection cannot certify Morph playback.
+- Documented that Canva Match & Move is separate from PowerPoint Morph. The connected Canva editing tools do not expose a page-transition setter; never substitute Dissolve or claim Match & Move was applied automatically.
+
 ## [Unreleased] — Reproducible custom picture-mask Morph demo (2026-11-19)
 
 - Added `examples/pptx/custom_picture_mask_morph_demo.py`, a self-contained five-slide generator with synthetic artwork and one native picture object per keyframe.
