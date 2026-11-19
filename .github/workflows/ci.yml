@@ -42,10 +42,19 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          choco install libreoffice-still --yes --no-progress
           $loPath = Join-Path (Join-Path $env:ProgramFiles 'LibreOffice') 'program'
           $soffice = Join-Path $loPath 'soffice.exe'
-          if (-not (Test-Path $soffice)) { throw "LibreOffice executable not found at $soffice" }
+          $installed = Test-Path $soffice
+          for ($attempt = 1; -not $installed -and $attempt -le 3; $attempt++) {
+            choco install libreoffice-still --yes --no-progress
+            $installExitCode = $LASTEXITCODE
+            $installed = Test-Path $soffice
+            if (-not $installed -and $attempt -lt 3) {
+              Write-Warning "LibreOffice install attempt $attempt failed (exit $installExitCode); retrying."
+              Start-Sleep -Seconds (10 * $attempt)
+            }
+          }
+          if (-not $installed) { throw "LibreOffice installation failed after three attempts (last exit $installExitCode)" }
           # Keep setup-python's interpreter ahead of LibreOffice's bundled Python.
           $pythonExe = (Get-Command python).Source
           $pythonDir = Split-Path $pythonExe -Parent
@@ -68,3 +77,20 @@ jobs:
         run: project-skripsi --help
       - name: PowerPoint toolkit CLI smoke test
         run: project-skripsi-pptx --help
+
+  morph-dataset-audit:
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Download and verify 22 native Morph references
+        run: python scripts/verify_morph_reference_dataset.py
+      - name: Upload verification report only (no PPTX media)
+        uses: actions/upload-artifact@v4
+        with:
+          name: morph-dataset-verification
+          path: reports/morph-dataset-verification.json
+          retention-days: 14
