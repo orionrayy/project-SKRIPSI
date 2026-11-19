@@ -18,7 +18,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-MANIFEST = ROOT / "docs/visuals/morph-dataset/priority_A_B_shortlist.csv"
+MANIFEST = ROOT / "docs/visuals/morph-dataset/dataset_manifest.csv"
 REPORT = ROOT / "reports/morph-dataset-verification.json"
 NS = {
     "p": "http://schemas.openxmlformats.org/presentationml/2006/main",
@@ -240,13 +240,14 @@ def download_and_verify(record: dict, workspace: Path) -> dict:
 
 def main() -> int:
     with MANIFEST.open(encoding="utf-8-sig", newline="") as stream:
-        records = list(csv.DictReader(stream))
+        all_records = list(csv.DictReader(stream))
+    if len(all_records) != 54:
+        raise RuntimeError(f"Expected 54 canonical manifest records, found {len(all_records)}")
+    if len({row["sha256"] for row in all_records}) != len(all_records):
+        raise RuntimeError("Duplicate SHA-256 values detected in canonical manifest")
+    records = [row for row in all_records if row["priority"] in {"A", "B"}]
     if len(records) != 22:
         raise RuntimeError(f"Expected 22 priority A+B records, found {len(records)}")
-    if len({row["sha256"] for row in records}) != len(records):
-        raise RuntimeError("Duplicate SHA-256 values detected in priority shortlist")
-    if any(row["priority"] not in {"A", "B"} for row in records):
-        raise RuntimeError("Priority shortlist contains a record outside A+B")
 
     with tempfile.TemporaryDirectory(prefix="morph-pptx-audit-") as tmp:
         workspace = Path(tmp)
