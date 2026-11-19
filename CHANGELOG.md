@@ -1,12 +1,13 @@
 # Changelog
 
-## [Unreleased] — Canva Match & Move compatibility boundary (2026-11-19)
+## [Unreleased] — Canva keyframe compatibility fixture (2026-11-19)
 
-- User confirmed the generated PPTX was opened/imported in Canva and no Morph animation was visible. Treat this as a failed Canva acceptance test.
-- PowerPoint `p159:morph` is not a Canva-native Match & Move transition. A PPTX import must not be assumed to preserve or translate transition metadata into Canva page transitions.
-- Documented a separate Canva-native keyframe workflow: duplicate pages, preserve object continuity, change positions/sizes/appearance, and explicitly select Match & Move between pages. Dissolve is not an acceptable substitute.
-- Canva connector operations available to this project do not expose a page-transition setter. Automated Match & Move configuration/playback remains unavailable; do not claim the transition was applied.
-- The current custom-mask PPTX remains a PowerPoint playback candidate only. Its Microsoft PowerPoint playback remains NOT_VERIFIED; its Canva animation acceptance is FAILED for the PPTX-import path.
+- Created an editable five-page Canva presentation from a keyframe PPTX fixture: design ID `DAHbXq0gvl0`, edit URL `https://www.canva.com/d/B57HXK3Xjxry66_`.
+- Canva read-back confirms five editable 1920×1080 pages. The hero image uses the same media ID across all pages; page-scoped element locator IDs differ. Positions, dimensions and rotation change across keyframes.
+- This verifies imported keyframe content and asset reuse only. It does not prove Match & Move interpolation; no page transition was applied and no playback PASS is claimed.
+- The connected Canva design tools have no page-transition setter. Do not use Dissolve as a substitute. Manual Match & Move selection and preview across page pairs 1→2, 2→3, 3→4 and 4→5 remain pending.
+- For stronger continuity, duplicate a page inside Canva and edit the duplicated object. Do not assume independently imported PowerPoint slides preserve Canva element identity.
+- The earlier PowerPoint Morph-to-Canva import path remains FAILED as an animation acceptance test. Microsoft PowerPoint Desktop playback of native Morph remains NOT_VERIFIED.
 
 ## [Unreleased] — Morph mask playback feedback correction (2026-11-19)
 - Added strict slide-child-order validation for Morph: the Morph AlternateContent wrapper must follow p:cSld and p:clrMapOvr when that override exists. Regression coverage deliberately corrupts the order and requires inspection to fail.

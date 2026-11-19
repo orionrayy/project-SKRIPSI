@@ -152,5 +152,16 @@ On every invocation:
 - Canva's documented Match & Move process uses page keyframes and requires selecting Match & Move from the transition control between pages. The Canva connector operations available to this project do not expose a page-transition setter; automated transition application and playback verification are unavailable.
 - Do not substitute Dissolve. Do not claim Canva Match & Move is configured unless it is visibly selected and previewed in Canva.
 - The local PPTX v4 is a PowerPoint-only Morph candidate and is not a Canva animation deliverable. Microsoft PowerPoint Desktop playback remains NOT_VERIFIED. Canva animation is FAILED for the PPTX-import path.
-- Canva design search by the demo title returned no matching presentation in the connected account. Do not create or edit a duplicate until the exact Canva design is identified.
+- Initial Canva design search returned no match. A later continuation created an editable five-page Canva keyframe test (design `DAHbXq0gvl0`, edit URL `https://www.canva.com/d/B57HXK3Xjxry66_`). Read-back confirms one repeated image `mediaId` across all pages, but page-scoped element locator IDs differ. This verifies imported editable keyframes and shared media only, not Match & Move identity or playback. No transition was set; the connected Canva API has no transition setter.
 - PR #3 remains Draft and unmerged. No research phase ledger, P0–P9 approval state, or `main` content was changed.
+
+
+## 13. Canva keyframe compatibility test — 2026-11-19
+
+- Created an editable five-page Canva presentation from a local PPTX keyframe fixture: design ID `DAHbXq0gvl0`, edit URL `https://www.canva.com/d/B57HXK3Xjxry66_`, view URL `https://www.canva.com/d/hXM7cyKsey6Ds-y`.
+- Canva read-back confirms five editable fixed pages at 1920×1080. The hero is an editable image-filled shape. All five pages reference the same image `mediaId` (`MAHbXkHhMmw`); per-page element locator IDs differ.
+- The keyframes vary position, dimensions and rotation. Source fixture `CANVA_MATCH_MOVE_KEYFRAME_TEST.pptx`, SHA-256 `d6e55dd5aa21af85466dc4662a973c3ea94c1b4e5e94221370a108e76b84905b`; ZIP CRC PASS, five active slides, one repeated source image, five distinct transforms.
+- This is an import/keyframe compatibility fixture, not a Match & Move playback PASS. A shared media ID proves asset reuse, not transition-matcher object continuity.
+- No transition was applied. Canva's connected API has no transition setter; no Dissolve substitute was used. Manual Match & Move selection and preview for all four page boundaries remain pending. For stronger identity continuity, duplicate the first page inside Canva and change the duplicated element.
+- Canva animation acceptance remains PENDING. The earlier PPTX Morph import attempt remains FAILED for Canva. Microsoft PowerPoint Desktop playback of the separate native Morph demo remains NOT_VERIFIED.
+- PR #3 remains Draft and unmerged; no `main`, P0–P9 governance, or approval state changed.

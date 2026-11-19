@@ -100,7 +100,11 @@ PowerPoint Morph (`p159:morph`) and Canva Match & Move are separate transition s
 
 For a Canva-native result, build the page sequence in Canva as keyframes: duplicate the source page, keep the corresponding elements through the duplicate, alter their positions/sizes/appearance, then select the transition control between each pair of pages and explicitly choose **Match & Move**. Preview the result in Canva. Do not assume independently imported same-named PPTX objects retain Canva's internal element identity after conversion. Do not use Dissolve as a substitute.
 
-The connected Canva operations available to this toolkit can search/read designs, import or edit page content, and inspect page previews, but they do not expose a page-transition setter. The integration therefore cannot currently apply Match & Move or verify its playback automatically. Unless a Canva transition-capable operation becomes available, transition selection and preview remain a user-side acceptance step. Do not create a duplicate Canva design unless the target design has been identified and a copy is explicitly wanted.
+The connected Canva operations available to this toolkit can search/read designs, import or edit page content, and inspect page previews, but they do not expose a page-transition setter. The integration therefore cannot currently apply Match & Move or verify its playback automatically.
+
+A five-page import/keyframe fixture was created in Canva: design ID `DAHbXq0gvl0`, edit URL https://www.canva.com/d/B57HXK3Xjxry66_. Read-back confirms five editable pages and the same image `mediaId` on every page. Each page has a separate Canva element locator ID. This proves asset reuse and distinct keyframes, not element identity continuity or Match & Move interpolation. No transition was set and no Dissolve substitute was used.
+
+For a stronger native Canva test, duplicate a page inside the Canva editor and move/resize/rotate the duplicated element, then apply Match & Move between the page pair. The current imported fixture is a keyframe reference only; manual transition selection and visual preview remain the acceptance gate.
 
 Official Canva guides:
 - PowerPoint import: https://www.canva.com/help/powerpoint-import/
