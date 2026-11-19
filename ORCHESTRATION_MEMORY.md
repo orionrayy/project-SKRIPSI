@@ -118,13 +118,11 @@ On every invocation:
 - No phase ledger, research approval or acceptance state changed. PR #3 remains Draft and unmerged; main is unchanged.
 
 
-## 12. Reproducible custom-mask Morph example — 2026-11-19
+## 12. Reproducible custom-mask Morph example — 2026-11-19 (initial iteration superseded)
 
-- Added `examples/pptx/custom_picture_mask_morph_demo.py`, a self-contained generator that creates synthetic original artwork, five native picture keyframes, custom cubic Bezier masks and native `byObject` Morph transitions on destination slides 2–5.
-- Added a generated-deck regression test checking ZIP CRC, active slide order, destination Morph placement, native `p:pic` identity, custom `a:custGeom`, and ten cubic segments per keyframe.
-- The generator uses the existing optional slides dependencies (python-pptx and Pillow) plus the standard-library Morph patcher. It downloads no external images and vendors no third-party PPTX/photo assets.
-- Static slides were rendered in LibreOffice for geometry/layout inspection. Rendering does not prove Morph playback. Microsoft PowerPoint Desktop playback remains NOT_VERIFIED.
-- Research phase ledger, P2 human acceptance, and P3–P9 authorization states remain unchanged. PR #3 remains Draft and unmerged; `main` is unchanged.
+- The first five-slide prototype used a native `p:pic` with `a:custGeom`. The user reported that no picture-mask change appeared in playback. XML parsing, ZIP CRC and LibreOffice static rendering were insufficient evidence; the initial demo is treated as a failed acceptance attempt.
+- The picture-object custom-path helper remains available for static editable picture clipping, but it is not described as a verified Morph-mask implementation.
+- This initial implementation was superseded by a freeform shape with image fill. The corrective investigation and current acceptance boundary are recorded in the following section.
 
 
 ## 2026-11-19 — Morph demo feedback and revised picture-mask strategy
