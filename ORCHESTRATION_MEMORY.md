@@ -2,7 +2,7 @@
 
 **Memory version:** 1.4.2  
 **Project:** `orionrayy/project-SKRIPSI`  
-**Updated:** 2026-11-17 (Asia/Jakarta)  
+**Updated:** 2026-11-19 (Asia/Jakarta)  
 **Platform baseline:** 0.8.0  
 **Repository visibility:** public (pre-existing setting; no setting change made).
 
@@ -136,3 +136,13 @@ On every invocation:
 - New artifact MORPH_CUSTOM_SHAPE_PICTURE_FILL_DEMO.pptx has five visibly different static keyframes and native Morph declarations. LibreOffice static rendering passes. Microsoft PowerPoint Desktop/mobile playback is still NOT_VERIFIED until the user tests it in Slide Show.
 - Canva Match & Move is not PowerPoint Morph. Canva's page-transition UI supports Match & Move, but the connected Canva edit API available here has no page-transition operation. Never set Dissolve as a substitute or claim Match & Move was programmatically applied.
 - PR #3 remains Draft. Do not merge without explicit user authorization. No P0–P9 governance/acceptance state is changed.
+
+
+## 11. Morph playback feedback hardening — 2026-11-19
+
+- The first custom-picture-mask deliverable used p:pic with a:custGeom. The user reported no visible change during playback; this was treated as a failed demo rather than accepted from XML/static-render checks.
+- The feature branch generator was revised to use a native p:sp freeform filled by a:blipFill. The matched shape retains one unique !!hero-photo-mask name across five adjacent keyframes. The five Bezier paths differ, and the demo keyframes also vary shape position and scale.
+- The rebuilt v4 artifact uses the p:sp + a:blipFill method and a transition order of p:cSld, p:clrMapOvr, then mc:AlternateContent. ZIP CRC, XML structure, five distinct geometry endpoints, and LibreOffice static rendering pass.
+- Microsoft PowerPoint Desktop playback remains NOT_VERIFIED. This runtime cannot simulate the proprietary Morph engine; no final playback-success claim is made.
+- Canva Match & Move is a Canva-native page transition, not the PowerPoint Morph OOXML element. The connected Canva editing operations currently exposed here have no page-transition setter. Do not substitute Dissolve or claim Match & Move was configured through the integration.
+- P0–P9 research governance and acceptance states are unchanged. PR #3 remains Draft and is not merged.
