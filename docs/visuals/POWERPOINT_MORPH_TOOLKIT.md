@@ -96,12 +96,16 @@ A native picture with a custom clipping path can still be authored using set_pic
 
 ## Canva transition handoff
 
-PowerPoint Morph (p159:morph) and Canva Match & Move are separate transition systems. Importing a PPTX into Canva is a conversion workflow; do not assume the PowerPoint Morph transition survives import. For a Canva-native presentation, Match & Move must be selected as the page transition between the relevant pages in Canva. Dissolve is not an equivalent substitute. The connected Canva editing operations available to this toolkit do not expose a page-transition setter, so automation must leave the transition unset or clearly mark manual application as required rather than claiming Match & Move is configured.
+PowerPoint Morph (`p159:morph`) and Canva Match & Move are separate transition systems. A PPTX import is a conversion to Canva design pages, not a promise that native PowerPoint transition metadata is translated into Canva page transitions. The user tested the custom-mask PPTX import in Canva and reported that no Morph/Match & Move motion appeared. Therefore the current PPTX artifact is **not accepted as a Canva animation deliverable**, regardless of its native PowerPoint Morph XML.
+
+For a Canva-native result, build the page sequence in Canva as keyframes: duplicate the source page, keep the corresponding elements through the duplicate, alter their positions/sizes/appearance, then select the transition control between each pair of pages and explicitly choose **Match & Move**. Preview the result in Canva. Do not assume independently imported same-named PPTX objects retain Canva's internal element identity after conversion. Do not use Dissolve as a substitute.
+
+The connected Canva operations available to this toolkit can search/read designs, import or edit page content, and inspect page previews, but they do not expose a page-transition setter. The integration therefore cannot currently apply Match & Move or verify its playback automatically. Unless a Canva transition-capable operation becomes available, transition selection and preview remain a user-side acceptance step. Do not create a duplicate Canva design unless the target design has been identified and a copy is explicitly wanted.
 
 Official Canva guides:
-- https://www.canva.com/help/powerpoint-import/
-- https://www.canva.com/help/page-transitions/
-- https://www.canva.com/design-school/resources/how-to-create-animations-with-match-and-move/
+- PowerPoint import: https://www.canva.com/help/powerpoint-import/
+- Page transitions: https://www.canva.com/help/page-transitions/
+- Match & Move workflow: https://www.canva.com/design-school/resources/how-to-create-animations-with-match-and-move/
 
 ## Merge Shapes and masks
 
