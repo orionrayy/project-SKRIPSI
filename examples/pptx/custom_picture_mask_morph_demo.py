@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build a self-contained five-slide native-picture custom-mask Morph demo."""
+"""Build a five-slide native freeform picture-fill Morph demo."""
 from __future__ import annotations
 
 import argparse
@@ -14,7 +14,7 @@ from pptx.enum.shapes import MSO_SHAPE
 from pptx.enum.text import PP_ALIGN
 from pptx.util import Inches, Pt
 
-from project_skripsi.pptx.geometry import set_picture_custom_path, tag_morph_object
+from project_skripsi.pptx.geometry import set_shape_custom_path, set_shape_picture_fill, tag_morph_object
 from project_skripsi.pptx.morph import apply_morph, inspect_deck
 
 
@@ -125,22 +125,23 @@ def build_demo(output: str | Path, *, duration_ms: int = 1000) -> dict:
             p.font.bold, p.font.color.rgb = True, accent
             title = slide.shapes.add_textbox(Inches(.72), Inches(.83), Inches(8.8), Inches(.54))
             p = title.text_frame.paragraphs[0]
-            p.text, p.font.name, p.font.size = "Custom picture mask → Morph keyframes", "Aptos Display", Pt(25)
+            p.text, p.font.name, p.font.size = "Native freeform shape + image fill → Morph keyframes", "Aptos Display", Pt(25)
             p.font.bold, p.font.color.rgb = True, white
             divider = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(.72), Inches(1.49), Inches(11.9), Inches(.012))
             divider.fill.solid()
             divider.fill.fore_color.rgb = RGBColor(42, 59, 78)
             divider.line.fill.background()
-            picture = slide.shapes.add_picture(str(image_path), Inches(2.05), Inches(1.77), width=Inches(9.23), height=Inches(5.00))
-            set_picture_custom_path(picture, _commands(anchors))
-            tag_morph_object(picture, "hero-photo-mask")
+            mask = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(2.05), Inches(1.77), Inches(9.23), Inches(5.00))
+            set_shape_custom_path(mask, _commands(anchors))
+            set_shape_picture_fill(mask, image_path)
+            tag_morph_object(mask, "hero-photo-mask")
             footer = slide.shapes.add_textbox(Inches(.76), Inches(6.93), Inches(6.8), Inches(.25))
             p = footer.text_frame.paragraphs[0]
             p.text, p.font.name, p.font.size = labels[index], "Aptos", Pt(9)
             p.font.bold, p.font.color.rgb = True, muted
             hint = slide.shapes.add_textbox(Inches(8.05), Inches(6.93), Inches(4.45), Inches(.25))
             p = hint.text_frame.paragraphs[0]
-            p.alignment, p.text = PP_ALIGN.RIGHT, "!!hero-photo-mask   •   byObject"
+            p.alignment, p.text = PP_ALIGN.RIGHT, "!!hero-photo-mask   •   p:sp + image fill   •   byObject"
             p.font.name, p.font.size, p.font.color.rgb = "Aptos", Pt(9), muted
         prs.save(output)
 
