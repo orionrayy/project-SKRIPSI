@@ -12,6 +12,7 @@ from project_skripsi.pptx.morph import apply_morph, inspect_deck
 P = "http://schemas.openxmlformats.org/presentationml/2006/main"
 A = "http://schemas.openxmlformats.org/drawingml/2006/main"
 CT = "http://schemas.openxmlformats.org/package/2006/content-types"
+MC = "http://schemas.openxmlformats.org/markup-compatibility/2006"
 ET.register_namespace("p", P)
 ET.register_namespace("a", A)
 
@@ -201,6 +202,55 @@ class MorphPatcherTests(unittest.TestCase):
                 root = ET.fromstring(z.read("ppt/slides/slide2.xml"))
                 tags = [child.tag.rsplit("}", 1)[-1] for child in list(root)]
                 self.assertLess(tags.index("AlternateContent"), tags.index("timing"))
+
+    def test_transition_is_after_clr_map_and_inspector_rejects_wrong_order(self):
+        with tempfile.TemporaryDirectory() as temp:
+            deck = Path(temp) / "clr-map-order.pptx"
+            make_deck(deck)
+            with zipfile.ZipFile(deck, "r") as source:
+                entries = [(info, source.read(info.filename)) for info in source.infolist()]
+            rewritten = Path(temp) / "with-clr-map.pptx"
+            with zipfile.ZipFile(rewritten, "w", zipfile.ZIP_DEFLATED) as target:
+                for info, data in entries:
+                    if info.filename == "ppt/slides/slide2.xml":
+                        root = ET.fromstring(data)
+                        clr_map = ET.Element(f"{{{P}}}clrMapOvr")
+                        ET.SubElement(clr_map, f"{{{A}}}masterClrMapping")
+                        root.insert(1, clr_map)
+                        data = ET.tostring(root, encoding="utf-8", xml_declaration=True)
+                    target.writestr(info, data)
+            rewritten.replace(deck)
+            apply_morph(deck, [2])
+            report = inspect_deck(deck)
+            self.assertTrue(report["ok"], report["errors"])
+            self.assertTrue(report["slides"][1]["transition_order_valid"])
+            with zipfile.ZipFile(deck, "r") as source:
+                entries = [(info, source.read(info.filename)) for info in source.infolist()]
+            corrupted = Path(temp) / "corrupted-order.pptx"
+            with zipfile.ZipFile(corrupted, "w", zipfile.ZIP_DEFLATED) as target:
+                for info, data in entries:
+                    if info.filename == "ppt/slides/slide2.xml":
+                        root = ET.fromstring(data)
+                        wrapper = next(
+                            child for child in list(root)
+                            if child.tag == f"{{{MC}}}AlternateContent"
+                            and child.find(".//{http://schemas.microsoft.com/office/powerpoint/2015/09/main}morph") is not None
+                        )
+                        root.remove(wrapper)
+                        clr_map_index = next(
+                            index for index, child in enumerate(list(root))
+                            if child.tag == f"{{{P}}}clrMapOvr"
+                        )
+                        root.insert(clr_map_index, wrapper)
+                        data = ET.tostring(root, encoding="utf-8", xml_declaration=True)
+                    target.writestr(info, data)
+            bad_report = inspect_deck(corrupted)
+            self.assertFalse(bad_report["ok"])
+            self.assertFalse(bad_report["slides"][1]["transition_order_valid"])
+            self.assertTrue(
+                any("must follow p:cSld and p:clrMapOvr" in error for error in bad_report["errors"]),
+                bad_report["errors"],
+            )
 
     def test_rejects_corrupt_package(self):
         with tempfile.TemporaryDirectory() as temp:
