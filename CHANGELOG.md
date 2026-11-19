@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased] — Morph mask playback feedback correction (2026-11-19)
+- Added strict slide-child-order validation for Morph: the Morph AlternateContent wrapper must follow p:cSld and p:clrMapOvr when that override exists. Regression coverage deliberately corrupts the order and requires inspection to fail.
+- Updated the sample keyframes to vary the image-filled freeform's position and scale as well as its Bezier mask, making both movement and silhouette changes observable.
 
 - User playback feedback reported no visible picture-mask change in the first demo. That generator used p:pic with a:custGeom; XML validity and LibreOffice static rendering were insufficient evidence of Morph interpolation.
 - Added a shape-based picture-fill authoring path: native p:sp custom freeform geometry with a:blipFill, stable !!hero-photo-mask identity and ten cubic Bezier segments per keyframe.
