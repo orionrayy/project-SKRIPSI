@@ -28,6 +28,7 @@ class CustomMaskDemoTests(unittest.TestCase):
             self.assertEqual(report["slide_count"], 5)
             self.assertEqual(report["morph_slides"], [2, 3, 4, 5])
             geometries = []
+            transforms = []
             with zipfile.ZipFile(output) as archive:
                 self.assertIsNone(archive.testzip())
                 for number in range(1, 6):
@@ -50,8 +51,14 @@ class CustomMaskDemoTests(unittest.TestCase):
                     self.assertEqual(len(path.findall("a:cubicBezTo", {"a": A})), 10)
                     self.assertIsNotNone(path.find("a:close", {"a": A}))
                     geometries.append(ET.tostring(geometry))
+                    xfrm = sp_pr.find("a:xfrm", {"a": A})
+                    self.assertIsNotNone(xfrm)
+                    off = xfrm.find("a:off", {"a": A})
+                    ext = xfrm.find("a:ext", {"a": A})
+                    transforms.append((off.get("x"), off.get("y"), ext.get("cx"), ext.get("cy")))
                     self.assertEqual(root.find(f".//{{{P159}}}morph") is not None, number > 1)
             self.assertEqual(len(set(geometries)), 5, "Each slide must contain a different mask keyframe")
+            self.assertGreaterEqual(len(set(transforms)), 4, "Picture-fill shape should visibly change position/size between keyframes")
 
 
 if __name__ == "__main__":
