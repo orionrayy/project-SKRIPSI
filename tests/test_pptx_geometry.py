@@ -148,7 +148,7 @@ class PictureFreeformGeometryTests(unittest.TestCase):
             self.picture,
             [(0, 0), (0, 0), (1, 0), (1, 1), (0, 0)],
         )
-        path = self.picture._element.spPr.custGeom.path_lst[0]
+        path = self.picture._element.spPr.custGeom.find(f"{{{self.A}}}pathLst").find(f"{{{self.A}}}path")
         self.assertEqual(len(path.findall(f"{{{self.A}}}lnTo")), 2)
 
     def test_supports_native_quadratic_and_cubic_bezier_segments(self):
@@ -159,7 +159,7 @@ class PictureFreeformGeometryTests(unittest.TestCase):
             ("cubic", 0.02, 0.76, 0.02, 0.24, 0.5, 0.02),
         ]
         set_picture_custom_path(self.picture, commands)
-        path = self.picture._element.spPr.custGeom.path_lst[0]
+        path = self.picture._element.spPr.custGeom.find(f"{{{self.A}}}pathLst").find(f"{{{self.A}}}path")
         self.assertEqual(len(path.findall(f"{{{self.A}}}quadBezTo")), 1)
         self.assertEqual(len(path.findall(f"{{{self.A}}}cubicBezTo")), 2)
         self.assertEqual(len(path.findall(f"{{{self.A}}}moveTo")), 1)
@@ -190,7 +190,7 @@ class PictureFreeformGeometryTests(unittest.TestCase):
         self.assertAlmostEqual(picture.crop_top, 0.05, places=4)
         self.assertAlmostEqual(picture.crop_bottom, 0.2, places=4)
         self.assertIsNotNone(picture._element.spPr.custGeom)
-        self.assertEqual(picture._element.spPr.custGeom.pathLst.path_lst[0].get("w"), "21600")
+        self.assertEqual(picture._element.spPr.custGeom.find(f"{{{self.A}}}pathLst").find(f"{{{self.A}}}path").get("w"), "21600")
 
     def test_rejects_invalid_custom_path_commands(self):
         invalid_commands = [
@@ -215,7 +215,7 @@ class PictureFreeformGeometryTests(unittest.TestCase):
             [("move", 0.5, 0.0), ("line", 1, 0.5), ("line", 0.5, 1), ("line", 0, 0.5)],
         )
         self.assertEqual(self.picture.shape_type, MSO_SHAPE_TYPE.PICTURE)
-        path = self.picture._element.spPr.custGeom.pathLst.path_lst[0]
+        path = self.picture._element.spPr.custGeom.find(f"{{{self.A}}}pathLst").find(f"{{{self.A}}}path")
         self.assertEqual(len(path.findall(f"{{{self.A}}}moveTo")), 1)
         self.assertEqual(len(path.findall(f"{{{self.A}}}lnTo")), 3)
 
