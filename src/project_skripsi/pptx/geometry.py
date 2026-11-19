@@ -235,3 +235,125 @@ def set_picture_freeform_geometry(
     commands = [("move", *compact[0])]
     commands.extend(("line", *point) for point in compact[1:])
     return set_picture_custom_path(picture, commands, coordinate_scale=coordinate_scale)
+
+
+def set_shape_custom_path(
+    shape,
+    commands: Iterable[tuple],
+    *,
+    coordinate_scale: int = 21600,
+):
+    """Apply a closed, normalized Bezier path to a native PowerPoint freeform shape.
+
+    Unlike set_picture_custom_path(), this targets p:sp geometry. It is useful
+    when the editable freeform itself is the Morph-matched object.
+    """
+    try:
+        from pptx.oxml.xmlchemy import OxmlElement
+    except ImportError as exc:
+        raise RuntimeError("Install the optional extra with pip install project-skripsi-engine[slides]") from exc
+    element = getattr(shape, "_element", None)
+    if element is None or not element.tag.endswith("}sp"):
+        raise TypeError("shape must be a native PowerPoint p:sp shape")
+    sp_pr = getattr(element, "spPr", None)
+    if sp_pr is None:
+        raise TypeError("shape must contain DrawingML shape properties")
+    old_geometry = sp_pr.prstGeom or sp_pr.custGeom
+    if old_geometry is None:
+        raise TypeError("shape has no preset or custom geometry to replace")
+    if isinstance(coordinate_scale, bool) or not isinstance(coordinate_scale, int) or coordinate_scale < 2:
+        raise ValueError("coordinate_scale must be an integer >= 2")
+    arity = {"move": 2, "line": 2, "quad": 4, "cubic": 6}
+    normalized_commands = []
+    for index, command in enumerate(commands):
+        if not isinstance(command, (tuple, list)) or not command:
+            raise ValueError(f"command {index} must be a non-empty tuple or list")
+        kind = command[0]
+        if not isinstance(kind, str) or kind.lower() not in arity:
+            raise ValueError(f"command {index} must be move, line, quad, or cubic")
+        kind = kind.lower()
+        if len(command) != arity[kind] + 1:
+            raise ValueError(f"{kind} command {index} requires {arity[kind]} coordinates")
+        values = [
+            _normalized_point(command[offset:offset + 2], index=index)
+            for offset in range(1, len(command), 2)
+        ]
+        if index == 0 and kind != "move":
+            raise ValueError("the first custom-path command must be move")
+        if index > 0 and kind == "move":
+            raise ValueError("a custom path must contain exactly one move command")
+        normalized_commands.append((kind, tuple(values)))
+    if len(normalized_commands) < 3:
+        raise ValueError("a closed custom path requires move plus at least two segments")
+    anchors = [normalized_commands[0][1][-1]] + [
+        entry[1][-1] for entry in normalized_commands[1:]
+    ]
+    if len(set(anchors)) < 3:
+        raise ValueError("a closed custom path requires at least three distinct anchors")
+
+    geometry = OxmlElement("a:custGeom")
+    for tag in ("a:avLst", "a:gdLst", "a:ahLst", "a:cxnLst"):
+        geometry.append(OxmlElement(tag))
+    rect = OxmlElement("a:rect")
+    rect.set("l", "0"); rect.set("t", "0")
+    rect.set("r", str(coordinate_scale)); rect.set("b", str(coordinate_scale))
+    geometry.append(rect)
+    path_list = OxmlElement("a:pathLst")
+    path = OxmlElement("a:path")
+    path.set("w", str(coordinate_scale)); path.set("h", str(coordinate_scale))
+    path.set("fill", "norm"); path.set("stroke", "0"); path.set("extrusionOk", "0")
+    command_tags = {
+        "move": "a:moveTo", "line": "a:lnTo",
+        "quad": "a:quadBezTo", "cubic": "a:cubicBezTo",
+    }
+    for kind, coordinates in normalized_commands:
+        node = OxmlElement(command_tags[kind])
+        for x_value, y_value in coordinates:
+            point = OxmlElement("a:pt")
+            point.set("x", str(round(x_value * coordinate_scale)))
+            point.set("y", str(round(y_value * coordinate_scale)))
+            node.append(point)
+        path.append(node)
+    path.append(OxmlElement("a:close"))
+    path_list.append(path); geometry.append(path_list)
+    sp_pr.replace(old_geometry, geometry)
+    return shape
+
+
+def set_shape_picture_fill(shape, image_path):
+    """Fill a native p:sp shape with an editable image relationship.
+
+    The image is stretched to the shape bounding rectangle. The object remains
+    a p:sp freeform shape instead of a p:pic with picture-specific geometry.
+    """
+    try:
+        from pptx.oxml.xmlchemy import OxmlElement
+        from pptx.oxml.ns import qn
+    except ImportError as exc:
+        raise RuntimeError("Install the optional extra with pip install project-skripsi-engine[slides]") from exc
+    element = getattr(shape, "_element", None)
+    if element is None or not element.tag.endswith("}sp"):
+        raise TypeError("shape must be a native PowerPoint p:sp shape")
+    sp_pr = getattr(element, "spPr", None)
+    if sp_pr is None:
+        raise TypeError("shape must contain DrawingML shape properties")
+    _, relationship_id = shape.part.get_or_add_image_part(str(image_path))
+    fill_tags = {
+        qn("a:solidFill"), qn("a:gradFill"), qn("a:blipFill"),
+        qn("a:pattFill"), qn("a:noFill"), qn("a:grpFill"),
+    }
+    for child in list(sp_pr):
+        if child.tag in fill_tags:
+            sp_pr.remove(child)
+    image_fill = OxmlElement("a:blipFill")
+    blip = OxmlElement("a:blip"); blip.set(qn("r:embed"), relationship_id)
+    image_fill.append(blip)
+    stretch = OxmlElement("a:stretch")
+    stretch.append(OxmlElement("a:fillRect")); image_fill.append(stretch)
+    insert_at = 0
+    for index, child in enumerate(list(sp_pr)):
+        if child.tag in {qn("a:prstGeom"), qn("a:custGeom")}:
+            insert_at = index + 1
+            break
+    sp_pr.insert(insert_at, image_fill)
+    return shape
