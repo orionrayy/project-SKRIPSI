@@ -125,3 +125,14 @@ On every invocation:
 - The generator uses the existing optional slides dependencies (python-pptx and Pillow) plus the standard-library Morph patcher. It downloads no external images and vendors no third-party PPTX/photo assets.
 - Static slides were rendered in LibreOffice for geometry/layout inspection. Rendering does not prove Morph playback. Microsoft PowerPoint Desktop playback remains NOT_VERIFIED.
 - Research phase ledger, P2 human acceptance, and P3–P9 authorization states remain unchanged. PR #3 remains Draft and unmerged; `main` is unchanged.
+
+
+## 2026-11-19 — Morph demo feedback and revised picture-mask strategy
+
+- User reported that the custom-picture-mask Morph demo showed no visible change in their playback environment. Treat this as a failed acceptance test, not as a user setup error.
+- The first demo used p:pic with p:spPr/a:custGeom. ZIP CRC, OOXML structure and LibreOffice static endpoints passed, but those checks did not prove Morph interpolation. Do not label that approach playback-verified.
+- Revised experimental implementation: use a native p:sp freeform custom shape with p:spPr/a:blipFill picture fill. Match the same unique !!hero-photo-mask shape across adjacent slides; retain identical command topology/winding and change corresponding Bezier control points gradually.
+- Regression test must prove that all five custom path serializations are different, in addition to checking one move, ten cubic Bezier segments, close path, image fill and Morph on destination slides 2–5.
+- New artifact MORPH_CUSTOM_SHAPE_PICTURE_FILL_DEMO.pptx has five visibly different static keyframes and native Morph declarations. LibreOffice static rendering passes. Microsoft PowerPoint Desktop/mobile playback is still NOT_VERIFIED until the user tests it in Slide Show.
+- Canva Match & Move is not PowerPoint Morph. Canva's page-transition UI supports Match & Move, but the connected Canva edit API available here has no page-transition operation. Never set Dissolve as a substitute or claim Match & Move was programmatically applied.
+- PR #3 remains Draft. Do not merge without explicit user authorization. No P0–P9 governance/acceptance state is changed.
