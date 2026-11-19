@@ -61,39 +61,47 @@ A freeform path and its nodes remain native PowerPoint vector geometry. An ellip
 
 ## Picture masks with custom freeform geometry
 
-set_picture_freeform_geometry() applies a closed polygon directly to a native PowerPoint picture. Unlike placing a freeform above a rectangular photo, this changes the picture's own DrawingML a:custGeom; its p:pic identity, replaceable image relationship and picture crop remain intact. Coordinates are normalized to the picture bounds, where (0, 0) is top-left and (1, 1) is bottom-right.
+There are two different OOXML constructions and they must not be treated as equivalent for Morph authoring:
+
+- p:pic with p:spPr/a:custGeom keeps an image as a native picture object and supports an editable custom clipping path. Use this for static picture masks and picture editing. Do not assume PowerPoint Morph will interpolate this picture-specific custom path merely because its XML is valid.
+- p:sp with p:spPr/a:custGeom and p:spPr/a:blipFill keeps the image as a replaceable picture fill inside a native freeform shape. The freeform itself is the Morph-matched object. Prefer this form for Morph experiments involving a changing picture mask.
 
 ~~~python
-from project_skripsi.pptx.geometry import set_picture_freeform_geometry, tag_morph_object
-
-photo = slide.shapes.add_picture('map-photo.jpg', left, top, width, height)
-set_picture_freeform_geometry(
-    photo,
-    [(0.50, 0.02), (0.96, 0.18), (0.88, 0.76), (0.56, 0.98), (0.12, 0.82), (0.03, 0.34)],
+from pptx.enum.shapes import MSO_SHAPE
+from project_skripsi.pptx.geometry import (
+    set_shape_custom_path,
+    set_shape_picture_fill,
+    tag_morph_object,
 )
-tag_morph_object(photo, 'map-photo-cutout')
-~~~
 
-For smooth brush contours and curved apertures, use set_picture_custom_path() with native quadratic or cubic Bezier commands. Each path starts with one move and ends closed automatically. line uses an endpoint; quad uses a control point and endpoint; cubic uses two control points and an endpoint. All coordinate pairs are normalized to the picture bounds.
-
-~~~python
-from project_skripsi.pptx.geometry import set_picture_custom_path
-
-set_picture_custom_path(photo, [
+mask = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, left, top, width, height)
+set_shape_custom_path(mask, [
     ('move', 0.50, 0.02),
     ('cubic', 0.78, 0.02, 0.98, 0.22, 0.98, 0.50),
     ('cubic', 0.98, 0.78, 0.78, 0.98, 0.50, 0.98),
     ('cubic', 0.22, 0.98, 0.02, 0.78, 0.02, 0.50),
     ('cubic', 0.02, 0.22, 0.22, 0.02, 0.50, 0.02),
 ])
+set_shape_picture_fill(mask, 'landscape.jpg')
+tag_morph_object(mask, 'hero-photo-mask')
 ~~~
 
-Use the polygon helper for map boundaries, shards, sectors and irregular cutouts. Use custom Bezier paths where visibly smooth edges matter. The helper rejects malformed commands, non-finite/out-of-range coordinates, missing or duplicate move commands, and paths with fewer than three distinct anchors. It does not rasterize the image or synthesize a brush texture; the path only defines the mask contour.
+The current picture-fill helper stretches the image to the shape bounding rectangle. Prepare a crop/focal composition before inserting the fill when required. The shape remains native and editable; its closed path can use line, quadratic Bezier or cubic Bezier segments with coordinates normalized to the shape bounds.
 
-For a Morph sequence, keep picture object type, forced name, number/order of path segments, corresponding control points, and winding direction consistent on adjacent slides. Change the control-point coordinates gradually between keyframes. This is a structural authoring constraint, not a guarantee that every PowerPoint build will interpolate the custom picture geometry as intended; preview in Microsoft PowerPoint Desktop.
+For every adjacent Morph keyframe, keep object type (p:sp), unique forced name, number/order of edit points and winding direction consistent. Move corresponding control points gradually. Microsoft states that custom freeform shapes need roughly corresponding edit-point counts/positions and the same drawing orientation. This is an authoring constraint, not proof that a specific PowerPoint build interpolates a particular path correctly; playback must be checked in PowerPoint.
 
-A local interoperability smoke test creates a picture with a cubic custom mask, saves and reloads the PPTX, checks ZIP integrity, and renders the static slide endpoint through LibreOffice. That proves the package and static mask can be rendered in this environment; it does not verify native Morph playback.
+The five-slide reproducible example uses one native p:sp shape with an image fill per slide, identical forced object names and ten cubic Bezier segments per keyframe. The regression test verifies that all five serialized geometries are genuinely different, not merely that they have the same number of segments. LibreOffice rendering checks static endpoints only; Microsoft PowerPoint playback remains a manual acceptance gate.
 
+A native picture with a custom clipping path can still be authored using set_picture_freeform_geometry() or set_picture_custom_path(). These remain picture-geometry utilities and should not be presented as verified custom-shape Morph playback.
+
+## Canva transition handoff
+
+PowerPoint Morph (p159:morph) and Canva Match & Move are separate transition systems. Importing a PPTX into Canva is a conversion workflow; do not assume the PowerPoint Morph transition survives import. For a Canva-native presentation, Match & Move must be selected as the page transition between the relevant pages in Canva. Dissolve is not an equivalent substitute. The connected Canva editing operations available to this toolkit do not expose a page-transition setter, so automation must leave the transition unset or clearly mark manual application as required rather than claiming Match & Move is configured.
+
+Official Canva guides:
+- https://www.canva.com/help/powerpoint-import/
+- https://www.canva.com/help/page-transitions/
+- https://www.canva.com/design-school/resources/how-to-create-animations-with-match-and-move/
 
 ## Merge Shapes and masks
 
