@@ -375,3 +375,10 @@
 - Added deterministic TAR.XZ release packaging and one-shot root expansion. The transfer archive is verified against both its SHA-256 sidecar and the internal source manifest before any repository write.
 - Local revalidation: **200/200 tests PASS**, **29/29 JSON Schemas PASS**, manifest integrity PASS, phase-ledger validation PASS and CLI smoke test PASS.
 - Public scope remains aggregate-only for reference research. P2 human acceptance is pending, and P3–P9 remain gated.
+
+## 2026-11-19 — Free PowerPoint Morph reference dataset
+
+- Added a 54-file native-Morph reference corpus with source URLs, SHA-256 manifest, technique map, deep object-pair audit, and 22-file priority A+B shortlist.
+- Added a standard-library downloader and a CI verifier for the 22 priority files. GitHub Actions verified 22/22 sources (size, SHA-256, ZIP CRC, active Morph options, slide ordering, name/type matching and geometry changes); source binaries are deleted from the runner and only the JSON report is retained as a short-lived artifact.
+- Kept brush-mask-only PPTX resources outside the native-Morph count. No source PPTX binaries or embedded author-owned photo assets are committed.
+- Microsoft PowerPoint Desktop playback remains NOT_VERIFIED; structural OOXML inspection is not a substitute for native transition playback.

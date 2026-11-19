@@ -82,3 +82,11 @@ The segmented-ring and brush-mask examples use replaceable photo assets with alp
 - Microsoft Open Specifications: Morph option values — https://learn.microsoft.com/en-us/openspecs/office_standards/ms-pptx/22e711ee-35a7-42cb-b87c-1c277ec11070
 
 The validator proves structural properties only. It cannot guarantee playback in every PowerPoint build, visual quality for every audience, or that a photo alpha mask is an editable Boolean shape. Microsoft PowerPoint playback and visual inspection remain required acceptance checks.
+
+## Audited reference corpus
+
+The free reference corpus, source/license notes, technique-to-video mapping and object-pair analysis are maintained in `docs/visuals/morph-dataset/`. The full index contains 54 unique native-Morph PPTX references; the priority A+B set contains 22 files.
+
+Run `python scripts/verify_morph_reference_dataset.py` in CI to fetch and verify the 22 priority files. It validates original file size and SHA-256, ZIP CRC, active slide ordering, native `p159:morph` options, strict object name/type matches and geometry changes. Temporary PPTX binaries are deleted after verification; only the JSON audit report is retained.
+
+Brush-stroke mask libraries that provide editable image masks but do not contain native Morph transitions must remain separately labelled as geometry references. Do not inflate the native-Morph dataset count with static mask templates. Microsoft PowerPoint Desktop playback remains a separate, manual acceptance gate.
