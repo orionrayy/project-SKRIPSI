@@ -187,3 +187,15 @@ On every invocation:
 - All five current image-filled shapes reference media ID MAHbXkHhMmw, but their locator IDs differ. The path topology is inconsistent: page 1 has five cubic Bezier commands; pages 2–4 have four; page 5 remains rectangular with no cubic commands. Normalize path segment counts/order before treating this as a Morph-compatible shape-interpolation sequence.
 - Canva Match & Move remains NOT_SET; playback remains NOT_VERIFIED. Editing transaction 2136354799700613472 remains open and unsaved. No save/commit action was taken.
 - GitHub Actions run #200 (44560253741) completed 7/7 jobs successfully on branch commit d71081e0929a7fe72fdf715450d430729bd4549c. PR #3 remains Draft, open, and unmerged. No main or P0–P9 research-governance/acceptance mutation.
+
+
+## 16. Canva five-keyframe geometry rebuild — 2026-11-20
+
+- Transaction 2136354799700613472 expired before it was committed. Saved-design read-back showed the original rectangular image fills remained; none of that transaction's Bezier mask edits persisted. The earlier Canva thumbnails compared from the expired transaction are not evidence for the new transaction.
+- Opened a new edit transaction 7733203254043950927 from the saved baseline on design DAHbXq0gvl0. Rebuilt five masks without changing page size or hero object placement/rotation.
+- Path sequence: page 1 organic freeform; page 2 tapered curve; page 3 elliptical aperture; page 4 leaf aperture; page 5 brush-swash aperture. All paths are closed and use exactly four cubic Bezier commands in matching clockwise command order.
+- Canva read-back confirms all five image-filled shapes retain media ID MAHbXkHhMmw. Locator IDs differ by page. This proves shared media reuse, not Match & Move object continuity.
+- Local path validation sampled 1,001 points per cubic segment and confirmed all five closed paths remain inside their viewBoxes. Local contact sheet CANVA_FIVE_KEYFRAMES_LOCAL_QA.png has SHA-256 bb1312940010220c20a61cab76f129ecb0fe042ca97d01c855b5f827fc7f5950. Structured report CANVA_FIVE_KEYFRAMES_GEOMETRY_QA.json has SHA-256 7ba4d23f0855cc764621310d51b496fbc00265c922ccfa5441e02ed3826550fb. Both remain local deliverables.
+- This preview is generated locally from read-back geometry and the shared source asset, not captured from Canva. Canva-render visual QA for the rebuilt transaction remains NOT_VERIFIED because direct thumbnail preview access was unavailable in this run.
+- Match & Move selection remains NOT_SET; playback remains NOT_VERIFIED. The connected Canva editor actions have no page-transition setter. Active transaction 7733203254043950927 remains OPEN_UNSAVED; no save/commit call was made.
+- GitHub Actions run #201 (44562689875), for commit e854b39605aaf5022bd5ba887ea4cfe5e410f9ee, completed 7/7 jobs successfully. PR #3 remains open, Draft and unmerged. No main or P0–P9 research-governance/acceptance changes.

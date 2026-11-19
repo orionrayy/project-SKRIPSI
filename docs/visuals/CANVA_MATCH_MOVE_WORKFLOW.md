@@ -69,3 +69,17 @@ The connected Canva tools expose design search, import, page read-back, page lis
 - Canva Match & Move remains NOT_SET; playback remains NOT_VERIFIED. The active editing transaction 2136354799700613472 remains open and unsaved. No save/commit action was taken.
 - GitHub Actions run #200 (44560253741), for feature-branch commit d71081e0929a7fe72fdf715450d430729bd4549c, completed SUCCESS with 7/7 jobs: the Morph dataset audit and all six Ubuntu/Windows × Python 3.10–3.12 matrix jobs.
 - PR #3 remains open, Draft and unmerged. No change was made to main or P0–P9 research governance/acceptance state.
+
+
+## Canva keyframe rebuild checkpoint — 2026-11-20
+
+- The prior unsaved transaction 2136354799700613472 expired. Read-back of the saved Canva design showed the original rectangular image fills on pages 1–5; the prior draft mask edits had not been committed and did not persist. The earlier page-1 to page-3 Canva thumbnail comparisons belong to that expired transaction and are not evidence for the rebuilt transaction below.
+- Opened a fresh edit transaction 7733203254043950927 on design DAHbXq0gvl0 (edit link returned during this transaction: https://www.canva.com/d/5wmDvcy0yam1e1W). Rebuilt all five hero masks from the saved baseline.
+- Current mask sequence: page 1 organic freeform; page 2 tapered curve; page 3 elliptical aperture; page 4 leaf aperture; page 5 brush-swash aperture. Each path is closed and has exactly four cubic Bezier commands in the same clockwise segment order.
+- Canva read-back confirms all five paths are attached to image-filled shapes referencing the same media ID MAHbXkHhMmw. Their element locator IDs remain page-specific and distinct. Object positions, dimensions and rotations remain the original five keyframes.
+- Local geometry audit sampled each cubic path at 1,001 parameter positions and confirmed all five path bounds lie within their respective viewBoxes. All five paths are closed and have four cubic segments. Local preview artifact: CANVA_FIVE_KEYFRAMES_LOCAL_QA.png, SHA-256 bb1312940010220c20a61cab76f129ecb0fe042ca97d01c855b5f827fc7f5950. Structured report: CANVA_FIVE_KEYFRAMES_GEOMETRY_QA.json, SHA-256 7ba4d23f0855cc764621310d51b496fbc00265c922ccfa5441e02ed3826550fb. Both files are local deliverables, not committed to the repository.
+- The local preview is a geometry reconstruction from Canva read-back values and the shared source media. It is NOT a Canva-render capture. Current Canva thumbnail URLs could not be inspected through the available browser routes in this run; Canva renderer visual QA remains NOT_VERIFIED for the rebuilt transaction.
+- Canva Match & Move remains NOT_SET and playback remains NOT_VERIFIED. The connected Canva editor API still exposes no page-transition setter. Do not substitute Dissolve or claim animation success.
+- The active transaction remains OPEN_UNSAVED. No commit/save was made. Obtain a visual review and explicit approval before committing it.
+- GitHub Actions run #201 (44562689875) for commit e854b39605aaf5022bd5ba887ea4cfe5e410f9ee completed SUCCESS with 7/7 jobs: Morph dataset audit plus all six Ubuntu/Windows × Python 3.10–3.12 matrix jobs.
+- PR #3 remains open, Draft and unmerged. No change to main or P0–P9 research-governance/acceptance state.

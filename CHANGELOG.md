@@ -436,3 +436,13 @@
 - Corrected path-topology inventory: page 1 has five cubic Bezier commands, pages 2–4 have four each, and page 5 remains rectangular. Segment-count/order normalization is a remaining prerequisite for a shape-interpolation experiment.
 - Canva Match & Move remains unset and playback unverified. The Canva edit transaction remains unsaved.
 - GitHub Actions run #200 completed 7/7 jobs successfully on commit d71081e0929a7fe72fdf715450d430729bd4549c.
+
+
+## 2026-11-20 — Canva five-keyframe geometry rebuild
+
+- Rebuilt the five Canva hero masks in a new unsaved transaction after the earlier draft transaction expired and its edits were found absent from the saved design.
+- Normalized all five closed mask paths to four cubic Bezier segments in the same clockwise order: organic freeform, tapered curve, ellipse, leaf aperture, and brush-swash aperture.
+- Read-back confirms the same hero media ID on all pages. Page-specific locator IDs remain distinct; Match & Move is not set and playback is not verified.
+- Local geometry sampling confirms all paths stay within their respective viewBoxes. Local preview and JSON QA report are available outside the repository and are not Canva renderer screenshots.
+- New transaction remains open and unsaved, pending Canva-render visual review and explicit approval to commit.
+- GitHub Actions run #201 completed 7/7 jobs successfully on commit e854b39605aaf5022bd5ba887ea4cfe5e410f9ee.
