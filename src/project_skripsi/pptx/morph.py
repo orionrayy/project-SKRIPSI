@@ -345,7 +345,37 @@ def inspect_deck(path: str | Path) -> dict:
                     errors.append(f"Slide {display_number}: duplicate forced object names {duplicates}")
                 option, duration, fallback = _morph(root)
                 has_morph = option is not None
+                transition_order_valid: bool | None = None
                 morph_requires: list[str] = []
+                if has_morph:
+                    direct_children = list(root)
+                    direct_tags = [child.tag for child in direct_children]
+                    morph_wrapper_positions = [
+                        index for index, child in enumerate(direct_children)
+                        if child.tag == _q("mc", "AlternateContent")
+                        and child.find(".//p159:morph", NS) is not None
+                    ]
+                    if len(morph_wrapper_positions) != 1:
+                        transition_order_valid = False
+                        errors.append(
+                            f"Slide {display_number}: Morph must be contained in exactly one direct mc:AlternateContent child"
+                        )
+                    else:
+                        c_sld_positions = [
+                            index for index, tag in enumerate(direct_tags) if tag == _q("p", "cSld")
+                        ]
+                        clr_map_positions = [
+                            index for index, tag in enumerate(direct_tags) if tag == _q("p", "clrMapOvr")
+                        ]
+                        preceding_positions = c_sld_positions + clr_map_positions
+                        morph_position = morph_wrapper_positions[0]
+                        if not c_sld_positions or morph_position <= max(preceding_positions):
+                            transition_order_valid = False
+                            errors.append(
+                                f"Slide {display_number}: Morph mc:AlternateContent must follow p:cSld and p:clrMapOvr in slide child order"
+                            )
+                        else:
+                            transition_order_valid = True
                 if has_morph:
                     morph_choice = next(
                         (
@@ -410,6 +440,7 @@ def inspect_deck(path: str | Path) -> dict:
                     "morph": has_morph,
                     "morph_option": option, "duration_ms": duration, "fade_fallback": fallback,
                     "morph_requires": morph_requires,
+                    "transition_order_valid": transition_order_valid,
                 })
                 previous = object_types
     except (zipfile.BadZipFile, OSError, ValueError, ET.ParseError) as exc:
