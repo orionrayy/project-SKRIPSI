@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased] — Reproducible custom picture-mask Morph demo (2026-11-19)
+
+- Added `examples/pptx/custom_picture_mask_morph_demo.py`, a self-contained five-slide generator with synthetic artwork and one native picture object per keyframe.
+- The example applies ten cubic Bezier segments to the picture's custom DrawingML geometry, retains a stable `!!hero-photo-mask` name and inserts native `byObject` Morph on destination slides 2–5.
+- Added a regression test that generates the deck and validates ZIP CRC, slide ordering, Morph placement, picture identity, custom path geometry and stable segment topology.
+- The example ships no third-party photo assets. PowerPoint Desktop playback remains NOT_VERIFIED.
+
+
 ## [Unreleased] — Native custom picture-mask geometry (2026-11-19)
 
 - Added custom freeform paths directly to native picture shapes, retaining the replaceable image relationship and existing picture crop.
