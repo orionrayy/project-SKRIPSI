@@ -58,6 +58,43 @@ set_picture_geometry(photo, 'ellipse')
 
 A freeform path and its nodes remain native PowerPoint vector geometry. An elliptical picture crop remains a picture object with a preset DrawingML geometry; the photograph is not flattened into a screenshot.
 
+
+## Picture masks with custom freeform geometry
+
+set_picture_freeform_geometry() applies a closed polygon directly to a native PowerPoint picture. Unlike placing a freeform above a rectangular photo, this changes the picture's own DrawingML a:custGeom; its p:pic identity, replaceable image relationship and picture crop remain intact. Coordinates are normalized to the picture bounds, where (0, 0) is top-left and (1, 1) is bottom-right.
+
+~~~python
+from project_skripsi.pptx.geometry import set_picture_freeform_geometry, tag_morph_object
+
+photo = slide.shapes.add_picture('map-photo.jpg', left, top, width, height)
+set_picture_freeform_geometry(
+    photo,
+    [(0.50, 0.02), (0.96, 0.18), (0.88, 0.76), (0.56, 0.98), (0.12, 0.82), (0.03, 0.34)],
+)
+tag_morph_object(photo, 'map-photo-cutout')
+~~~
+
+For smooth brush contours and curved apertures, use set_picture_custom_path() with native quadratic or cubic Bezier commands. Each path starts with one move and ends closed automatically. line uses an endpoint; quad uses a control point and endpoint; cubic uses two control points and an endpoint. All coordinate pairs are normalized to the picture bounds.
+
+~~~python
+from project_skripsi.pptx.geometry import set_picture_custom_path
+
+set_picture_custom_path(photo, [
+    ('move', 0.50, 0.02),
+    ('cubic', 0.78, 0.02, 0.98, 0.22, 0.98, 0.50),
+    ('cubic', 0.98, 0.78, 0.78, 0.98, 0.50, 0.98),
+    ('cubic', 0.22, 0.98, 0.02, 0.78, 0.02, 0.50),
+    ('cubic', 0.02, 0.22, 0.22, 0.02, 0.50, 0.02),
+])
+~~~
+
+Use the polygon helper for map boundaries, shards, sectors and irregular cutouts. Use custom Bezier paths where visibly smooth edges matter. The helper rejects malformed commands, non-finite/out-of-range coordinates, missing or duplicate move commands, and paths with fewer than three distinct anchors. It does not rasterize the image or synthesize a brush texture; the path only defines the mask contour.
+
+For a Morph sequence, keep picture object type, forced name, number/order of path segments, corresponding control points, and winding direction consistent on adjacent slides. Change the control-point coordinates gradually between keyframes. This is a structural authoring constraint, not a guarantee that every PowerPoint build will interpolate the custom picture geometry as intended; preview in Microsoft PowerPoint Desktop.
+
+A local interoperability smoke test creates a picture with a cubic custom mask, saves and reloads the PPTX, checks ZIP integrity, and renders the static slide endpoint through LibreOffice. That proves the package and static mask can be rendered in this environment; it does not verify native Morph playback.
+
+
 ## Merge Shapes and masks
 
 The native PowerPoint Merge Shapes operations are Union, Combine, Fragment, Intersect, and Subtract. They are shape-editing operations, not a live editable history of a Boolean expression. Preserve untouched source geometry before merging when further adjustment may be required.
