@@ -107,3 +107,12 @@ On every invocation:
 - Brush-stroke mask references are kept outside the native-Morph count. Showeet's free 41-layout brush mockup collection is a static/editable picture-mask resource requiring attribution; it does not claim to provide native Morph animation. Do not count it as Morph. Embedded photos and source decks with unclear asset-level redistribution rights are not vendored into the repository.
 - Structural checks and GitHub CI do **not** verify Microsoft PowerPoint playback. Native Desktop PowerPoint preview and visual acceptance remain NOT_VERIFIED and required before claiming the toolkit reproduces the reference videos.
 - No research phase ledger, P0–P9 approval state, or `main` branch state was changed. Dataset work remains isolated to this Draft Morph PR.
+
+
+## 11. Native custom picture-mask geometry — 2026-11-19
+
+- Extended the optional PowerPoint geometry toolkit with set_picture_freeform_geometry() and set_picture_custom_path(). Custom DrawingML geometry is written into the picture shape itself, retaining native p:pic identity, image relationship and picture crop. Both polygon and quadratic/cubic Bezier path commands are supported in normalized picture coordinates.
+- Added defensive validation for malformed commands, point arity, non-finite/out-of-bounds points, move-command position/count, minimum distinct anchors, and coordinate scale. The image is not rasterized or embedded as a brush texture; this is editable picture clipping geometry.
+- Local validation: 14/14 PowerPoint geometry tests PASS, including save/reload, crop preservation, Bezier path structure, geometry replacement and invalid-path rejection. LibreOffice static render smoke test displays the custom Bezier picture mask; this does not verify PowerPoint Morph playback.
+- Toolkit documentation records the custom-mask API and Morph keyframe constraints. Microsoft PowerPoint Desktop playback remains NOT_VERIFIED.
+- No phase ledger, research approval or acceptance state changed. PR #3 remains Draft and unmerged; main is unchanged.
