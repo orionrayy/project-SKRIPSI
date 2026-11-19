@@ -10,12 +10,12 @@
 - Kept Microsoft PowerPoint playback marked NOT_VERIFIED. A static render or XML inspection cannot certify Morph playback.
 - Documented that Canva Match & Move is separate from PowerPoint Morph. The connected Canva editing tools do not expose a page-transition setter; never substitute Dissolve or claim Match & Move was applied automatically.
 
-## [Unreleased] — Reproducible custom picture-mask Morph demo (2026-11-19)
+## [Unreleased] — Reproducible custom picture-mask Morph demo (2026-11-19; initial iteration superseded)
 
-- Added `examples/pptx/custom_picture_mask_morph_demo.py`, a self-contained five-slide generator with synthetic artwork and one native picture object per keyframe.
-- The example applies ten cubic Bezier segments to the picture's custom DrawingML geometry, retains a stable `!!hero-photo-mask` name and inserts native `byObject` Morph on destination slides 2–5.
-- Added a regression test that generates the deck and validates ZIP CRC, slide ordering, Morph placement, picture identity, custom path geometry and stable segment topology.
-- The example ships no third-party photo assets. PowerPoint Desktop playback remains NOT_VERIFIED.
+- The first iteration used one native `p:pic` per keyframe with `p:spPr/a:custGeom`. Although the package parsed and LibreOffice rendered the static endpoints, the user reported no visible picture-mask change in PowerPoint playback. That playback failure is retained as a failed acceptance result; the picture-custom-geometry implementation is not represented as a verified Morph path.
+- The current generator uses a native freeform `p:sp` with an editable `a:blipFill` image relationship. The same unique `!!hero-photo-mask` name, object type, ten-cubic-segment topology and path winding are retained across five keyframes.
+- The keyframes vary both Bezier geometry and shape position/size. The regression test checks distinct path serializations, distinct transforms, Morph destination slides 2–5, and the slide-child order of the Morph AlternateContent wrapper.
+- No third-party photo or PPTX assets are vendored. Microsoft PowerPoint Desktop playback remains NOT_VERIFIED and must not be inferred from CI or LibreOffice rendering.
 
 
 ## [Unreleased] — Native custom picture-mask geometry (2026-11-19)
