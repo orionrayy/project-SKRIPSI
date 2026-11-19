@@ -170,10 +170,20 @@ On every invocation:
 ## 14. Canva draft verification checkpoint — 2026-11-19
 
 - Continued the Canva-native keyframe fixture in existing editing transaction 2136354799700613472, design DAHbXq0gvl0. Page 1's image-filled shape was replaced by a closed cubic-Bezier freeform. The edit returned applied_unverified; read-back confirms the path and shared media ID MAHbXkHhMmw remain attached to the shape.
-- The specific page-1 Canva mask path has four cubic Bézier commands. Do not conflate it with the separate PowerPoint generator's topology.
+- The page-1 Canva mask path has five cubic Bézier commands; pages 2–4 each have four cubic commands after subsequent draft edits. Page 5 remains rectangular. The command-count mismatch is unresolved and must be normalized before this set is treated as a shape-interpolation candidate. Do not conflate it with the separate PowerPoint generator's topology.
 - Canva visual QA remains blocked: the signed thumbnail URL returned by the connector could not be retrieved through the available browser/download/runtime routes. The local geometry reconstruction CANVA_PAGE1_MASK_LOCAL_RECONSTRUCTION.png (SHA-256 61701acc687bcbc6d17285ba62f94ec49c5bd53a0d9a57373eddc78e53eb69ff) is a local reproduction, not a Canva render.
 - Read-back confirms pages 1–5 share media ID MAHbXkHhMmw; the hero object locator IDs differ by page. This proves asset reuse but not Canva Match & Move continuity. Pages 2–5 remain unedited.
 - The source keyframe PPTX page 4 renders correctly when inspected as a standalone LibreOffice page; the previously observed thin line was caused by the contact-sheet preview, not the source slide.
 - Canva Match & Move is still NOT_SET; playback is NOT_VERIFIED. The active transaction is unsaved and uncommitted. Do not commit without preview and explicit user approval.
 - Latest PR head at this checkpoint: 13e4519c6be0454662c846a79977d43dd3a6401a. CI run #199 (44553324904) has the Morph dataset audit and five of six matrix jobs successful; Ubuntu/Python 3.10 is still in the LibreOffice installation step. PR #3 remains Draft and unmerged.
 - No changes to main or the P0–P9 research-governance/acceptance state were made.
+
+
+## 15. Canva keyframe mask visual QA — 2026-11-19
+
+- Actual Canva before/after thumbnails were captured and visually compared for pages 1–3. Page 1 shows the rectangular source picture replaced by an organic freeform clip; page 2 shows a tapered curved mask; page 3 shows a smooth ellipse. The hero picture remains visible within each clipping path without major defects at thumbnail scale. This is static rendering evidence only, not transition playback.
+- Page 4's leaf-like mask edit is structurally applied and retains the hero media ID, but its after-thumbnail visual QA is pending because the browser-preview service exhausted its daily credits. Do not edit page 4 again before its before/after visual check.
+- Page 5 remains unmodified and rectangular.
+- All five current image-filled shapes reference media ID MAHbXkHhMmw, but their locator IDs differ. The path topology is inconsistent: page 1 has five cubic Bezier commands; pages 2–4 have four; page 5 remains rectangular with no cubic commands. Normalize path segment counts/order before treating this as a Morph-compatible shape-interpolation sequence.
+- Canva Match & Move remains NOT_SET; playback remains NOT_VERIFIED. Editing transaction 2136354799700613472 remains open and unsaved. No save/commit action was taken.
+- GitHub Actions run #200 (44560253741) completed 7/7 jobs successfully on branch commit d71081e0929a7fe72fdf715450d430729bd4549c. PR #3 remains Draft, open, and unmerged. No main or P0–P9 research-governance/acceptance mutation.

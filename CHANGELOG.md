@@ -422,8 +422,17 @@
 
 ## 2026-11-19 — Canva draft-mask verification checkpoint
 
-- Added and read back a closed cubic-Bezier image mask on page 1 of the existing Canva keyframe fixture. The page-1 path has four cubic segments; the edit is structurally applied but visual rendering is not verified.
+- Added and read back a closed cubic-Bezier image mask on page 1 of the existing Canva keyframe fixture. The page-1 path has five cubic segments; the edit is structurally applied but visual rendering is not verified.
 - Captured a local geometry reconstruction for inspection; it is explicitly not a Canva-render acceptance artifact.
 - Confirmed the shared hero media ID across all five Canva pages while recording that page-scoped object locator IDs differ. Match & Move remains unset and playback unverified; pages 2–5 were not changed.
 - Corrected the earlier preview interpretation: PPTX fixture slide 4 renders correctly on its own; the thin line was a contact-sheet issue.
 - CI run #199 remains in progress with 5/6 test matrix jobs plus the Morph dataset audit successful; Ubuntu/Python 3.10 is still installing LibreOffice.
+
+
+## 2026-11-19 — Canva keyframe visual QA and CI checkpoint
+
+- Compared actual Canva before/after thumbnails for pages 1–3: organic freeform, tapered curved mask, and elliptical aperture all render with the hero image retained. These are static preview checks only.
+- Page 4's leaf-mask edit is structurally applied but its thumbnail QA remains pending; page 5 is untouched.
+- Corrected path-topology inventory: page 1 has five cubic Bezier commands, pages 2–4 have four each, and page 5 remains rectangular. Segment-count/order normalization is a remaining prerequisite for a shape-interpolation experiment.
+- Canva Match & Move remains unset and playback unverified. The Canva edit transaction remains unsaved.
+- GitHub Actions run #200 completed 7/7 jobs successfully on commit d71081e0929a7fe72fdf715450d430729bd4549c.
