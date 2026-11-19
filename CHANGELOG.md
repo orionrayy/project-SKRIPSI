@@ -1,5 +1,57 @@
 # Changelog
 
+## [Unreleased] — Canva keyframe compatibility fixture (2026-11-19)
+
+- Created an editable five-page Canva presentation from a keyframe PPTX fixture: design ID `DAHbXq0gvl0`, edit URL `https://www.canva.com/d/B57HXK3Xjxry66_`.
+- Canva read-back confirms five editable 1920×1080 pages. The hero image uses the same media ID across all pages; page-scoped element locator IDs differ. Positions, dimensions and rotation change across keyframes.
+- This verifies imported keyframe content and asset reuse only. It does not prove Match & Move interpolation; no page transition was applied and no playback PASS is claimed.
+- The connected Canva design tools have no page-transition setter. Do not use Dissolve as a substitute. Manual Match & Move selection and preview across page pairs 1→2, 2→3, 3→4 and 4→5 remain pending.
+- For stronger continuity, duplicate a page inside Canva and edit the duplicated object. Do not assume independently imported PowerPoint slides preserve Canva element identity.
+- The earlier PowerPoint Morph-to-Canva import path remains FAILED as an animation acceptance test. Microsoft PowerPoint Desktop playback of native Morph remains NOT_VERIFIED.
+
+## [Unreleased] — Morph mask playback feedback correction (2026-11-19)
+- Added strict slide-child-order validation for Morph: the Morph AlternateContent wrapper must follow p:cSld and p:clrMapOvr when that override exists. Regression coverage deliberately corrupts the order and requires inspection to fail.
+- Updated the sample keyframes to vary the image-filled freeform's position and scale as well as its Bezier mask, making both movement and silhouette changes observable.
+
+- User playback feedback reported no visible picture-mask change in the first demo. That generator used p:pic with a:custGeom; XML validity and LibreOffice static rendering were insufficient evidence of Morph interpolation.
+- Added a shape-based picture-fill authoring path: native p:sp custom freeform geometry with a:blipFill, stable !!hero-photo-mask identity and ten cubic Bezier segments per keyframe.
+- Strengthened the generated-deck regression test to compare serialized custom geometry on all five slides and fail unless every keyframe is genuinely distinct.
+- Kept Microsoft PowerPoint playback marked NOT_VERIFIED. A static render or XML inspection cannot certify Morph playback.
+- Documented that Canva Match & Move is separate from PowerPoint Morph. The connected Canva editing tools do not expose a page-transition setter; never substitute Dissolve or claim Match & Move was applied automatically.
+
+## [Unreleased] — Reproducible custom picture-mask Morph demo (2026-11-19; initial iteration superseded)
+
+- The first iteration used one native `p:pic` per keyframe with `p:spPr/a:custGeom`. Although the package parsed and LibreOffice rendered the static endpoints, the user reported no visible picture-mask change in PowerPoint playback. That playback failure is retained as a failed acceptance result; the picture-custom-geometry implementation is not represented as a verified Morph path.
+- The current generator uses a native freeform `p:sp` with an editable `a:blipFill` image relationship. The same unique `!!hero-photo-mask` name, object type, ten-cubic-segment topology and path winding are retained across five keyframes.
+- The keyframes vary both Bezier geometry and shape position/size. The regression test checks distinct path serializations, distinct transforms, Morph destination slides 2–5, and the slide-child order of the Morph AlternateContent wrapper.
+- No third-party photo or PPTX assets are vendored. Microsoft PowerPoint Desktop playback remains NOT_VERIFIED and must not be inferred from CI or LibreOffice rendering.
+
+
+## [Unreleased] — Native custom picture-mask geometry (2026-11-19)
+
+- Added custom freeform paths directly to native picture shapes, retaining the replaceable image relationship and existing picture crop.
+- Added normalized polygon paths plus native quadratic and cubic Bezier commands for irregular map cutouts, segmented masks, curved apertures and brush-like silhouettes.
+- Added validation for path arity, point bounds, finite coordinates, anchor count, move-command placement and coordinate scale.
+- Added 10 regression tests for editable picture identity, OOXML structure, crop preservation across save/reload, curve commands, invalid paths and geometry replacement.
+- Static picture-mask package smoke tests pass through LibreOffice; Microsoft PowerPoint Morph playback remains NOT_VERIFIED.
+
+
+## [Unreleased] — PowerPoint Morph control correction (2026-11-18)
+
+- Reconciled Morph namespace documentation with the writer and regression tests: the generated Choice uses `Requires="p159"`; `p159` is declared on `mc:Choice`, while `p14` is declared locally on the Morph `p:transition` carrying `p14:dur`.
+- Added three diagnostic variants based on the uploaded six-slide grouped-object deck: original names, lower-group forced name `!!large-ball`, and nested child-freeform forced name `!!large-ball-path`. All contain Morph on destination slides 2–6 and pass package/XML/static-render checks.
+- Strengthened `inspect_deck` to record forced Morph object container types and reject cross-type pairs (for example, a shape paired with a group); regression coverage includes consistent group/child pairs and an invalid group/shape pair.
+- GitHub Actions run #143 completed **6/6 matrix jobs**, each passing 220 tests plus manifest, compile, phase-ledger and CLI checks.
+- Microsoft PowerPoint playback remains NOT_VERIFIED; local static rendering is not Morph-engine evidence.
+
+## [Unreleased] — PowerPoint Morph and visual geometry toolkit (2026-11-17)
+
+- Added a standard-library PowerPoint OOXML Morph patcher and structural inspector. It resolves displayed slide order through presentation relationships, patches destination slides atomically, supports byObject/byWord/byChar, retains a Fade fallback and validates duration and forced object-name pairing.
+- Added optional python-pptx helpers for editable freeform paths, stable Morph object names and native preset picture geometry.
+- Added the project-skripsi-pptx CLI, optional slides extra, documentation and 12 regression tests.
+- Local validation: 12/12 toolkit tests PASS, compileall PASS, 13-slide demo PPTX ZIP/OOXML inspection PASS, and LibreOffice PDF render review PASS.
+- Microsoft PowerPoint Morph playback remains NOT_VERIFIED. No uploaded reference videos, frame captures, or source image assets are included in the public repository. No research phase state was changed.
+
 ## 0.8.0 — Turnitin report comparison and empirical evidence QA (2026-11-10)
 
 - Added optional local Turnitin PDF report parser and comparison engine: submission metadata, similarity percentage, visible exclusions, source-category percentages, top-source inventory and visible source-badge references.
@@ -359,3 +411,38 @@
 - Added deterministic TAR.XZ release packaging and one-shot root expansion. The transfer archive is verified against both its SHA-256 sidecar and the internal source manifest before any repository write.
 - Local revalidation: **200/200 tests PASS**, **29/29 JSON Schemas PASS**, manifest integrity PASS, phase-ledger validation PASS and CLI smoke test PASS.
 - Public scope remains aggregate-only for reference research. P2 human acceptance is pending, and P3–P9 remain gated.
+
+## 2026-11-19 — Free PowerPoint Morph reference dataset
+
+- Added a 54-file native-Morph reference corpus with source URLs, SHA-256 manifest, technique map, deep object-pair audit, and 22-file priority A+B shortlist.
+- Added a standard-library downloader and a CI verifier for the 22 priority files. GitHub Actions verified 22/22 sources (size, SHA-256, ZIP CRC, active Morph options, slide ordering, name/type matching and geometry changes); source binaries are deleted from the runner and only the JSON report is retained as a short-lived artifact.
+- Kept brush-mask-only PPTX resources outside the native-Morph count. No source PPTX binaries or embedded author-owned photo assets are committed.
+- Microsoft PowerPoint Desktop playback remains NOT_VERIFIED; structural OOXML inspection is not a substitute for native transition playback.
+
+
+## 2026-11-19 — Canva draft-mask verification checkpoint
+
+- Added and read back a closed cubic-Bezier image mask on page 1 of the existing Canva keyframe fixture. The page-1 path has five cubic segments; the edit is structurally applied but visual rendering is not verified.
+- Captured a local geometry reconstruction for inspection; it is explicitly not a Canva-render acceptance artifact.
+- Confirmed the shared hero media ID across all five Canva pages while recording that page-scoped object locator IDs differ. Match & Move remains unset and playback unverified; pages 2–5 were not changed.
+- Corrected the earlier preview interpretation: PPTX fixture slide 4 renders correctly on its own; the thin line was a contact-sheet issue.
+- CI run #199 remains in progress with 5/6 test matrix jobs plus the Morph dataset audit successful; Ubuntu/Python 3.10 is still installing LibreOffice.
+
+
+## 2026-11-19 — Canva keyframe visual QA and CI checkpoint
+
+- Compared actual Canva before/after thumbnails for pages 1–3: organic freeform, tapered curved mask, and elliptical aperture all render with the hero image retained. These are static preview checks only.
+- Page 4's leaf-mask edit is structurally applied but its thumbnail QA remains pending; page 5 is untouched.
+- Corrected path-topology inventory: page 1 has five cubic Bezier commands, pages 2–4 have four each, and page 5 remains rectangular. Segment-count/order normalization is a remaining prerequisite for a shape-interpolation experiment.
+- Canva Match & Move remains unset and playback unverified. The Canva edit transaction remains unsaved.
+- GitHub Actions run #200 completed 7/7 jobs successfully on commit d71081e0929a7fe72fdf715450d430729bd4549c.
+
+
+## 2026-11-20 — Canva five-keyframe geometry rebuild
+
+- Rebuilt the five Canva hero masks in a new unsaved transaction after the earlier draft transaction expired and its edits were found absent from the saved design.
+- Normalized all five closed mask paths to four cubic Bezier segments in the same clockwise order: organic freeform, tapered curve, ellipse, leaf aperture, and brush-swash aperture.
+- Read-back confirms the same hero media ID on all pages. Page-specific locator IDs remain distinct; Match & Move is not set and playback is not verified.
+- Local geometry sampling confirms all paths stay within their respective viewBoxes. Local preview and JSON QA report are available outside the repository and are not Canva renderer screenshots.
+- New transaction remains open and unsaved, pending Canva-render visual review and explicit approval to commit.
+- GitHub Actions run #201 completed 7/7 jobs successfully on commit e854b39605aaf5022bd5ba887ea4cfe5e410f9ee.
