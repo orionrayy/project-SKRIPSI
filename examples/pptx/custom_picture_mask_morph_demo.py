@@ -115,7 +115,15 @@ def build_demo(output: str | Path, *, duration_ms: int = 1000) -> dict:
             RGBColor(8, 16, 27), RGBColor(242, 246, 250),
             RGBColor(151, 170, 191), RGBColor(83, 180, 199),
         )
+        frame_bounds = [
+            (2.05, 1.77, 9.23, 4.85),
+            (1.45, 1.68, 10.25, 4.80),
+            (2.25, 2.00, 8.80, 4.45),
+            (1.10, 1.78, 11.10, 4.75),
+            (2.05, 1.77, 9.23, 4.85),
+        ]
         for index, anchors in enumerate(_keyframes()):
+            left, top, width, height = (Inches(value) for value in frame_bounds[index])
             slide = prs.slides.add_slide(prs.slide_layouts[6])
             slide.background.fill.solid()
             slide.background.fill.fore_color.rgb = bg
@@ -131,7 +139,7 @@ def build_demo(output: str | Path, *, duration_ms: int = 1000) -> dict:
             divider.fill.solid()
             divider.fill.fore_color.rgb = RGBColor(42, 59, 78)
             divider.line.fill.background()
-            mask = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(2.05), Inches(1.77), Inches(9.23), Inches(5.00))
+            mask = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, left, top, width, height)
             set_shape_custom_path(mask, _commands(anchors))
             set_shape_picture_fill(mask, image_path)
             tag_morph_object(mask, "hero-photo-mask")
