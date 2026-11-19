@@ -1,5 +1,14 @@
 # Changelog
 
+## [Unreleased] — Native custom picture-mask geometry (2026-11-19)
+
+- Added custom freeform paths directly to native picture shapes, retaining the replaceable image relationship and existing picture crop.
+- Added normalized polygon paths plus native quadratic and cubic Bezier commands for irregular map cutouts, segmented masks, curved apertures and brush-like silhouettes.
+- Added validation for path arity, point bounds, finite coordinates, anchor count, move-command placement and coordinate scale.
+- Added 10 regression tests for editable picture identity, OOXML structure, crop preservation across save/reload, curve commands, invalid paths and geometry replacement.
+- Static picture-mask package smoke tests pass through LibreOffice; Microsoft PowerPoint Morph playback remains NOT_VERIFIED.
+
+
 ## [Unreleased] — PowerPoint Morph control correction (2026-11-18)
 
 - Reconciled Morph namespace documentation with the writer and regression tests: the generated Choice uses `Requires="p159"`; `p159` is declared on `mc:Choice`, while `p14` is declared locally on the Morph `p:transition` carrying `p14:dur`.
