@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased] — Canva Match & Move compatibility boundary (2026-11-19)
+
+- User confirmed the generated PPTX was opened/imported in Canva and no Morph animation was visible. Treat this as a failed Canva acceptance test.
+- PowerPoint `p159:morph` is not a Canva-native Match & Move transition. A PPTX import must not be assumed to preserve or translate transition metadata into Canva page transitions.
+- Documented a separate Canva-native keyframe workflow: duplicate pages, preserve object continuity, change positions/sizes/appearance, and explicitly select Match & Move between pages. Dissolve is not an acceptable substitute.
+- Canva connector operations available to this project do not expose a page-transition setter. Automated Match & Move configuration/playback remains unavailable; do not claim the transition was applied.
+- The current custom-mask PPTX remains a PowerPoint playback candidate only. Its Microsoft PowerPoint playback remains NOT_VERIFIED; its Canva animation acceptance is FAILED for the PPTX-import path.
+
 ## [Unreleased] — Morph mask playback feedback correction (2026-11-19)
 - Added strict slide-child-order validation for Morph: the Morph AlternateContent wrapper must follow p:cSld and p:clrMapOvr when that override exists. Regression coverage deliberately corrupts the order and requires inspection to fail.
 - Updated the sample keyframes to vary the image-filled freeform's position and scale as well as its Bezier mask, making both movement and silhouette changes observable.
