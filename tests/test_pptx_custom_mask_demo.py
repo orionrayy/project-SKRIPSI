@@ -31,7 +31,12 @@ class CustomMaskDemoTests(unittest.TestCase):
                 self.assertIsNone(archive.testzip())
                 for number in range(1, 6):
                     root = ET.fromstring(archive.read(f"ppt/slides/slide{number}.xml"))
-                    picture = root.find('.//p:pic[p:nvPicPr/p:cNvPr[@name="!!hero-photo-mask"]]', {"p": P})
+                    picture = None
+                    for candidate in root.findall(".//p:pic", {"p": P}):
+                        nonvisual = candidate.find("p:nvPicPr/p:cNvPr", {"p": P})
+                        if nonvisual is not None and nonvisual.get("name") == "!!hero-photo-mask":
+                            picture = candidate
+                            break
                     self.assertIsNotNone(picture)
                     self.assertIsNotNone(picture.find("p:spPr/a:custGeom", {"p": P, "a": A}))
                     path = picture.find("p:spPr/a:custGeom/a:pathLst/a:path", {"p": P, "a": A})
