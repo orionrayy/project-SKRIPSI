@@ -144,3 +144,13 @@ On every invocation:
 - Microsoft PowerPoint Desktop playback remains NOT_VERIFIED. This runtime cannot simulate the proprietary Morph engine; no final playback-success claim is made.
 - Canva Match & Move is a Canva-native page transition, not the PowerPoint Morph OOXML element. The connected Canva editing operations currently exposed here have no page-transition setter. Do not substitute Dissolve or claim Match & Move was configured through the integration.
 - P0–P9 research governance and acceptance states are unchanged. PR #3 remains Draft and is not merged.
+
+## 12. Canva Match & Move compatibility boundary — 2026-11-19
+
+- The user confirmed the latest PPTX custom-mask demo was imported/opened in Canva and did not display Morph. This is a failed acceptance result for the Canva target.
+- Native PowerPoint `p159:morph` and Canva Match & Move are different systems. The PPTX import workflow converts presentation content into Canva design pages; do not assume it carries PowerPoint Morph metadata into Canva page transitions.
+- Canva's documented Match & Move process uses page keyframes and requires selecting Match & Move from the transition control between pages. The Canva connector operations available to this project do not expose a page-transition setter; automated transition application and playback verification are unavailable.
+- Do not substitute Dissolve. Do not claim Canva Match & Move is configured unless it is visibly selected and previewed in Canva.
+- The local PPTX v4 is a PowerPoint-only Morph candidate and is not a Canva animation deliverable. Microsoft PowerPoint Desktop playback remains NOT_VERIFIED. Canva animation is FAILED for the PPTX-import path.
+- Canva design search by the demo title returned no matching presentation in the connected account. Do not create or edit a duplicate until the exact Canva design is identified.
+- PR #3 remains Draft and unmerged. No research phase ledger, P0–P9 approval state, or `main` content was changed.
