@@ -131,7 +131,7 @@ def build_demo(output: str | Path, *, duration_ms: int = 1000) -> dict:
             divider.fill.solid()
             divider.fill.fore_color.rgb = RGBColor(42, 59, 78)
             divider.line.fill.background()
-            picture = slide.shapes.add_picture(image_path, Inches(2.05), Inches(1.77), width=Inches(9.23), height=Inches(5.00))
+            picture = slide.shapes.add_picture(str(image_path), Inches(2.05), Inches(1.77), width=Inches(9.23), height=Inches(5.00))
             set_picture_custom_path(picture, _commands(anchors))
             tag_morph_object(picture, "hero-photo-mask")
             footer = slide.shapes.add_textbox(Inches(.76), Inches(6.93), Inches(6.8), Inches(.25))
