@@ -165,3 +165,15 @@ On every invocation:
 - No transition was applied. Canva's connected API has no transition setter; no Dissolve substitute was used. Manual Match & Move selection and preview for all four page boundaries remain pending. For stronger identity continuity, duplicate the first page inside Canva and change the duplicated element.
 - Canva animation acceptance remains PENDING. The earlier PPTX Morph import attempt remains FAILED for Canva. Microsoft PowerPoint Desktop playback of the separate native Morph demo remains NOT_VERIFIED.
 - PR #3 remains Draft and unmerged; no `main`, P0–P9 governance, or approval state changed.
+
+
+## 14. Canva draft verification checkpoint — 2026-11-19
+
+- Continued the Canva-native keyframe fixture in existing editing transaction 2136354799700613472, design DAHbXq0gvl0. Page 1's image-filled shape was replaced by a closed cubic-Bezier freeform. The edit returned applied_unverified; read-back confirms the path and shared media ID MAHbXkHhMmw remain attached to the shape.
+- The specific page-1 Canva mask path has four cubic Bézier commands. Do not conflate it with the separate PowerPoint generator's topology.
+- Canva visual QA remains blocked: the signed thumbnail URL returned by the connector could not be retrieved through the available browser/download/runtime routes. The local geometry reconstruction CANVA_PAGE1_MASK_LOCAL_RECONSTRUCTION.png (SHA-256 61701acc687bcbc6d17285ba62f94ec49c5bd53a0d9a57373eddc78e53eb69ff) is a local reproduction, not a Canva render.
+- Read-back confirms pages 1–5 share media ID MAHbXkHhMmw; the hero object locator IDs differ by page. This proves asset reuse but not Canva Match & Move continuity. Pages 2–5 remain unedited.
+- The source keyframe PPTX page 4 renders correctly when inspected as a standalone LibreOffice page; the previously observed thin line was caused by the contact-sheet preview, not the source slide.
+- Canva Match & Move is still NOT_SET; playback is NOT_VERIFIED. The active transaction is unsaved and uncommitted. Do not commit without preview and explicit user approval.
+- Latest PR head at this checkpoint: 13e4519c6be0454662c846a79977d43dd3a6401a. CI run #199 (44553324904) has the Morph dataset audit and five of six matrix jobs successful; Ubuntu/Python 3.10 is still in the LibreOffice installation step. PR #3 remains Draft and unmerged.
+- No changes to main or the P0–P9 research-governance/acceptance state were made.

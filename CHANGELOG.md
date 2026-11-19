@@ -418,3 +418,12 @@
 - Added a standard-library downloader and a CI verifier for the 22 priority files. GitHub Actions verified 22/22 sources (size, SHA-256, ZIP CRC, active Morph options, slide ordering, name/type matching and geometry changes); source binaries are deleted from the runner and only the JSON report is retained as a short-lived artifact.
 - Kept brush-mask-only PPTX resources outside the native-Morph count. No source PPTX binaries or embedded author-owned photo assets are committed.
 - Microsoft PowerPoint Desktop playback remains NOT_VERIFIED; structural OOXML inspection is not a substitute for native transition playback.
+
+
+## 2026-11-19 — Canva draft-mask verification checkpoint
+
+- Added and read back a closed cubic-Bezier image mask on page 1 of the existing Canva keyframe fixture. The page-1 path has four cubic segments; the edit is structurally applied but visual rendering is not verified.
+- Captured a local geometry reconstruction for inspection; it is explicitly not a Canva-render acceptance artifact.
+- Confirmed the shared hero media ID across all five Canva pages while recording that page-scoped object locator IDs differ. Match & Move remains unset and playback unverified; pages 2–5 were not changed.
+- Corrected the earlier preview interpretation: PPTX fixture slide 4 renders correctly on its own; the thin line was a contact-sheet issue.
+- CI run #199 remains in progress with 5/6 test matrix jobs plus the Morph dataset audit successful; Ubuntu/Python 3.10 is still installing LibreOffice.

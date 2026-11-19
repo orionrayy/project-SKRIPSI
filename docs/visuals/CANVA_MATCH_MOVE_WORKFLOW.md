@@ -46,3 +46,15 @@ The connected Canva tools expose design search, import, page read-back, page lis
 - Canva: Import PowerPoint presentations — https://www.canva.com/help/powerpoint-import/
 - Canva: Use page transitions — https://www.canva.com/help/page-transitions/
 - Canva Design School: Create animations with Match & Move — https://www.canva.com/design-school/resources/how-to-create-animations-with-match-and-move/
+
+
+## Draft mask transaction and visual QA — 2026-11-19
+
+- Continued in the existing unsaved Canva editing transaction 2136354799700613472 for design DAHbXq0gvl0. Page 1's original image-filled shape was replaced with a closed cubic-Bezier freeform. The edit API returned applied_unverified; a subsequent transaction read-back confirms the shape path and the original shared image media ID MAHbXkHhMmw are present.
+- The specific Canva path contains four cubic Bézier commands. Do not describe this Canva edit as a ten-segment path. The separate PowerPoint custom-mask implementation has its own path-topology checks.
+- Page 1 has not passed Canva-render visual QA. The connector returned a signed thumbnail URL, but the available browser/download/runtime routes could not retrieve its image bytes. A local reconstruction was generated from the returned path plus the original asset for geometry inspection only: CANVA_PAGE1_MASK_LOCAL_RECONSTRUCTION.png, SHA-256 61701acc687bcbc6d17285ba62f94ec49c5bd53a0d9a57373eddc78e53eb69ff. It is not a Canva render and cannot establish Canva rendering parity.
+- Read-back of pages 2–5 confirms all five pages remain 1920×1080 and use the same image media ID. Their hero object locator IDs differ, so shared asset identity is not proof of Match & Move object continuity. Pages 2–5 were not edited in this transaction.
+- The source PPTX fixture's page 4 was rendered individually through LibreOffice and displays the full image correctly. The thin horizontal mark in the earlier contact sheet was a contact-sheet composition artifact, not a page-4 PPTX rendering defect.
+- Canva Match & Move remains NOT_SET; playback remains NOT_VERIFIED. The connected Canva edit surface has no page-transition setter. The editing transaction remains open and unsaved; no commit was made.
+- GitHub Actions run #199 (44553324904) is still in progress on head 13e4519c6be0454662c846a79977d43dd3a6401a: the Morph dataset audit passed and five of six test matrix jobs passed. The remaining Ubuntu/Python 3.10 job was still in the LibreOffice installation step at the latest poll. Do not claim full CI success until that job completes.
+- PR #3 remains open, Draft and unmerged. No changes were made to main, the P0–P9 phase ledger, or research acceptance state.
