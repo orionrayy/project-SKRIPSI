@@ -24,6 +24,7 @@ NS = {
     "p": "http://schemas.openxmlformats.org/presentationml/2006/main",
     "r": "http://schemas.openxmlformats.org/officeDocument/2006/relationships",
     "a": "http://schemas.openxmlformats.org/drawingml/2006/main",
+    "p159": "http://schemas.microsoft.com/office/powerpoint/2015/09/main",
 }
 SHAPE_TAGS = {
     "sp": "nvSpPr",
@@ -106,10 +107,13 @@ def audit(archive: zipfile.ZipFile) -> dict:
     options = Counter()
     for part in order:
         data = archive.read(part)
-        has_morph = b"p159:morph" in data
-        for value in re.findall(rb'<p159:morph[^>]*option=["\\']([^"\\']+)', data):
-            options[value.decode("utf-8", "replace")] += 1
-        slides.append((has_morph, slide_shapes(ET.fromstring(data))))
+        root = ET.fromstring(data)
+        morph_nodes = root.findall(".//p159:morph", NS)
+        for morph_node in morph_nodes:
+            option = morph_node.get("option", "")
+            if option:
+                options[option] += 1
+        slides.append((bool(morph_nodes), slide_shapes(root)))
 
     active_pairs = pairs_with_match = pairs_with_geometry = pairs_without_match = 0
     matched_objects = changed_objects = 0
