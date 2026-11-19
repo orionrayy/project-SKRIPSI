@@ -127,3 +127,16 @@ The free reference corpus, source/license notes, technique-to-video mapping and 
 Run `python scripts/verify_morph_reference_dataset.py` in CI to fetch and verify the 22 priority files. It validates original file size and SHA-256, ZIP CRC, active slide ordering, native `p159:morph` options, strict object name/type matches and geometry changes. Temporary PPTX binaries are deleted after verification; only the JSON audit report is retained.
 
 Brush-stroke mask libraries that provide editable image masks but do not contain native Morph transitions must remain separately labelled as geometry references. Do not inflate the native-Morph dataset count with static mask templates. Microsoft PowerPoint Desktop playback remains a separate, manual acceptance gate.
+
+
+## Reproducible custom-mask Morph example
+
+The repository includes a self-contained example generator:
+
+~~~bash
+python examples/pptx/custom_picture_mask_morph_demo.py /tmp/custom-mask-morph.pptx --duration-ms 1000
+~~~
+
+It generates its own synthetic landscape image, embeds it as one native picture per slide, applies ten cubic Bezier segments as the picture's custom DrawingML geometry, and assigns the same unique `!!hero-photo-mask` name to each corresponding picture. It then applies native `byObject` Morph to destination slides 2–5 and runs `inspect_deck()` before returning.
+
+The companion regression test builds a temporary deck and checks ZIP CRC, active slide count, Morph placement, picture identity, custom geometry and stable ten-segment Bezier topology across all keyframes. This is a structural authoring fixture; PowerPoint Desktop playback remains a separate manual acceptance gate.
