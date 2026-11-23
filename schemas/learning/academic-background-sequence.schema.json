@@ -5,49 +5,174 @@
   "description": "Evidence-bounded annotation of an instructional example for research-background argumentation. Does not encode a mandatory paragraph count.",
   "type": "object",
   "required": [
-    "$schema", "dataset_id", "dataset_version", "dataset_status", "title", "language",
-    "learning_domain", "record_type", "source", "annotation_method", "conceptual_model",
-    "stages", "cross_stage_quality_rules", "failure_taxonomy", "flexibility_and_governance",
-    "engine_integration_guidance", "non_observed_or_unknown"
+    "$schema",
+    "schema_ref",
+    "dataset_id",
+    "dataset_version",
+    "dataset_status",
+    "title",
+    "language",
+    "learning_domain",
+    "record_type",
+    "source",
+    "annotation_method",
+    "conceptual_model",
+    "stages",
+    "cross_stage_quality_rules",
+    "failure_taxonomy",
+    "flexibility_and_governance",
+    "engine_integration_guidance",
+    "non_observed_or_unknown"
   ],
   "properties": {
-    "$schema": {"type": "string"},
-    "dataset_id": {"const": "PSK-LEARN-VID-001"},
-    "dataset_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
-    "dataset_status": {"enum": ["CURATED_DRAFT", "REVIEWED", "DEPRECATED"]},
-    "title": {"type": "string", "minLength": 12},
-    "language": {"const": "id-ID"},
-    "learning_domain": {"type": "string"},
-    "record_type": {"const": "instructional_video_annotation"},
-    "purpose": {"type": "string", "minLength": 20},
+    "$schema": {
+      "type": "string"
+    },
+    "dataset_id": {
+      "const": "PSK-LEARN-VID-001"
+    },
+    "dataset_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "dataset_status": {
+      "enum": [
+        "CURATED_DRAFT",
+        "REVIEWED",
+        "DEPRECATED"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "minLength": 12
+    },
+    "language": {
+      "const": "id-ID"
+    },
+    "learning_domain": {
+      "type": "string"
+    },
+    "record_type": {
+      "const": "instructional_video_annotation"
+    },
+    "purpose": {
+      "type": "string",
+      "minLength": 20
+    },
     "source": {
       "type": "object",
-      "required": ["source_id", "file_name", "source_origin", "media_type", "duration_seconds", "file_size_bytes", "sha256", "video_stream", "audio_stream", "public_distribution"],
+      "required": [
+        "source_id",
+        "file_name",
+        "source_origin",
+        "media_type",
+        "duration_seconds",
+        "file_size_bytes",
+        "sha256",
+        "video_stream",
+        "audio_stream",
+        "public_distribution"
+      ],
       "properties": {
-        "source_id": {"type": "string"},
-        "file_name": {"type": "string"},
-        "source_origin": {"type": "string"},
-        "media_type": {"const": "video/mp4"},
-        "duration_seconds": {"type": "number", "exclusiveMinimum": 0},
-        "file_size_bytes": {"type": "integer", "minimum": 1},
-        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
-        "video_stream": {"type": "object"},
-        "audio_stream": {"type": "object"},
-        "public_distribution": {"type": "object", "required": ["raw_media_in_repository", "source_rights_verified", "reason"], "properties": {"raw_media_in_repository": {"const": false}, "source_rights_verified": {"const": false}, "reason": {"type": "string"}}, "additionalProperties": true}
+        "source_id": {
+          "type": "string"
+        },
+        "file_name": {
+          "type": "string"
+        },
+        "source_origin": {
+          "type": "string"
+        },
+        "media_type": {
+          "const": "video/mp4"
+        },
+        "duration_seconds": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "file_size_bytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "video_stream": {
+          "type": "object"
+        },
+        "audio_stream": {
+          "type": "object"
+        },
+        "public_distribution": {
+          "type": "object",
+          "required": [
+            "raw_media_in_repository",
+            "source_rights_verified",
+            "reason"
+          ],
+          "properties": {
+            "raw_media_in_repository": {
+              "const": false
+            },
+            "source_rights_verified": {
+              "const": false
+            },
+            "reason": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        }
       },
       "additionalProperties": true
     },
-    "annotation_method": {"type": "object", "required": ["method", "visual_sampling_rate_fps", "caption_status", "audio_status", "timecode_precision", "overall_confidence", "known_limits"]},
-    "observed_context": {"type": "object"},
+    "annotation_method": {
+      "type": "object",
+      "required": [
+        "method",
+        "visual_sampling_rate_fps",
+        "caption_status",
+        "audio_status",
+        "timecode_precision",
+        "overall_confidence",
+        "known_limits"
+      ]
+    },
+    "observed_context": {
+      "type": "object"
+    },
     "conceptual_model": {
       "type": "object",
-      "required": ["model_name", "model_type", "sequence", "logic", "paragraph_count_policy"],
+      "required": [
+        "model_name",
+        "model_type",
+        "sequence",
+        "logic",
+        "paragraph_count_policy"
+      ],
       "properties": {
-        "model_name": {"const": "seven_stage_background_argument"},
-        "model_type": {"const": "functional_argument_sequence"},
-        "sequence": {"type": "array", "minItems": 7, "maxItems": 7, "items": {"type": "string"}},
-        "logic": {"type": "string"},
-        "paragraph_count_policy": {"type": "string", "minLength": 20}
+        "model_name": {
+          "const": "seven_stage_background_argument"
+        },
+        "model_type": {
+          "const": "functional_argument_sequence"
+        },
+        "sequence": {
+          "type": "array",
+          "minItems": 7,
+          "maxItems": 7,
+          "items": {
+            "type": "string"
+          }
+        },
+        "logic": {
+          "type": "string"
+        },
+        "paragraph_count_policy": {
+          "type": "string",
+          "minLength": 20
+        }
       }
     },
     "stages": {
@@ -56,28 +181,199 @@
       "maxItems": 7,
       "items": {
         "type": "object",
-        "required": ["stage_id", "ordinal", "video_heading", "function", "time_window_seconds", "caption_evidence", "source_derived_interpretation", "recommended_writing_output", "evidence_requirements", "quality_gate", "failure_modes"],
+        "required": [
+          "stage_id",
+          "ordinal",
+          "video_heading",
+          "function",
+          "time_window_seconds",
+          "caption_evidence",
+          "source_derived_interpretation",
+          "recommended_writing_output",
+          "evidence_requirements",
+          "quality_gate",
+          "failure_modes"
+        ],
         "properties": {
-          "stage_id": {"type": "string"},
-          "ordinal": {"type": "integer", "minimum": 1, "maximum": 7},
-          "video_heading": {"type": "string"},
-          "function": {"type": "string"},
-          "time_window_seconds": {"type": "object", "required": ["start", "end"], "properties": {"start": {"type": "number", "minimum": 0}, "end": {"type": "number", "minimum": 0}}, "additionalProperties": false},
-          "caption_evidence": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["time_seconds", "fragment", "status"], "properties": {"time_seconds": {"type": "number", "minimum": 0}, "fragment": {"type": "string"}, "status": {"const": "burned_in_caption_fragment"}}, "additionalProperties": false}},
-          "source_derived_interpretation": {"type": "string"},
-          "recommended_writing_output": {"type": "string"},
-          "evidence_requirements": {"type": "array", "minItems": 1, "items": {"type": "string"}},
-          "quality_gate": {"type": "string"},
-          "failure_modes": {"type": "array", "minItems": 1, "items": {"type": "string"}}
+          "stage_id": {
+            "type": "string"
+          },
+          "ordinal": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 7
+          },
+          "video_heading": {
+            "type": "string"
+          },
+          "function": {
+            "type": "string"
+          },
+          "time_window_seconds": {
+            "type": "object",
+            "required": [
+              "start",
+              "end"
+            ],
+            "properties": {
+              "start": {
+                "type": "number",
+                "minimum": 0
+              },
+              "end": {
+                "type": "number",
+                "minimum": 0
+              }
+            },
+            "additionalProperties": false
+          },
+          "caption_evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "time_seconds",
+                "fragment",
+                "status"
+              ],
+              "properties": {
+                "time_seconds": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "fragment": {
+                  "type": "string"
+                },
+                "status": {
+                  "const": "burned_in_caption_fragment"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "source_derived_interpretation": {
+            "type": "string"
+          },
+          "recommended_writing_output": {
+            "type": "string"
+          },
+          "evidence_requirements": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "quality_gate": {
+            "type": "string"
+          },
+          "failure_modes": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          }
         },
         "additionalProperties": true
       }
     },
-    "cross_stage_quality_rules": {"type": "array", "minItems": 1, "items": {"type": "string"}},
-    "failure_taxonomy": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["failure_id", "stage", "failure", "symptom", "correction"], "properties": {"failure_id": {"type": "string"}, "stage": {"type": "string"}, "failure": {"type": "string"}, "symptom": {"type": "string"}, "correction": {"type": "string"}}}},
-    "flexibility_and_governance": {"type": "object", "required": ["not_a_mandatory_template", "adaptation_rule", "priority_order", "no_phase_effect"], "properties": {"not_a_mandatory_template": {"const": true}, "adaptation_rule": {"type": "string"}, "priority_order": {"type": "array", "minItems": 4}, "no_phase_effect": {"type": "string"}}},
-    "engine_integration_guidance": {"type": "object", "required": ["intended_use", "prohibited_use", "recommended_validation_sequence"], "properties": {"intended_use": {"type": "array", "minItems": 1}, "prohibited_use": {"type": "array", "minItems": 1}, "recommended_validation_sequence": {"type": "array", "minItems": 1}}},
-    "non_observed_or_unknown": {"type": "array", "minItems": 1, "items": {"type": "string"}}
+    "cross_stage_quality_rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "failure_taxonomy": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "failure_id",
+          "stage",
+          "failure",
+          "symptom",
+          "correction"
+        ],
+        "properties": {
+          "failure_id": {
+            "type": "string"
+          },
+          "stage": {
+            "type": "string"
+          },
+          "failure": {
+            "type": "string"
+          },
+          "symptom": {
+            "type": "string"
+          },
+          "correction": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "flexibility_and_governance": {
+      "type": "object",
+      "required": [
+        "not_a_mandatory_template",
+        "adaptation_rule",
+        "priority_order",
+        "no_phase_effect"
+      ],
+      "properties": {
+        "not_a_mandatory_template": {
+          "const": true
+        },
+        "adaptation_rule": {
+          "type": "string"
+        },
+        "priority_order": {
+          "type": "array",
+          "minItems": 4
+        },
+        "no_phase_effect": {
+          "type": "string"
+        }
+      }
+    },
+    "engine_integration_guidance": {
+      "type": "object",
+      "required": [
+        "intended_use",
+        "prohibited_use",
+        "recommended_validation_sequence"
+      ],
+      "properties": {
+        "intended_use": {
+          "type": "array",
+          "minItems": 1
+        },
+        "prohibited_use": {
+          "type": "array",
+          "minItems": 1
+        },
+        "recommended_validation_sequence": {
+          "type": "array",
+          "minItems": 1
+        }
+      }
+    },
+    "non_observed_or_unknown": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "schema_ref": {
+      "type": "string",
+      "const": "../../schemas/learning/academic-background-sequence.schema.json"
+    }
   },
   "additionalProperties": true
 }

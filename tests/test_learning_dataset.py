@@ -18,7 +18,8 @@ class AcademicBackgroundLearningDatasetTests(unittest.TestCase):
 
     def test_record_and_schema_are_valid_json(self) -> None:
         self.assertEqual(self.schema["$schema"], "https://json-schema.org/draft/2020-12/schema")
-        self.assertEqual(self.record["$schema"], "../../schemas/learning/academic-background-sequence.schema.json")
+        self.assertEqual(self.record["$schema"], "https://json-schema.org/draft/2020-12/schema")
+        self.assertEqual(self.record["schema_ref"], "../../schemas/learning/academic-background-sequence.schema.json")
 
     def test_exactly_seven_ordered_argument_functions(self) -> None:
         stages = self.record["stages"]

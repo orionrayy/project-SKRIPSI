@@ -17,15 +17,15 @@ The clip is treated as a roleplay-based teaching example. Its opening hook about
 
 The principal learning signal is a sequence of functions rather than a fixed page layout:
 
-| Sequence | Heading displayed | Function in the argument | What the writer must establish |
-|---:|---|---|---|
-| 1 | Fenomena Umum | Establish the broad research phenomenon | The topic, its context and a credible reason to focus on it |
-| 2 | Data Pendukung | Support the context with evidence | Traceable data, source, period, denominator and interpretation |
-| 3 | Fenomena Masalah | Narrow to a specific researchable problem | The observable problem in the actual population or setting |
-| 4 | Penelitian Terdahulu | Map the existing evidence | What earlier studies examined, how they differ and what they found |
-| 5 | Research Gap | Identify an unresolved dimension | What remains insufficiently addressed within the literature actually reviewed |
-| 6 | Urgensi Penelitian | Justify why the problem and gap matter | Proportionate theoretical, practical, institutional or methodological significance |
-| 7 | Tujuan Penelitian | State the direction of the proposed study | A feasible objective aligned with the gap, question, design and analysis |
+| Sequence | Stage focus | What the writer must establish |
+|---:|---|---|
+| 1 | Broad phenomenon | The topic, its context and a credible reason to focus on it |
+| 2 | Contextual evidence | Traceable data, source, period, denominator and interpretation |
+| 3 | Specific problem | The observable problem in the actual population or setting |
+| 4 | Prior-study mapping | What earlier studies examined, how they differ and what they found |
+| 5 | Unresolved dimension | What remains insufficiently addressed within the literature actually reviewed |
+| 6 | Research significance | Proportionate theoretical, practical, institutional or methodological significance |
+| 7 | Study objective | A feasible objective aligned with the gap, question, design and analysis |
 
 Approximate time windows and caption evidence are stored at stage level in the JSON record. The argument moves from broad context to evidence, a bounded problem, an assessment of prior work, a defensible gap, significance and then objectives.
 
