@@ -1,3 +1,13 @@
+## Unreleased — Video-derived background-argumentation learning dataset (2026-11-23)
+
+- Added generic learning record `PSK-LEARN-VID-001` with seven argument functions, approximate time windows, caption evidence anchors, source provenance, evidence requirements and stage-level quality gates.
+- Added a Draft 2020-12 schema, a detailed learning note and eight structural/provenance regression tests.
+- Added 20 stage-linked QA failure patterns covering unsupported context, weak evidence provenance, overgeneralized prior research, unbounded research gaps, disproportionate urgency and misaligned objectives.
+- Explicitly models the seven units as adaptable argumentative functions, not a mandatory seven-paragraph format. The video itself qualifies the paragraph arrangement as flexible.
+- The raw uploaded video is excluded from the public repository because redistribution rights are unverified and the media contains a visible person and platform watermark. The burned-in caption fragments are not represented as an independently verified transcript.
+- Validation: 8/8 dataset-specific unit tests PASS; JSON and Draft 2020-12 schema validation PASS. This is dataset-level validation, not institutional or research-phase acceptance.
+- No research phase, acceptance, approval or authorization state was changed.
+
 # Changelog
 
 ## 0.8.0 — Turnitin report comparison and empirical evidence QA (2026-11-10)

@@ -1,8 +1,8 @@
 # ORCHESTRATION_MEMORY — Public Canonical Project Memory
 
-**Memory version:** 1.4.0  
+**Memory version:** 1.5.0  
 **Project:** `orionrayy/project-SKRIPSI`  
-**Updated:** 2026-11-10 (Asia/Jakarta)  
+**Updated:** 2026-11-23 (Asia/Jakarta)  
 **Platform baseline:** 0.8.0  
 **Repository visibility:** public (pre-existing setting; no setting change made).
 
@@ -75,3 +75,24 @@ On every invocation:
 4. Continue the earliest incomplete authorized work item. Preserve P0 and P1 accepted scopes; P2 remains `VALIDATION_PASSED_APPROVAL_PENDING` with APR-P2-001 blank; P3–P9 remain `NOT_STARTED / NOT_AUTHORIZED`.
 5. The project owner's standing instruction to continue implementation without repeated operational approvals does not allow the system to invent a P2 acceptance decision, waive research ethics or source restrictions, or self-authorize P3–P9. Keep execution authorization, human acceptance, and evidence validation separate.
 6. Update the canonical ledger and this memory only from verified repository and artifact evidence. Do not claim a workflow, package installation, external review, or academic acceptance unless its actual result is observed.
+
+
+## 8. Video-derived academic-background learning dataset checkpoint — 2026-11-23
+
+A generic, privacy-conscious learning annotation was prepared from the user-supplied video `VID_20261122_221957_858_compressed.mp4`. The media is approximately 140.443 seconds, 480×852 H.264 at 30 fps, with AAC audio. Source SHA-256: `5018902ea4d26b0fe4105f38192de0bf11d3b58cde4484f4a26eae19b9302c5e`.
+
+- Dataset ID: `PSK-LEARN-VID-001`, version `1.0.0`, status `CURATED_DRAFT`.
+- Branch for review: `feature/academic-background-video-learning-dataset`, based on main commit `2ddab892c9c4c927930e8424280a32f49ea0600e`.
+- Record: `data/learning/academic-background-seven-stage-video-001.json`.
+- Schema: `schemas/learning/academic-background-sequence.schema.json`.
+- Learning note: `docs/quality/ACADEMIC_BACKGROUND_ARGUMENTATION_LEARNING_DATASET.md`.
+- Regression coverage: `tests/test_learning_dataset.py` (8 dataset-specific tests).
+- Contents: seven ordered argumentative functions (broad phenomenon, supporting data, specific problem, prior-research mapping, bounded research gap, urgency/significance, and objective), approximate time windows, selected burned-in-caption anchors, evidence requirements, quality gates and 20 stage-linked failure patterns.
+- Annotation scope: visual sampling at approximately one frame per second over the full clip. Captions are treated as fragments, not a verified transcript; no independent speech-to-text transcription or speaker diarization was produced. Overall confidence is MODERATE.
+- The video is a dramatized social-media roleplay, not a university guideline or peer-reviewed source. Its opening hook and comedic approval/joki references are not academic facts and must not be used as research evidence.
+- Public distribution boundary: raw MP4 intentionally excluded. Rights were not verified; the source contains a visible person and a platform watermark. Retain the source hash only for provenance. Do not add identifying screenshots or quote extended dialogue.
+- The seven positions are modeled as **argument functions**, not a mandatory one-function-per-paragraph template. Institution/programme requirements and approved supervisor guidance take precedence.
+- Platform use: outline planning, claim/data provenance gates, prior-study synthesis checks, bounded-gap validation, urgency proportionality, objective alignment and author teach-back. The video itself must not be cited to support substantive thesis claims.
+- Validation observed before publication: JSON syntax PASS; Draft 2020-12 schema meta-validation and dataset instance validation PASS; 8/8 structural/provenance tests PASS.
+- Governance: this generic learning record does not change P0/P1/P2 status, does not complete the pending P2 human-acceptance record, and does not authorize P3–P9. The canonical phase ledger is intentionally unchanged.
+- The changes are staged on the feature branch for review. No merge to main is implied by this checkpoint.

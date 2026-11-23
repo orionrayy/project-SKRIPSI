@@ -39,6 +39,10 @@ A public aggregate-only research status is in `docs/research/P0_P1_P2_PUBLIC_STA
 
 See `docs/operations/QUICKSTART.md`, `docs/platform/REUSABLE_PLATFORM_ARCHITECTURE.md`, and `docs/quality/ACADEMIC_QA_ACCEPTANCE_MATRIX.md`.
 
+## Learning datasets
+
+Generic, source-bounded learning annotations are stored separately from private thesis evidence. The first video-derived record is `PSK-LEARN-VID-001`, a seven-function model for research-background argumentation with a Draft 2020-12 schema and stage-linked QA failure taxonomy. It is a planning aid, not an institutional template. Raw source media is excluded; see `docs/quality/ACADEMIC_BACKGROUND_ARGUMENTATION_LEARNING_DATASET.md`.
+
 ## Complete expanded source tree
 
 The complete sanitized platform implementation is expanded directly in this repository: application source (`src/project_skripsi/`), JSON schemas (`schemas/`), regression tests (`tests/`), reusable templates (`templates/`), operations and governance documentation (`docs/`, `config/`, `prompts/`), automation (`scripts/`, `.github/workflows/`), and the public integrity manifest (`MANIFEST.sha256`). No private thesis or record-level research package is part of this tree.
