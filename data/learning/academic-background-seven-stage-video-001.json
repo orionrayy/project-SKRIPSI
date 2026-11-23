@@ -1,0 +1,308 @@
+{
+  "$schema": "../../schemas/learning/academic-background-sequence.schema.json",
+  "dataset_id": "PSK-LEARN-VID-001",
+  "dataset_version": "1.0.0",
+  "dataset_status": "CURATED_DRAFT",
+  "title": "Seven-stage argumentative progression for a research-background section",
+  "language": "id-ID",
+  "learning_domain": "academic_writing.research_background",
+  "record_type": "instructional_video_annotation",
+  "purpose": "Capture a reusable, evidence-bounded writing progression shown in a short Indonesian-language thesis-supervision roleplay. The record is a learning example, not a universal formatting rule or a source of empirical research claims.",
+  "source": {
+    "source_id": "PSK-SRC-VID-001",
+    "file_name": "VID_20261122_221957_858_compressed.mp4",
+    "source_origin": "user_supplied_conversation_upload",
+    "media_type": "video/mp4",
+    "duration_seconds": 140.443,
+    "file_size_bytes": 6444094,
+    "sha256": "5018902ea4d26b0fe4105f38192de0bf11d3b58cde4484f4a26eae19b9302c5e",
+    "video_stream": {
+      "codec": "h264",
+      "width": 480,
+      "height": 852,
+      "frame_rate_fps": 30
+    },
+    "audio_stream": {
+      "codec": "aac",
+      "sample_rate_hz": 44100,
+      "channels": 2,
+      "independent_transcription": false
+    },
+    "public_distribution": {
+      "raw_media_in_repository": false,
+      "source_rights_verified": false,
+      "reason": "The upload contains a visible person and platform watermark. A user upload does not establish redistribution rights. Only a minimal text annotation and technical provenance are retained in the public learning dataset."
+    }
+  },
+  "annotation_method": {
+    "method": "manual_visual_review_of_sampled_frames_and_burned_in_captions",
+    "visual_sampling_rate_fps": 1,
+    "review_coverage": "The full 140-second duration was sampled at approximately one frame per second; the complete sequence of displayed section labels and the visible subtitle progression was reviewed.",
+    "caption_status": "Selected fragments were read from captions burned into the video. They are not an independently verified verbatim transcript.",
+    "audio_status": "An AAC audio stream is present. No independent speech-to-text transcript or diarization was produced for this dataset record.",
+    "timecode_precision": "Approximate, rounded to the nearest second; segment boundaries are annotation windows rather than exact edit points.",
+    "overall_confidence": "MODERATE",
+    "known_limits": [
+      "The clip is a dramatized social-video roleplay, not an institutional guideline or peer-reviewed methodology source.",
+      "Some dialogue is represented only by edited on-screen captions; captions can simplify, omit or normalize speech.",
+      "The printed manuscript pages in the video are not legible enough to extract or validate their underlying text.",
+      "No discipline, research topic, citation style, university rule or supervisor-specific requirement is established by the clip."
+    ]
+  },
+  "observed_context": {
+    "format": "short roleplay depicting a student and a supervisor-character discussing the structure of a research background",
+    "opening_hook": "The title overlay claims that a student can proceed to a defense after one supervision session. This is treated as a dramatic hook, not as a factual or procedural claim.",
+    "pedagogical_signal": "The student-character is asked to explain the paragraph sequence before the supervisor-character walks through it. This can inform a teach-back checkpoint: a student should be able to explain the function and evidence of each section, not merely submit prose.",
+    "visible_stage_labels": [
+      "FENOMENA UMUM",
+      "DATA PENDUKUNG",
+      "FENOMENA MASALAH",
+      "PENELITIAN TERDAHULU",
+      "RESEARCH GAP",
+      "URGENSI PENELITIAN",
+      "TUJUAN PENELITIAN"
+    ]
+  },
+  "conceptual_model": {
+    "model_name": "seven_stage_background_argument",
+    "model_type": "functional_argument_sequence",
+    "sequence": [
+      "broad_research_phenomenon",
+      "supporting_contextual_data",
+      "specific_problem_phenomenon",
+      "prior_research_mapping",
+      "bounded_research_gap",
+      "research_urgency_or_significance",
+      "research_objective"
+    ],
+    "logic": "Move from the broad subject to credible contextual evidence, narrow to a researchable problem, establish what prior studies have covered, identify a defensible unresolved issue, explain why addressing it matters, and state what the proposed study will do.",
+    "paragraph_count_policy": "The seven paragraph positions are the example used in this clip. The clip later states that the structure is not limited to one paragraph per function and should follow the needs of the writing. Treat the seven stages as functions that may be expanded, merged or redistributed, subject to the research design and the institution's approved guidance."
+  },
+  "stages": [
+    {
+      "stage_id": "BG-01",
+      "ordinal": 1,
+      "video_heading": "FENOMENA UMUM",
+      "function": "broad_research_phenomenon",
+      "time_window_seconds": {"start": 36, "end": 44},
+      "caption_evidence": [
+        {"time_seconds": 38, "fragment": "gambaran topik besar", "status": "burned_in_caption_fragment"},
+        {"time_seconds": 40, "fragment": "penelitian kita", "status": "burned_in_caption_fragment"}
+      ],
+      "source_derived_interpretation": "The opening argumentative move establishes the broad topic or phenomenon and begins orienting the reader toward the issue the study will address.",
+      "recommended_writing_output": "A bounded opening that names the topic, setting and relevance of the phenomenon, then provides a clear bridge toward the more specific issue.",
+      "evidence_requirements": [
+        "Define the topic in terms appropriate to the discipline.",
+        "Support non-obvious factual or trend claims with authoritative sources.",
+        "Avoid opening with an unsupported universal statement or an inflated claim of importance."
+      ],
+      "quality_gate": "A reader can identify the research area, context and direction of narrowing without being asked to accept an unsupported claim.",
+      "failure_modes": ["BGF-01", "BGF-02", "BGF-03"]
+    },
+    {
+      "stage_id": "BG-02",
+      "ordinal": 2,
+      "video_heading": "DATA PENDUKUNG",
+      "function": "supporting_contextual_data",
+      "time_window_seconds": {"start": 45, "end": 53},
+      "caption_evidence": [
+        {"time_seconds": 46, "fragment": "di paragraf ke-2", "status": "burned_in_caption_fragment"},
+        {"time_seconds": 48, "fragment": "kita akan memberikan", "status": "burned_in_caption_fragment"},
+        {"time_seconds": 50, "fragment": "data", "status": "burned_in_caption_fragment"}
+      ],
+      "source_derived_interpretation": "The second position introduces supporting data after the broad phenomenon has been established.",
+      "recommended_writing_output": "A short evidence-led paragraph using relevant statistics, official reports, documented observations or other verifiable material to establish scale, distribution, trend or context.",
+      "evidence_requirements": [
+        "Identify the data producer, publication date, population or denominator, geography and measurement period where applicable.",
+        "Explain what the data demonstrate and what they do not demonstrate.",
+        "Check that the data are current enough and methodologically relevant to the research question."
+      ],
+      "quality_gate": "Every numeric or factual assertion is traceable to a source and is interpreted within its actual scope.",
+      "failure_modes": ["BGF-04", "BGF-05", "BGF-06"]
+    },
+    {
+      "stage_id": "BG-03",
+      "ordinal": 3,
+      "video_heading": "FENOMENA MASALAH",
+      "function": "specific_problem_phenomenon",
+      "time_window_seconds": {"start": 54, "end": 68},
+      "caption_evidence": [
+        {"time_seconds": 56, "fragment": "pembaca harus diarahkan", "status": "burned_in_caption_fragment"},
+        {"time_seconds": 58, "fragment": "dari masalah", "status": "burned_in_caption_fragment"},
+        {"time_seconds": 61, "fragment": "kepada data-data", "status": "burned_in_caption_fragment"},
+        {"time_seconds": 64, "fragment": "masalah ini memang layak untuk diteliti", "status": "burned_in_caption_fragment"}
+      ],
+      "source_derived_interpretation": "The explanation describes a narrowing move that directs the reader from the general problem toward evidence explaining why the specific problem is researchable.",
+      "recommended_writing_output": "A focused account of the problem in the population, institution, setting, process or phenomenon actually covered by the study, with evidence that the issue exists in that bounded context.",
+      "evidence_requirements": [
+        "Separate the observed condition from the author's interpretation of its cause.",
+        "Use setting-specific evidence where the study claims a local or institutional problem.",
+        "Do not imply causality from descriptive indicators or anecdotes."
+      ],
+      "quality_gate": "The specific problem is observable, bounded and supported; the reader can see why it is suitable for investigation.",
+      "failure_modes": ["BGF-07", "BGF-08", "BGF-09"]
+    },
+    {
+      "stage_id": "BG-04",
+      "ordinal": 4,
+      "video_heading": "PENELITIAN TERDAHULU",
+      "function": "prior_research_mapping",
+      "time_window_seconds": {"start": 69, "end": 78},
+      "caption_evidence": [
+        {"time_seconds": 71, "fragment": "sisi mana saja", "status": "burned_in_caption_fragment"},
+        {"time_seconds": 73, "fragment": "sudah diteliti oleh", "status": "burned_in_caption_fragment"},
+        {"time_seconds": 74, "fragment": "peneliti sebelumnya", "status": "burned_in_caption_fragment"}
+      ],
+      "source_derived_interpretation": "The fourth position maps which dimensions of the topic have already been examined by earlier researchers.",
+      "recommended_writing_output": "A synthesis of relevant studies organized by construct, population, setting, method, theoretical lens or finding, emphasizing comparison rather than a disconnected list of article summaries.",
+      "evidence_requirements": [
+        "Use bibliographically verified sources and accurately represent the material actually inspected.",
+        "Compare similarities, differences, limits and the relevance of each study to the current problem.",
+        "Distinguish full-text review from abstract-only or metadata-only access."
+      ],
+      "quality_gate": "The reader can distinguish what is already established, what remains uncertain and how the current study relates to the reviewed work.",
+      "failure_modes": ["BGF-10", "BGF-11", "BGF-12"]
+    },
+    {
+      "stage_id": "BG-05",
+      "ordinal": 5,
+      "video_heading": "RESEARCH GAP",
+      "function": "bounded_research_gap",
+      "time_window_seconds": {"start": 79, "end": 88},
+      "caption_evidence": [
+        {"time_seconds": 81, "fragment": "kita menjelaskan", "status": "burned_in_caption_fragment"},
+        {"time_seconds": 83, "fragment": "belum dibahas", "status": "burned_in_caption_fragment"},
+        {"time_seconds": 86, "fragment": "akan menjadi bahan", "status": "burned_in_caption_fragment"},
+        {"time_seconds": 88, "fragment": "penelitian kita", "status": "burned_in_caption_fragment"}
+      ],
+      "source_derived_interpretation": "The fifth position identifies what the reviewed prior research has not adequately addressed and connects that unresolved aspect to the proposed study.",
+      "recommended_writing_output": "A specific and qualified gap statement derived from comparison of the reviewed literature, naming the dimension and context in which evidence or explanation remains limited.",
+      "evidence_requirements": [
+        "Derive the gap from an explicit and sufficiently documented search and review scope.",
+        "Classify the gap where useful: contextual, population, methodological, theoretical, measurement, temporal or contradictory evidence.",
+        "Avoid absolute statements such as 'no research exists' unless a defensible search supports that scope."
+      ],
+      "quality_gate": "The gap is traceable to the studies reviewed, bounded to the corpus and search scope, and directly connected to the planned research question.",
+      "failure_modes": ["BGF-13", "BGF-14", "BGF-15"]
+    },
+    {
+      "stage_id": "BG-06",
+      "ordinal": 6,
+      "video_heading": "URGENSI PENELITIAN",
+      "function": "research_urgency_or_significance",
+      "time_window_seconds": {"start": 89, "end": 99},
+      "caption_evidence": [
+        {"time_seconds": 91, "fragment": "gap-nya tadi", "status": "burned_in_caption_fragment"},
+        {"time_seconds": 93, "fragment": "kenapa itu penting", "status": "burned_in_caption_fragment"},
+        {"time_seconds": 95, "fragment": "untuk diteliti", "status": "burned_in_caption_fragment"}
+      ],
+      "source_derived_interpretation": "The sixth position explains why the identified gap or problem matters enough to justify investigation.",
+      "recommended_writing_output": "A reasoned explanation of the theoretical, practical, policy, institutional or methodological value of addressing the gap, proportionate to available evidence.",
+      "evidence_requirements": [
+        "Connect the claimed consequence to the problem and gap already established.",
+        "Support stakeholder impact, prevalence, risk or policy claims with appropriate evidence.",
+        "Do not inflate significance or promise benefits the study cannot deliver."
+      ],
+      "quality_gate": "The study's importance follows logically from the documented problem and gap rather than from generic claims that a topic is important.",
+      "failure_modes": ["BGF-16", "BGF-17"]
+    },
+    {
+      "stage_id": "BG-07",
+      "ordinal": 7,
+      "video_heading": "TUJUAN PENELITIAN",
+      "function": "research_objective",
+      "time_window_seconds": {"start": 100, "end": 110},
+      "caption_evidence": [
+        {"time_seconds": 101, "fragment": "akan menjelaskan", "status": "burned_in_caption_fragment"},
+        {"time_seconds": 103, "fragment": "tuju untuk penelitian", "status": "burned_in_caption_fragment"}
+      ],
+      "source_derived_interpretation": "The final position states what the proposed study intends to pursue in response to the preceding argument.",
+      "recommended_writing_output": "A concise objective aligned with the specific problem, research gap, research question, design, population and feasible scope.",
+      "evidence_requirements": [
+        "Use an objective verb that is consistent with the design and the data that can actually be collected.",
+        "Ensure each objective maps to a research question and a planned analysis or interpretive procedure.",
+        "Do not introduce a new construct, population or promised outcome that was not justified earlier."
+      ],
+      "quality_gate": "The stated objective is answerable, bounded and traceable to the gap and problem established in the previous stages.",
+      "failure_modes": ["BGF-18", "BGF-19", "BGF-20"]
+    }
+  ],
+  "cross_stage_quality_rules": [
+    "Maintain a visible narrowing progression: broad context to specific problem to research contribution.",
+    "Use data to support claims, not as decorative statistics; state source, date, denominator and context where relevant.",
+    "Make the transition between stages explicit enough that paragraphs do not read as unrelated blocks.",
+    "Treat prior studies as a comparative evidence base, not a bibliography dump.",
+    "Bound research-gap claims to the search strategy, sources accessed and review depth actually completed.",
+    "Make urgency depend on the documented problem and gap; avoid generic significance language.",
+    "Align objectives with the gap, research questions, methods and feasible outputs.",
+    "Require the student or author to explain each section's function and evidence in their own words."
+  ],
+  "failure_taxonomy": [
+    {"failure_id":"BGF-01","stage":"BG-01","failure":"Opening is only a universal claim","symptom":"The first sentence claims that a topic affects everyone or is universally important without a bounded context.","correction":"Define the context and attach an appropriate source to the factual premise."},
+    {"failure_id":"BGF-02","stage":"BG-01","failure":"Topic never narrows","symptom":"Several paragraphs remain at broad national or global context and never identify the study's actual phenomenon.","correction":"Introduce a clear bridge from the broad topic to the specific setting, construct or population."},
+    {"failure_id":"BGF-03","stage":"BG-01","failure":"Background starts with generic rhetoric","symptom":"The opening could be reused unchanged for many unrelated thesis topics.","correction":"Replace generic statements with a discipline-specific phenomenon and a verified context."},
+    {"failure_id":"BGF-04","stage":"BG-02","failure":"Statistics without provenance","symptom":"Numbers appear without a source, date, denominator or defined measurement period.","correction":"Attach traceable source metadata and report the relevant denominator and time window."},
+    {"failure_id":"BGF-05","stage":"BG-02","failure":"Data do not support the stated claim","symptom":"A national indicator is used to assert a local institutional condition, or a proxy is treated as a direct measure.","correction":"Match the inference to the geography, population and construct measured by the source."},
+    {"failure_id":"BGF-06","stage":"BG-02","failure":"Statistics are listed but not interpreted","symptom":"Figures are inserted without explaining their relevance to the research problem.","correction":"Explain the trend, magnitude or distribution and connect it to the next narrowing step."},
+    {"failure_id":"BGF-07","stage":"BG-03","failure":"Problem statement is not observable","symptom":"The text uses labels such as low, weak, ineffective or problematic without defining observable indicators.","correction":"Specify what is observed, how it is recognized and in which context."},
+    {"failure_id":"BGF-08","stage":"BG-03","failure":"Cause is asserted from descriptive evidence","symptom":"A descriptive statistic or anecdote is used to claim why a problem happened.","correction":"Separate observation from explanation and require a design or source that can support causal inference."},
+    {"failure_id":"BGF-09","stage":"BG-03","failure":"Local relevance is assumed","symptom":"A general issue is presented as an institutional or population-specific problem without local evidence.","correction":"Collect or cite evidence that directly covers the claimed setting and population."},
+    {"failure_id":"BGF-10","stage":"BG-04","failure":"Prior studies are a citation list","symptom":"Each source is summarized separately with no comparison or synthesis.","correction":"Organize evidence by shared constructs, methods, settings, findings or limitations."},
+    {"failure_id":"BGF-11","stage":"BG-04","failure":"Study findings are overgeneralized","symptom":"An abstract-only or inaccessible source is described as though the full study and all its methods were reviewed.","correction":"Record access depth and limit claims to the inspected content."},
+    {"failure_id":"BGF-12","stage":"BG-04","failure":"Sources are not comparable","symptom":"Studies with different populations, constructs or designs are treated as direct replications without qualification.","correction":"State the dimensions of difference and explain how they affect comparison."},
+    {"failure_id":"BGF-13","stage":"BG-05","failure":"Gap is asserted from absence in a small search","symptom":"The author claims no study exists after reviewing only a few easily found papers.","correction":"Document search coverage and qualify the gap to the sources, databases, period and terms actually reviewed."},
+    {"failure_id":"BGF-14","stage":"BG-05","failure":"Gap is not derived from prior studies","symptom":"The gap is a new assertion with no link to the comparison in the literature section.","correction":"Show exactly which dimension remains unresolved in the reviewed studies."},
+    {"failure_id":"BGF-15","stage":"BG-05","failure":"Gap is merely a different location","symptom":"A change of place or school is presented as the entire contribution without explaining why the context changes the question or evidence.","correction":"Identify the substantive contextual, population, methodological, theoretical or measurement contribution."},
+    {"failure_id":"BGF-16","stage":"BG-06","failure":"Urgency is generic","symptom":"The text says the study is important for science, society or education without specifying why.","correction":"Connect significance to a documented consequence, stakeholder or unresolved theoretical issue."},
+    {"failure_id":"BGF-17","stage":"BG-06","failure":"Impact is exaggerated","symptom":"The study promises broad policy or social change beyond the scope of its design and resources.","correction":"Scale the significance claim to the intended contribution and evidence."},
+    {"failure_id":"BGF-18","stage":"BG-07","failure":"Objective does not answer the gap","symptom":"The objective introduces variables or activities unrelated to the stated problem and research gap.","correction":"Map every objective to a research question and a specific gap dimension."},
+    {"failure_id":"BGF-19","stage":"BG-07","failure":"Objective is not feasible or measurable","symptom":"The objective uses an ambitious verb or outcome that the methods cannot establish.","correction":"Choose verbs and scope compatible with the design, measures and analysis plan."},
+    {"failure_id":"BGF-20","stage":"BG-07","failure":"Objectives promise results","symptom":"The objective presumes that the intervention will work or that a desired effect will be found.","correction":"State what will be examined or analyzed, not the result expected in advance."}
+  ],
+  "flexibility_and_governance": {
+    "not_a_mandatory_template": true,
+    "adaptation_rule": "Treat each stage as an argumentative function. Depending on disciplinary conventions, design and institutional guidance, a function may occupy more than one paragraph, share a paragraph with another function, appear under a subheading or be placed elsewhere in the introduction.",
+    "priority_order": [
+      "current institutional and programme requirements verified from an authoritative source",
+      "approved supervisor guidance for the specific project",
+      "research design and discipline-specific conventions",
+      "this dataset as a generic planning aid"
+    ],
+    "no_phase_effect": "This generic writing-learning record does not change P0-P9 research phase status, acceptance, approval or authorization."
+  },
+  "engine_integration_guidance": {
+    "intended_use": [
+      "Build a paragraph-function outline before drafting the background section.",
+      "Attach claims and data to verified sources before producing prose.",
+      "Check whether each stage narrows or advances the argument rather than repeating earlier content.",
+      "Run a prior-study synthesis and gap-evidence check before drafting urgency and objectives.",
+      "Ask the author to explain each stage as a teach-back check during review."
+    ],
+    "prohibited_use": [
+      "Do not treat seven paragraphs as a universal rule.",
+      "Do not invent statistics, references, findings, local conditions or research gaps to fill a stage.",
+      "Do not infer that the clip proves the person shown is a real supervisor or that the depicted approval timeline is genuine.",
+      "Do not generate a claim that a topic is under-researched without an auditable literature search.",
+      "Do not treat this video as a citation for the substantive academic claims in a thesis."
+    ],
+    "recommended_validation_sequence": [
+      "institutional_guideline_check",
+      "topic_and_scope_check",
+      "claim_source_link_check",
+      "data_provenance_check",
+      "problem_evidence_check",
+      "prior_study_synthesis_check",
+      "research_gap_scope_check",
+      "urgency_proportionality_check",
+      "objective_alignment_check",
+      "author_teach_back_check"
+    ]
+  },
+  "non_observed_or_unknown": [
+    "No institution-specific format or mandatory number of background paragraphs is shown.",
+    "No specific research topic or substantive research claim can be recovered from the visible manuscript pages.",
+    "No reference list, citation system, DOI, data source, sample, method or empirical result is sufficiently legible or specified for extraction.",
+    "The clip does not establish that its seven-stage order is suitable for every discipline, qualitative or quantitative design, or institutional template.",
+    "The actual dialogue has not been independently transcribed from the audio stream."
+  ]
+}
